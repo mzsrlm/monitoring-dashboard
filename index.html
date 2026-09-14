@@ -2291,7 +2291,149 @@ tr:hover td,.extra-table tr:hover td{
 <div class="header-copy">
 <div class="header-kicker">MIZORAM STATE RURAL LIVELIHOODS MISSION</div>
 <h1>Mizoram SRLM Monitoring Dashboard</h1>
+<!-- ================= GOOGLE SHEET CONNECTION STATUS ================= -->
+<div class="google-sheet-status" id="googleSheetStatus">
+    <span class="status-dot"></span>
+    <span class="status-label">Connected</span>
+</div>
 
+<style>
+    /* Google Sheet Status */
+    .google-sheet-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .google-sheet-status .status-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+
+    /* CONNECTED */
+    .google-sheet-status.connected .status-dot {
+        background: #22c55e;
+        box-shadow:
+            0 0 4px #22c55e,
+            0 0 8px rgba(34, 197, 94, 0.75);
+    }
+
+    /* RETRYING */
+    .google-sheet-status.retrying .status-dot {
+        background: #f59e0b;
+        box-shadow:
+            0 0 4px #f59e0b,
+            0 0 10px rgba(245, 158, 11, 0.8);
+        animation: googleSheetRetryPulse 1.2s infinite;
+    }
+
+    /* FAILED */
+    .google-sheet-status.failed .status-dot {
+        background: #ef4444;
+        box-shadow:
+            0 0 4px #ef4444,
+            0 0 9px rgba(239, 68, 68, 0.8);
+    }
+
+    /* Status text */
+    .google-sheet-status.connected .status-label {
+        color: #22c55e;
+    }
+
+    .google-sheet-status.retrying .status-label {
+        color: #f59e0b;
+    }
+
+    .google-sheet-status.failed .status-label {
+        color: #ef4444;
+    }
+
+    /* Retrying animation */
+    @keyframes googleSheetRetryPulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.35);
+            opacity: 0.55;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+        .google-sheet-status {
+            font-size: 12px;
+            gap: 6px;
+        }
+
+        .google-sheet-status .status-dot {
+            width: 8px;
+            height: 8px;
+        }
+    }
+</style>
+
+<script>
+    /* ================= GOOGLE SHEET STATUS CONTROL ================= */
+
+    function setGoogleSheetStatus(status) {
+
+        const statusBox = document.getElementById("googleSheetStatus");
+
+        if (!statusBox) return;
+
+        const dot = statusBox.querySelector(".status-dot");
+        const label = statusBox.querySelector(".status-label");
+
+        // Remove previous status
+        statusBox.classList.remove(
+            "connected",
+            "retrying",
+            "failed"
+        );
+
+        // Apply new status
+        switch (status.toLowerCase()) {
+
+            case "connected":
+                statusBox.classList.add("connected");
+                label.textContent = "Connected";
+                break;
+
+            case "retrying":
+                statusBox.classList.add("retrying");
+                label.textContent = "Retrying";
+                break;
+
+            case "failed":
+                statusBox.classList.add("failed");
+                label.textContent = "Failed";
+                break;
+
+            default:
+                statusBox.classList.add("failed");
+                label.textContent = "Failed";
+        }
+    }
+
+    /* Default status */
+    setGoogleSheetStatus("connected");
+</script>
+<!-- ================= END GOOGLE SHEET CONNECTION STATUS ================= -->
 </div>
 </div>
 <div aria-hidden="true" class="header-graphic">
