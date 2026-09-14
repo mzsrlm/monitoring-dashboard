@@ -407,7 +407,7 @@ tbody tr:hover td{background:#f7faff !important}
 <style id="mclf-kyc-dar-page-match">
 /* MCLF v5 — align the standalone page more closely with the KYC/DAR/SURVEY visual language. */
 .page{max-width:1600px!important;margin:0 auto!important;padding:18px 20px 34px!important}
-.header{margin-bottom:14px!important;padding:22px 26px 20px!important;min-height:112px!important;border-radius:14px!important;background:linear-gradient(135deg,#073866 0%,#104d86 100%)!important;box-shadow:0 5px 18px rgba(0,0,0,.12)!important}
+.header{margin-bottom:14px!important;padding:22px 26px 20px!important;min-height:112px!important;border-radius:14px!important;background:linear-gradient(135deg,#ffffff 0%,#f3f7fb 52%,#e7eef6 100%)!important;box-shadow:0 5px 18px rgba(0,0,0,.12)!important}
 .header:before,.header:after{display:none!important}
 .header h1{font-size:28px!important;font-weight:900!important;letter-spacing:-.35px!important;color:#fff!important}
 .header-sub{font-size:12px!important;color:rgba(255,255,255,.82)!important;margin-top:4px!important}
@@ -489,8 +489,8 @@ tbody tr:hover td{background:#f7faff!important}
   width:100%!important;
   margin:0 0 14px!important;padding:14px 24px!important;min-height:112px;
   border-radius:14px!important;border:1px solid #cbdbea!important;
-  background:linear-gradient(135deg,#073866 0%,#104d86 100%)!important;
-  color:#fff!important;box-shadow:0 5px 18px rgba(0,0,0,.12)!important;
+  background:linear-gradient(135deg,#ffffff 0%,#f3f7fb 52%,#e7eef6 100%)!important;
+  color:#073866!important;box-shadow:0 5px 18px rgba(0,0,0,.12)!important;
   overflow:hidden;position:relative;
 }
 .mclf-main-brand{display:flex;align-items:center;gap:16px;min-width:0}
@@ -500,9 +500,12 @@ tbody tr:hover td{background:#f7faff!important}
 .mclf-main-subtitle{font-size:14px;line-height:1.2;font-weight:800;letter-spacing:.08em;color:#fff;margin-top:6px}
 .mclf-main-tagline{font-size:11px;color:rgba(255,255,255,.84);margin-top:7px}
 .mclf-main-right{display:flex;align-items:center;gap:10px;flex:0 0 auto}
-.mclf-main-status{padding:8px 12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.10);border-radius:9px;text-align:right;white-space:nowrap}
-.mclf-main-status span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:rgba(255,255,255,.72)}
-.mclf-main-status strong{display:block;font-size:12px;margin-top:2px;color:#fff}
+.mclf-main-status{padding:8px 12px;border:1px solid #cbdbea;background:rgba(255,255,255,.82);border-radius:9px;text-align:right;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.mclf-main-status span{display:inline;font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:#52708f}
+.mclf-main-status strong{display:inline;font-size:12px;margin-top:0;color:#073866;white-space:nowrap}
+
+.mclf-main-header .mclf-section-theme{background:rgba(255,255,255,.9)!important;border:1px solid #cbdbea!important;color:#073866!important}
+.mclf-main-header .mclf-section-theme:hover{background:#fff!important;color:#073866!important}
 .mclf-main-header .mclf-section-theme{background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.30)!important;color:#fff!important}
 .mclf-main-header .mclf-section-theme:hover{background:rgba(255,255,255,.20)!important;color:#fff!important}
 
@@ -606,6 +609,71 @@ tbody tr:hover td{background:#f7faff!important}
 .mclf-export-copy{display:flex;flex-direction:column;justify-content:center}
 .mclf-export-updated span{display:block;font-size:11px;color:#55718c;margin-bottom:2px}
 .mclf-export-updated strong{display:block;font-size:15px;color:#174a7e}
+</style>
+
+
+<style id="mclf-v25-header-refinement">
+/* v25 header refinement */
+.mclf-main-header{
+  min-height:92px!important;
+  padding:12px 20px!important;
+}
+.mclf-main-logo{
+  width:64px!important;height:64px!important;flex-basis:64px!important;
+  padding:3px!important;
+}
+.mclf-main-brand{gap:12px!important}
+.mclf-main-title{
+  font-size:24px!important;
+  line-height:1.05!important;
+  color:#073866!important;
+}
+.mclf-main-subtitle{
+  font-size:12px!important;
+  color:#073866!important;
+  margin-top:5px!important;
+}
+.mclf-main-status{white-space:nowrap!important}
+
+/* Image export uses the requested dark MzSRLM header with white typography. */
+.mclf-export-capture .mclf-main-header{
+  min-height:92px!important;
+  background:linear-gradient(135deg,#073866 0%,#104d86 100%)!important;
+  border-color:#073866!important;
+  color:#fff!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.12)!important;
+}
+.mclf-export-capture .mclf-main-logo{
+  width:64px!important;height:64px!important;flex-basis:64px!important;
+}
+.mclf-export-capture .mclf-main-title,
+.mclf-export-capture .mclf-main-subtitle,
+.mclf-export-capture .mclf-main-tagline{color:#fff!important}
+.mclf-export-capture .mclf-main-status{
+  background:rgba(255,255,255,.12)!important;
+  border-color:rgba(255,255,255,.30)!important;
+}
+.mclf-export-capture .mclf-main-status span,
+.mclf-export-capture .mclf-main-status strong{color:#fff!important}
+</style>
+
+<style id="mclf-v27-theme-button-and-export">
+:root:not([data-theme="dark"]) .mclf-main-header #themeToggle{background:#f3f7fb!important;border:1px solid #cbdbea!important;color:#173e68!important;}
+:root:not([data-theme="dark"]) .mclf-main-header #themeToggle svg{color:#173e68!important;}
+:root:not([data-theme="dark"]) .mclf-main-header #themeToggle #themeToggleLabel{color:#173e68!important;}
+:root:not([data-theme="dark"]) .mclf-main-header #themeToggle:hover{background:#e9f1fb!important;color:#073866!important;}
+:root[data-theme="dark"] .mclf-main-header #themeToggle{background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.35)!important;color:#fff!important;}
+:root[data-theme="dark"] .mclf-main-header #themeToggle svg,
+:root[data-theme="dark"] .mclf-main-header #themeToggle #themeToggleLabel{color:#fff!important;}
+:root[data-theme="dark"] .mclf-main-header #themeToggle:hover{background:rgba(255,255,255,.20)!important;color:#fff!important;}
+.mclf-export-capture .mclf-main-header{background:linear-gradient(135deg,#073866 0%,#104d86 100%)!important;color:#fff!important;border-color:#073866!important;}
+.mclf-export-capture .mclf-main-header .mclf-main-title,
+.mclf-export-capture .mclf-main-header .mclf-main-subtitle,
+.mclf-export-capture .mclf-main-header .mclf-main-tagline,
+.mclf-export-capture .mclf-main-header .mclf-main-status,
+.mclf-export-capture .mclf-main-header .mclf-main-status span,
+.mclf-export-capture .mclf-main-header .mclf-main-status strong{color:#fff!important;}
+.mclf-export-capture .mclf-main-header .mclf-main-status{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.30)!important;}
 </style>
 
 </head>
@@ -722,7 +790,7 @@ tbody tr:hover td{background:#f7faff!important}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 // status strings: 'approved' | 'pending' | 'review'
@@ -779,13 +847,6 @@ function mclfBuildXlsx(rows,scope,search){
     ...rows.map((r,i)=>[i+1,r.connectivity||'—',r.district||'',r.block||'',r.clf||'',mclfStatusLabel(r.basic),mclfStatusLabel(r.cutoff),mclfStatusLabel(r.june),mclfStatusLabel(r.july)])
   ];
   const lastData=5+rows.length;
-  const totalRow=lastData+1;
-  matrix.push(['TOTAL','','','','Approval rate',
-    rows.length?rows.filter(r=>isApproved(r.basic)).length/rows.length:0,
-    rows.length?rows.filter(r=>isApproved(r.cutoff)).length/rows.length:0,
-    rows.length?rows.filter(r=>isApproved(r.june)).length/rows.length:0,
-    rows.length?rows.filter(r=>isApproved(r.july)).length/rows.length:0
-  ]);
   const esc=mclfXmlEsc;
   const cell=(ref,v,style)=>{
     if(v===null||v===undefined||v==='') return `<c r="${ref}" s="${style}"></c>`;
@@ -798,9 +859,7 @@ function mclfBuildXlsx(rows,scope,search){
     for(let c=0;c<9;c++){
       let st=0;
       if(r===0) st=1; else if(r===1) st=2; else if(r===2) st=3; else if(r===3) st=4; else if(r===4) st=5;
-      else if(r===matrix.length-1) st=c>=5?11:10;
       else { st=(r%2===0)?7:6; if(c===1){const v=String(matrix[r][c]).toLowerCase();st=v==='good'?12:v==='bad'?13:7;} if(c>=5){const v=String(matrix[r][c]).toLowerCase();st=v==='approved'?8:v==='under review'?9:10;} }
-      if(r===matrix.length-1 && c>=5) st=14;
       cells+=cell(mclfXlsxCol(c+1)+(r+1),matrix[r][c],st);
     }
     xmlRows+=`<row r="${r+1}" ht="${r===0?30:r===4?34:22}" customHeight="1">${cells}</row>`;
@@ -808,7 +867,7 @@ function mclfBuildXlsx(rows,scope,search){
   const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
 <sheetPr><outlinePr summaryBelow="1" summaryRight="1"/><pageSetUpPr/></sheetPr>
-<dimension ref="A1:I${totalRow}"/>
+<dimension ref="A1:I${lastData}"/>
 <sheetViews><sheetView workbookViewId="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A6" sqref="A6"/></sheetView></sheetViews>
 <sheetFormatPr defaultRowHeight="18"/>
 <cols><col min="1" max="1" width="8" customWidth="1"/><col min="2" max="2" width="22" customWidth="1"/><col min="3" max="3" width="16" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="5" width="34" customWidth="1"/><col min="6" max="9" width="17" customWidth="1"/></cols>
@@ -852,29 +911,23 @@ function mclfExportExcel(){
       headers
     ];
     rows.forEach((r,i)=>aoa.push([
-      i+1,
-      r.connectivity||'—',
-      r.district||'',
-      r.block||'',
-      r.clf||'',
-      mclfStatusLabel(r.basic),
-      mclfStatusLabel(r.cutoff),
-      mclfStatusLabel(r.june),
-      mclfStatusLabel(r.july)
+      i+1,r.connectivity||'—',r.district||'',r.block||'',r.clf||'',
+      mclfStatusLabel(r.basic),mclfStatusLabel(r.cutoff),mclfStatusLabel(r.june),mclfStatusLabel(r.july)
     ]));
-    const totalRow=aoa.length;
-    aoa.push([
-      'TOTAL','','','','Approval rate',
-      rows.length?rows.filter(r=>isApproved(r.basic)).length/rows.length:0,
-      rows.length?rows.filter(r=>isApproved(r.cutoff)).length/rows.length:0,
-      rows.length?rows.filter(r=>isApproved(r.june)).length/rows.length:0,
-      rows.length?rows.filter(r=>isApproved(r.july)).length/rows.length:0
-    ]);
+    const lastDataRow=aoa.length;
 
     const ws=XLSX.utils.aoa_to_sheet(aoa);
     ws['!cols']=[
-      {wch:8},{wch:22},{wch:16},{wch:20},{wch:34},{wch:17},{wch:17},{wch:17},{wch:17}
+      {wch:8},{wch:22},{wch:16},{wch:22},{wch:36},{wch:18},{wch:18},{wch:18},{wch:18}
     ];
+    ws['!rows']=[];
+    ws['!rows'][0]={hpt:28};
+    ws['!rows'][1]={hpt:21};
+    ws['!rows'][2]={hpt:21};
+    ws['!rows'][3]={hpt:20};
+    ws['!rows'][4]={hpt:34};
+    for(let r=5;r<lastDataRow;r++) ws['!rows'][r]={hpt:22};
+
     ws['!merges']=[
       {s:{r:0,c:0},e:{r:0,c:8}},
       {s:{r:1,c:0},e:{r:1,c:8}},
@@ -882,31 +935,50 @@ function mclfExportExcel(){
       {s:{r:3,c:0},e:{r:3,c:8}}
     ];
     ws['!freeze']={xSplit:0,ySplit:5};
-    ws['!autofilter']={ref:'A5:I'+(aoa.length-1)};
+    ws['!autofilter']={ref:'A5:I'+lastDataRow};
+    ws['!sheetViews']=[{showGridLines:false}];
 
-    // Apply percentage number format to approval-rate cells.
-    for(let c=5;c<=8;c++){
-      const cellRef=XLSX.utils.encode_cell({r:totalRow-1,c:c});
-      if(ws[cellRef]) ws[cellRef].z='0.0%';
+    const border={
+      top:{style:'thin',color:{rgb:'D7E2EA'}},
+      bottom:{style:'thin',color:{rgb:'D7E2EA'}},
+      left:{style:'thin',color:{rgb:'D7E2EA'}},
+      right:{style:'thin',color:{rgb:'D7E2EA'}}
+    };
+    const titleStyle={font:{name:'Aptos Display',sz:18,bold:true,color:{rgb:'0B5D86'}},alignment:{horizontal:'left',vertical:'center'}};
+    const subStyle={font:{name:'Aptos',sz:12,color:{rgb:'355979'}},alignment:{horizontal:'left',vertical:'center'}};
+    const infoStyle={font:{name:'Aptos',sz:11,bold:true,color:{rgb:'173E68'}},fill:{fgColor:{rgb:'EAF3F8'}},alignment:{horizontal:'left',vertical:'center'}};
+    const headStyle={font:{name:'Aptos',sz:11,bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'0D477D'}},border,alignment:{horizontal:'center',vertical:'center',wrapText:true}};
+    const bodyLeft={font:{name:'Aptos',sz:10,color:{rgb:'1F2937'}},border,alignment:{horizontal:'left',vertical:'center',wrapText:true}};
+    const bodyCenter={font:{name:'Aptos',sz:10,color:{rgb:'1F2937'}},border,alignment:{horizontal:'center',vertical:'center',wrapText:true}};
+    const approvedStyle={font:{name:'Aptos',sz:10,bold:true,color:{rgb:'166534'}},fill:{fgColor:{rgb:'DCFCE7'}},border,alignment:{horizontal:'center',vertical:'center'}};
+    const reviewStyle={font:{name:'Aptos',sz:10,bold:true,color:{rgb:'92400E'}},fill:{fgColor:{rgb:'FEF3C7'}},border,alignment:{horizontal:'center',vertical:'center'}};
+    const pendingStyle={font:{name:'Aptos',sz:10,bold:true,color:{rgb:'991B1B'}},fill:{fgColor:{rgb:'FEE2E2'}},border,alignment:{horizontal:'center',vertical:'center'}};
+    const dashStyle={font:{name:'Aptos',sz:10,color:{rgb:'64748B'}},fill:{fgColor:{rgb:'F1F5F9'}},border,alignment:{horizontal:'center',vertical:'center'}};
+
+    ws['A1'].s=titleStyle;
+    ws['A2'].s=subStyle;
+    ws['A3'].s=subStyle;
+    ws['A4'].s=infoStyle;
+    for(let c=0;c<9;c++) ws[XLSX.utils.encode_cell({r:4,c})].s=headStyle;
+
+    for(let r=5;r<lastDataRow;r++){
+      for(let c=0;c<9;c++){
+        const ref=XLSX.utils.encode_cell({r,c});
+        if(!ws[ref]) continue;
+        ws[ref].s=(c===0||c===1||c>=5)?bodyCenter:bodyLeft;
+        if(c>=5){
+          const v=String(ws[ref].v||'').toLowerCase();
+          if(v==='approved') ws[ref].s=approvedStyle;
+          else if(v==='under review') ws[ref].s=reviewStyle;
+          else if(v==='pending') ws[ref].s=pendingStyle;
+        }
+        if(c===1 && String(ws[ref].v||'')==='—') ws[ref].s=dashStyle;
+      }
     }
-
-    // Basic professional formatting where supported by SheetJS.
-    const setStyle=(ref,style)=>{if(ws[ref])ws[ref].s=style;};
-    const titleStyle={font:{bold:true,sz:18,color:{rgb:'0B5D86'}},alignment:{horizontal:'left',vertical:'center'}};
-    const subStyle={font:{sz:12,color:{rgb:'355979'}},alignment:{horizontal:'left',vertical:'center'}};
-    const headStyle={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'0D477D'}},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:{top:{style:'thin',color:{rgb:'D7E2EA'}},bottom:{style:'thin',color:{rgb:'D7E2EA'}},left:{style:'thin',color:{rgb:'D7E2EA'}},right:{style:'thin',color:{rgb:'D7E2EA'}}}};
-    setStyle('A1',titleStyle);setStyle('A2',subStyle);setStyle('A3',subStyle);setStyle('A4',{font:{bold:true,color:{rgb:'173E68'}},fill:{fgColor:{rgb:'EAF3F8'}}});
-    for(let c=0;c<9;c++) setStyle(XLSX.utils.encode_cell({r:4,c}),headStyle);
-    const border={top:{style:'thin',color:{rgb:'D7E2EA'}},bottom:{style:'thin',color:{rgb:'D7E2EA'}},left:{style:'thin',color:{rgb:'D7E2EA'}},right:{style:'thin',color:{rgb:'D7E2EA'}}};
-    for(let r=5;r<totalRow-1;r++) for(let c=0;c<9;c++){
-      const ref=XLSX.utils.encode_cell({r,c});
-      if(ws[ref]) ws[ref].s={border,alignment:{vertical:'center',horizontal:c===0||c>=5?'center':'left'}};
-    }
-    for(let c=0;c<9;c++) setStyle(XLSX.utils.encode_cell({r:totalRow-1,c}),{font:{bold:true},fill:{fgColor:{rgb:'E9F7ED'}},border,alignment:{horizontal:c>=5?'center':'left',vertical:'center'}});
-
     const wb=XLSX.utils.book_new();
+    wb.Props={Title:'MCLF Monthly Input Entry Status',Subject:'Mizoram State Rural Livelihoods Mission',Author:'MzSRLM',CreatedDate:new Date()};
     XLSX.utils.book_append_sheet(wb,ws,'MCLF Status');
-    XLSX.writeFile(wb,'MzSRLM_MCLF_Monthly_Input_Status_'+mclfStamp()+'.xlsx',{bookType:'xlsx',compression:true});
+    XLSX.writeFile(wb,'MzSRLM_MCLF_Monthly_Input_Status_'+mclfStamp()+'.xlsx',{bookType:'xlsx',compression:true,cellStyles:true});
   }catch(e){
     console.error('MCLF Excel export failed:',e);
     alert('Unable to create the Excel file. Please check your internet connection, reload the page, and try again.');
@@ -1213,5 +1285,103 @@ document.getElementById('mclfImageBtn').addEventListener('click',mclfSaveImage);
 
 render();
 </script>
+
+<style id="mclf-v26-header-visibility">
+/* v26 — visible light-theme header text; dark export header */
+:root:not([data-theme="dark"]) .mclf-main-header .mclf-main-title{
+  color:#073866!important;
+  font-size:24px!important;
+}
+:root:not([data-theme="dark"]) .mclf-main-header .mclf-main-subtitle{
+  color:#174a7e!important;
+  font-size:12px!important;
+}
+:root:not([data-theme="dark"]) .mclf-main-header .mclf-main-tagline{
+  color:#52708f!important;
+}
+:root:not([data-theme="dark"]) .mclf-main-logo{
+  width:68px!important;height:68px!important;flex-basis:68px!important;
+}
+:root[data-theme="dark"] .mclf-main-header .mclf-main-title{
+  color:#fff!important;font-size:24px!important;
+}
+:root[data-theme="dark"] .mclf-main-header .mclf-main-subtitle{
+  color:rgba(255,255,255,.88)!important;font-size:12px!important;
+}
+:root[data-theme="dark"] .mclf-main-header .mclf-main-tagline{
+  color:rgba(255,255,255,.78)!important;
+}
+:root[data-theme="dark"] .mclf-main-logo{
+  width:68px!important;height:68px!important;flex-basis:68px!important;
+}
+/* Image export is always dark blue with white typography. */
+.mclf-export-header{
+  background:linear-gradient(135deg,#061f3b 0%,#0a3d69 100%)!important;
+  color:#fff!important;border:1px solid #244d70!important;
+  border-radius:14px!important;
+}
+.mclf-export-title{color:#fff!important;font-size:25px!important}
+.mclf-export-subtitle{color:rgba(255,255,255,.88)!important;font-size:12px!important}
+.mclf-export-updated span{color:rgba(255,255,255,.72)!important}
+.mclf-export-updated strong{color:#fff!important}
+.mclf-export-logo{width:68px!important;height:68px!important;min-width:68px!important}
+@media(max-width:900px){
+  :root:not([data-theme="dark"]) .mclf-main-title,
+  :root[data-theme="dark"] .mclf-main-title{font-size:19px!important}
+}
+@media(max-width:600px){
+  :root:not([data-theme="dark"]) .mclf-main-logo,
+  :root[data-theme="dark"] .mclf-main-logo{width:54px!important;height:54px!important;flex-basis:54px!important}
+  :root:not([data-theme="dark"]) .mclf-main-title,
+  :root[data-theme="dark"] .mclf-main-title{font-size:17px!important}
+}
+</style>
+
+<style id="mclf-v28-screenshot-theme">
+/* v28 — Save as Image follows the active dashboard theme. */
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header{
+  background:linear-gradient(135deg,#ffffff 0%,#f3f7fb 52%,#e7eef6 100%)!important;
+  border-color:#cbdbea!important;color:#073866!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-title{
+  color:#073866!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-subtitle{
+  color:#174a7e!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-tagline{
+  color:#52708f!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status{
+  background:rgba(255,255,255,.82)!important;border-color:#cbdbea!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status span{
+  color:#52708f!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status strong{
+  color:#073866!important;
+}
+
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header{
+  background:linear-gradient(135deg,#061f3b 0%,#0a3d69 100%)!important;
+  border-color:#244d70!important;color:#fff!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-title,
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-subtitle{
+  color:#fff!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-tagline{
+  color:rgba(255,255,255,.78)!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status{
+  background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.30)!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status span{
+  color:rgba(255,255,255,.72)!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status strong{
+  color:#fff!important;
+}
+</style>
 </body>
 </html>
