@@ -446,6 +446,17 @@ tbody tr:hover td{background:#f7faff!important}
 @media(max-width:650px){.page{padding:8px 10px 24px!important}.header{padding:18px 16px!important;border-radius:12px!important}.header h1{font-size:22px!important}.mclf-section-header{padding:12px!important;border-radius:12px!important}.mclf-section-header h2{font-size:17px!important}.mclf-section-main{align-items:flex-start}.mclf-section-icon{width:34px;height:34px;font-size:16px}.mclf-section-header p{font-size:11px}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.kpi .k-val{font-size:23px!important}.controls{gap:8px!important}.ctrl{flex:1 1 180px}.ctrl:last-child{flex-basis:100%}.ctrl:last-child input{width:100%;min-width:0}.charts-row{grid-template-columns:1fr!important}}
 /* v6: theme control belongs to the MCLF section header. */
 .mclf-section-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto}
+/* v53 — status indicators first, report controls at the far right. */
+.table-card .table-header{display:flex!important;align-items:center!important;gap:12px!important;}
+.table-card .table-header .bl-legend{display:flex!important;align-items:center!important;gap:12px!important;flex:0 1 auto!important;min-width:0!important;}
+.table-card .table-header .action-row{display:flex!important;align-items:center!important;gap:6px!important;margin-left:auto!important;flex:0 0 auto!important;}
+@media(max-width:700px){
+  .table-card .table-header{flex-wrap:wrap!important;}
+  .table-card .table-header .table-title{flex:1 1 100%!important;}
+  .table-card .table-header .bl-legend{flex:1 1 auto!important;gap:8px!important;}
+  .table-card .table-header .action-row{margin-left:auto!important;}
+}
+
 .mclf-section-theme{background:#e9f1fb!important;color:#174a7e!important;border:1px solid #c8d9eb!important;border-radius:9px!important;min-height:34px!important;padding:6px 10px!important;backdrop-filter:none!important}
 .mclf-logo-icon{background:#fff!important;border-color:#d6e1ec!important;overflow:hidden!important;padding:3px!important;box-sizing:border-box}
 .mclf-logo-icon img{width:100%;height:100%;object-fit:contain;display:block}
@@ -1043,6 +1054,11 @@ body{-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
   <div class="table-card">
     <div class="table-header">
       <div class="table-title" id="tableTitle">CLF Monthly Input Entry - Status</div>
+      <div class="bl-legend">
+        <div class="bl"><div class="bl-dot" style="background:var(--green)"></div>Approved</div>
+        <div class="bl"><div class="bl-dot" style="background:var(--amber)"></div>Under review</div>
+        <div class="bl"><div class="bl-dot" style="background:var(--red)"></div>Pending</div>
+      </div>
       <div class="action-row" aria-label="Report actions">
         <button type="button" class="mclf-action-btn" id="mclfRefreshBtn" title="Refresh current view" aria-label="Refresh current view">↻</button>
         <button type="button" class="mclf-action-btn" id="mclfExcelBtn" title="Export current data to Excel" aria-label="Export current data to Excel">
@@ -1051,11 +1067,6 @@ body{-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
         <button type="button" class="mclf-action-btn" id="mclfImageBtn" title="Save current report as image" aria-label="Save current report as image">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m4 17 5-5 3 3 2-2 6 5"/></svg>
         </button>
-      </div>
-      <div class="bl-legend">
-        <div class="bl"><div class="bl-dot" style="background:var(--green)"></div>Approved</div>
-        <div class="bl"><div class="bl-dot" style="background:var(--amber)"></div>Under review</div>
-        <div class="bl"><div class="bl-dot" style="background:var(--red)"></div>Pending</div>
       </div>
     </div>
     <div class="table-scroll">
@@ -1840,4 +1851,60 @@ setTimeout(()=>loadLiveMclfSheet(),250);
 </style>
 
 <style id="mclf-v28-screenshot-theme">
-/* v28 — Save as Image follows the act
+/* v28 — Save as Image follows the active dashboard theme. */
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header{
+  background:linear-gradient(135deg,#ffffff 0%,#f3f7fb 52%,#e7eef6 100%)!important;
+  border-color:#cbdbea!important;color:#073866!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-title{
+  color:#073866!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-subtitle{
+  color:#174a7e!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-tagline{
+  color:#52708f!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status{
+  background:rgba(255,255,255,.82)!important;border-color:#cbdbea!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status span{
+  color:#52708f!important;
+}
+:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status strong{
+  color:#073866!important;
+}
+
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header{
+  background:linear-gradient(135deg,#061f3b 0%,#0a3d69 100%)!important;
+  border-color:#244d70!important;color:#fff!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-title,
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-subtitle{
+  color:#fff!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-tagline{
+  color:rgba(255,255,255,.78)!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status{
+  background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.30)!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status span{
+  color:rgba(255,255,255,.72)!important;
+}
+:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status strong{
+  color:#fff!important;
+}
+</style>
+<style id="mclf-v29-source-link">\n.mclf-main-status strong{cursor:default}\n</style>
+<script id="mclf-live-google-sheet-v31">
+window.MCLF_GOOGLE_SHEET_CONFIG = {
+  spreadsheetId: "1wewgb8N52xjQS29YCXiyyCJf7cmODtXQ",
+  mclfGid: "1923106966",
+  lastUpdatedGid: "237220054",
+  editUrl: "https://docs.google.com/spreadsheets/d/1wewgb8N52xjQS29YCXiyyCJf7cmODtXQ/edit?usp=sharing&ouid=109612584030728831109&rtpof=true&sd=true"
+};
+</script>
+</body>
+</html>\n\n
+
