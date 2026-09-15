@@ -1620,37 +1620,91 @@ function validateGviz(obj){
   return obj;
 }
 function fetchGvizText(gid,timeout=MCLF_GVIZ_TIMEOUT){return gvizJsonp(gid,timeout).then(validateGviz);}
-function extractLastUpdatedGviz(obj){
-  const table=obj?.table;
-  if(!table) throw new Error('Last Updated tab returned no table');
-  const vals=[];
-  (table.rows||[]).forEach(r=>(r.c||[]).forEach(c=>{
-    const v=c?.f??c?.v??'';
-    if(String(v).trim()) vals.push(String(v).trim());
-  }));
-  const candidates=[];
-  vals.forEach(v=>{
-    let m=v.match(/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})\b/);
-    if(m){const d=+m[1],mo=+m[2],y=+m[3];if(d>=1&&d<=31&&mo>=1&&mo<=12)candidates.push(new Date(y,mo-1,d));return;}
-    m=v.match(/\b(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})\b/);
-    if(m){const y=+m[1],mo=+m[2],d=+m[3];if(d>=1&&d<=31&&mo>=1&&mo<=12)candidates.push(new Date(y,mo-1,d));}
+/* v50 — Last Updated reads ONLY cell B1 from GID 237220054.
+   Uses the SAME direct Google Sheets GViz endpoint as the working MCLF data connection.
+   It does not depend on the published /pub workbook endpoint. */
+const MCLF_LAST_UPDATED_GID = '237220054';
+
+function fetchMclfLastUpdatedB1(timeout=20000){
+  return new Promise((resolve,reject)=>{
+    const cb='__mclf_last_updated_b1_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    const script=document.createElement('script');
+    let done=false;
+    const timer=setTimeout(()=>finish(new Error('Last Updated B1 request timed out')),timeout);
+    function finish(err,data){
+      if(done)return;
+      done=true;
+      clearTimeout(timer);
+      try{delete window[cb];}catch(_){ }
+      script.remove();
+      err?reject(err):resolve(data);
+    }
+    window[cb]=data=>finish(null,data);
+    script.onerror=()=>finish(new Error('Could not reach Last Updated B1'));
+
+    /* IMPORTANT: use the direct spreadsheet endpoint, exactly like the working
+       MCLF data fetch above. The range itself selects B1; no query is needed. */
+    const base='https://docs.google.com/spreadsheets/d/'+encodeURIComponent(MCLF_SHEET_CONFIG.spreadsheetId)+'/gviz/tq';
+    script.src=base
+      +'?gid='+encodeURIComponent(MCLF_LAST_UPDATED_GID)
+      +'&range='+encodeURIComponent('B1:B1')
+      +'&headers=0'
+      +'&tqx='+encodeURIComponent('out:json;responseHandler:'+cb);
+    document.head.appendChild(script);
   });
-  if(!candidates.length) throw new Error('No date found in Last Updated tab');
-  candidates.sort((a,b)=>b-a);
-  return candidates[0];
-}
-function formatUpdatedDate(d){
-  const date=d instanceof Date?d:new Date(d);
-  if(Number.isNaN(date.getTime()))return String(d);
-  return date.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
-}
-function setLastUpdatedDisplay(value){
-  const el=document.getElementById('mclfLastUpdated');
-  if(el)el.textContent=value?'Last updated: '+formatUpdatedDate(value):'Last updated: —';
 }
 
+function formatMclfLastUpdatedValue(cell){
+  if(!cell)return '';
+
+  /* Prefer Google's formatted value. For a real date/time cell this should be
+     the same human-readable value shown in the spreadsheet. */
+  if(cell.f!=null && String(cell.f).trim()) return String(cell.f).trim();
+
+  const v=cell.v;
+  if(v==null || String(v).trim()==='') return '';
+
+  /* If Google supplies an Excel/Sheets serial date, convert it. */
+  const n=Number(v);
+  if(Number.isFinite(n) && n>20000 && n<100000){
+    const ms=Math.round((n-25569)*86400000);
+    const d=new Date(ms);
+    if(!Number.isNaN(d.getTime())){
+      return d.toLocaleString('en-IN',{
+        day:'numeric',month:'long',year:'numeric',
+        hour:'numeric',minute:'2-digit',hour12:true
+      });
+    }
+  }
+
+  return String(v).trim();
+}
+
+async function loadMclfLastUpdated(){
+  const el=document.getElementById('mclfLastUpdated');
+  try{
+    const obj=await fetchMclfLastUpdatedB1();
+    const row=obj?.table?.rows?.[0];
+    const cell=row?.c?.[0];
+    const value=formatMclfLastUpdatedValue(cell);
+    if(!value)throw new Error('GID 237220054 cell B1 returned no value');
+
+    if(el){
+      el.textContent='Last updated: '+value;
+      el.dataset.loaded='true';
+    }
+    console.info('[MCLF] Last Updated loaded EXACTLY from GID 237220054 B1:',value);
+    return true;
+  }catch(err){
+    console.warn('[MCLF] Last Updated B1 failed:',err);
+    if(el && !el.dataset.loaded) el.textContent='Last updated: —';
+    return false;
+  }
+}
+window.loadMclfLastUpdated=loadMclfLastUpdated;
+
 async function loadLiveMclfSheet(){
-  setLastUpdatedDisplay(null); console.info('[MCLF] Connecting to Google Sheet · MCLF GID '+MCLF_SHEET_CONFIG.mclfGid+' · Columns A:H only');
+  console.info('[MCLF] Connecting to Google Sheet · MCLF GID '+MCLF_SHEET_CONFIG.mclfGid+' · Columns A:H only');
   try{
     const gviz=await fetchGvizText(MCLF_SHEET_CONFIG.mclfGid);
     const liveRows=mapMclfRows(rowsFromGviz(gviz));
@@ -1659,9 +1713,7 @@ async function loadLiveMclfSheet(){
     if(!liveRows.length)throw new Error('MCLF A:H returned zero usable records');
     RAW.splice(0,RAW.length,...liveRows);
     populateDistricts(true);
-    let updated=null;
-    try{updated=extractLastUpdatedGviz(await fetchGvizText(MCLF_SHEET_CONFIG.lastUpdatedGid));}catch(e){console.warn('Last Updated tab unavailable:',e);}
-    if(updated) setLastUpdatedDisplay(updated); else setLastUpdatedDisplay(null);
+    await loadMclfLastUpdated();
     console.info('[MCLF] LIVE · Google Sheets · '+liveRows.length+' rows · MCLF GID '+MCLF_SHEET_CONFIG.mclfGid+' · A:H only');
     mclfLiveStatus='Connected';render();
     console.info('[MCLF] Google Sheets connected:',liveRows.length,'rows from A:H');
@@ -1670,7 +1722,7 @@ async function loadLiveMclfSheet(){
     console.error('[MCLF] Live Google Sheet load failed:',err);
     RAW.splice(0,RAW.length,...MCLF_STATIC_RAW);populateDistricts(true);
     const reason=err&&err.message?err.message:'Unknown connection error';
-    setLastUpdatedDisplay(null); console.error('[MCLF] LIVE CONNECTION FAILED · '+reason+' · MCLF A:H only');
+    console.error('[MCLF] LIVE CONNECTION FAILED · '+reason+' · MCLF A:H only');
     mclfLiveStatus='Failed';render();return false;
   }
 }
@@ -1790,41 +1842,4 @@ setTimeout(()=>loadLiveMclfSheet(),250);
 :root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status span{
   color:#52708f!important;
 }
-:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status strong{
-  color:#073866!important;
-}
-
-:root[data-theme="dark"] .mclf-export-capture .mclf-main-header{
-  background:linear-gradient(135deg,#061f3b 0%,#0a3d69 100%)!important;
-  border-color:#244d70!important;color:#fff!important;
-}
-:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-title,
-:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-subtitle{
-  color:#fff!important;
-}
-:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-tagline{
-  color:rgba(255,255,255,.78)!important;
-}
-:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status{
-  background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.30)!important;
-}
-:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status span{
-  color:rgba(255,255,255,.72)!important;
-}
-:root[data-theme="dark"] .mclf-export-capture .mclf-main-header .mclf-main-status strong{
-  color:#fff!important;
-}
-</style>
-<style id="mclf-v29-source-link">\n.mclf-main-status strong{cursor:default}\n</style>
-<script id="mclf-live-google-sheet-v31">
-window.MCLF_GOOGLE_SHEET_CONFIG = {
-  spreadsheetId: "1wewgb8N52xjQS29YCXiyyCJf7cmODtXQ",
-  mclfGid: "1923106966",
-  lastUpdatedGid: "237220054",
-  editUrl: "https://docs.google.com/spreadsheets/d/1wewgb8N52xjQS29YCXiyyCJf7cmODtXQ/edit?usp=sharing&ouid=109612584030728831109&rtpof=true&sd=true"
-};
-</script>
-</body>
-</html>
-
-
+:root:not([data-theme="dark"]) .mcl
