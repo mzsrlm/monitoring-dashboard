@@ -499,7 +499,7 @@ tbody tr:hover td{background:#f7faff!important}
 .mclf-main-title{font-size:30px;line-height:1;font-weight:950;letter-spacing:.02em;color:#fff}
 .mclf-main-subtitle{font-size:14px;line-height:1.2;font-weight:800;letter-spacing:.08em;color:#fff;margin-top:6px}
 .mclf-main-tagline{font-size:11px;color:rgba(255,255,255,.84);margin-top:7px}
-.mclf-last-updated{font-size:11px;color:rgba(255,255,255,.82);margin-top:5px;font-weight:700;letter-spacing:.01em}.bl:nth-child(2) .bl-dot{background:#facc15!important}.mclf-export-capture .mclf-last-updated{color:#fff!important}:root:not([data-theme="dark"]) .mclf-last-updated{color:#52708f}@media(max-width:700px){.mclf-last-updated{font-size:9px;margin-top:4px}}
+.mclf-last-updated{font-size:11px;color:rgba(255,255,255,.82);margin-top:5px;font-weight:700;letter-spacing:.01em}.bl:nth-child(2) .bl-dot{background:#facc15!important}.mclf-export-capture .mclf-last-updated{color:#fff!important}.mclf-export-capture #mclfLastUpdated{display:block!important;visibility:visible!important;opacity:1!important}:root:not([data-theme="dark"]) .mclf-last-updated{color:#52708f}@media(max-width:700px){.mclf-last-updated{font-size:9px;margin-top:4px}}
 
 .mclf-main-right{display:flex;align-items:center;gap:10px;flex:0 0 auto}
 .mclf-main-status{padding:8px 12px;border:1px solid #cbdbea;background:rgba(255,255,255,.82);border-radius:9px;text-align:right;white-space:nowrap;display:flex;align-items:center;gap:8px}
@@ -1114,13 +1114,18 @@ function mclfXlsxCell(ref,value,style){
   if(typeof value==='number'&&Number.isFinite(value)) return `<c r="${ref}" s="${style}" t="n"><v>${value}</v></c>`;
   return `<c r="${ref}" s="${style}" t="inlineStr"><is><t xml:space="preserve">${mclfXmlEsc(value)}</t></is></c>`;
 }
+function mclfGetExportLastUpdated(){
+  const el=document.getElementById('mclfLastUpdated');
+  const text=el ? String(el.textContent||'').trim() : '';
+  return text.replace(/^Last updated:\s*/i,'').trim() || '—';
+}
 function mclfBuildXlsx(rows,scope,search){
   const headers=['S.No.','Internet Connectivity','District','Block','CLF Name','Basic Profile','Cut-off','June 2026','July 2026'];
   const matrix=[
     ['MCLF WEB APPLICATION'],
     ['Mizoram State Rural Livelihoods Mission'],
     ['CLF Monthly Input Entry - Status'],
-    ['As on 8 September 2026'+(scope!=='All districts'?'  |  District: '+scope:'')+(search?'  |  Search: '+search:'')],
+    ['Last updated: '+mclfGetExportLastUpdated()+(scope!=='All districts'?'  |  District: '+scope:'')+(search?'  |  Search: '+search:'')],
     headers,
     ...rows.map((r,i)=>[(r.sno||i+1),r.connectivity||'—',r.district||'',r.block||'',r.clf||'',mclfStatusLabel(r.basic),mclfStatusLabel(r.cutoff),mclfStatusLabel(r.june),mclfStatusLabel(r.july)])
   ];
@@ -1185,7 +1190,7 @@ function mclfExportExcel(){
       ['MCLF WEB APPLICATION'],
       ['Mizoram State Rural Livelihoods Mission'],
       ['CLF Monthly Input Entry - Status'],
-      ['As on 8 September 2026'+(scope!=='All districts'?'  |  District: '+scope:'')+(search?'  |  Search: '+search:'')],
+      ['Last updated: '+mclfGetExportLastUpdated()+(scope!=='All districts'?'  |  District: '+scope:'')+(search?'  |  Search: '+search:'')],
       headers
     ];
     rows.forEach((r,i)=>aoa.push([
@@ -1270,6 +1275,19 @@ async function mclfSaveImage(){
     capture=document.createElement('div');capture.className='mclf-export-capture';
     const headerClone=mainHeader?mainHeader.cloneNode(true):document.createElement('div');
     headerClone.querySelectorAll('#themeToggle').forEach(el=>el.remove());
+
+    /* v52 — Always include the live Last Updated value in the saved image.
+       Read it from the same dashboard element that is populated from
+       Google Sheet GID 237220054, cell B1. */
+    const liveUpdatedText=mclfGetExportLastUpdated();
+    const exportUpdated=headerClone.querySelector('#mclfLastUpdated');
+    if(exportUpdated){
+      exportUpdated.textContent='Last updated: '+(liveUpdatedText||'—');
+      exportUpdated.style.display='block';
+      exportUpdated.style.visibility='visible';
+      exportUpdated.style.opacity='1';
+    }
+
     const tableClone=source.cloneNode(true);tableClone.querySelectorAll('.action-row').forEach(el=>el.remove());
     tableClone.querySelectorAll('.table-scroll').forEach(el=>{el.style.maxHeight='none';el.style.height='auto';el.style.overflow='visible';el.style.position='static';});
     tableClone.querySelectorAll('thead th').forEach(el=>{el.style.position='static';el.style.top='auto';});
@@ -1822,24 +1840,4 @@ setTimeout(()=>loadLiveMclfSheet(),250);
 </style>
 
 <style id="mclf-v28-screenshot-theme">
-/* v28 — Save as Image follows the active dashboard theme. */
-:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header{
-  background:linear-gradient(135deg,#ffffff 0%,#f3f7fb 52%,#e7eef6 100%)!important;
-  border-color:#cbdbea!important;color:#073866!important;
-}
-:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-title{
-  color:#073866!important;
-}
-:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-subtitle{
-  color:#174a7e!important;
-}
-:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-tagline{
-  color:#52708f!important;
-}
-:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status{
-  background:rgba(255,255,255,.82)!important;border-color:#cbdbea!important;
-}
-:root:not([data-theme="dark"]) .mclf-export-capture .mclf-main-header .mclf-main-status span{
-  color:#52708f!important;
-}
-:root:not([data-theme="dark"]) .mcl
+/* v28 — Save as Image follows the act
