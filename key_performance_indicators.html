@@ -2287,9 +2287,71 @@ tr:hover td,.extra-table tr:hover td{
 #darComboPanel.section-dark-theme .section-theme-btn,#surveyComboPanel.section-dark-theme .section-theme-btn{background:#0d477d;color:#fff;border-color:#5f86ad}
 #darComboPanel.section-dark-theme input,#surveyComboPanel.section-dark-theme select,#darComboPanel.section-dark-theme textarea,#surveyComboPanel.section-dark-theme input,#surveyComboPanel.section-dark-theme select,#surveyComboPanel.section-dark-theme textarea{background:#102b49!important;color:#fff!important}
 </style>
-</head>
+
+<style id="presentation-fullscreen-style">
+#fullscreenBtn{
+  position:fixed;top:18px;right:18px;z-index:99999;
+  width:42px;height:42px;border:1px solid rgba(255,255,255,.45);
+  border-radius:10px;background:rgba(7,56,102,.92);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:23px;line-height:1;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.2);
+}
+#fullscreenBtn:hover{background:#155b98;transform:scale(1.04)}
+#fullscreenBtn:focus-visible{outline:3px solid #ffd54f;outline-offset:3px}
+:fullscreen{background:#f4f7fb}:fullscreen .dashboard{max-width:none;width:100%;min-height:100vh;padding:18px;background:#f4f7fb;overflow:auto}
+:fullscreen #fullscreenBtn{position:fixed}
+@media(max-width:650px){#fullscreenBtn{top:10px;right:10px;width:38px;height:38px;font-size:20px}}
+</style>
+<style id="fullscreen-scroll-fix">
+html:fullscreen, html:-webkit-full-screen {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100%;
+}
+body:fullscreen, body:-webkit-full-screen {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  min-height: 100%;
+}
+:fullscreen .dashboard {
+  min-height: 100vh !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+</style>
+<style id="fullscreen-scroll-final-fix">
+/* Fullscreen dashboard must be its own scroll container */
+.dashboard:fullscreen,
+.dashboard:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+  padding: 18px !important;
+  margin: 0 !important;
+  background: #f4f7fb !important;
+}
+.dashboard:fullscreen > * {
+  max-width: 100% !important;
+}
+.dashboard:fullscreen #fullscreenBtn {
+  position: fixed !important;
+  top: 18px !important;
+  right: 18px !important;
+}
+@media (max-width: 650px) {
+  .dashboard:fullscreen { padding: 10px !important; }
+  .dashboard:fullscreen #fullscreenBtn { top: 10px !important; right: 10px !important; }
+}
+</style></head>
 <body>
 <div class="dashboard">
+<button id="fullscreenBtn" type="button" aria-label="Enter presentation mode" title="Full Screen">⛶</button>
 <div class="header">
 <div class="header-brand">
 <div aria-label="MzSRLM logo" class="logo-placeholder" title="Mizoram State Rural Livelihoods Mission">
@@ -2325,7 +2387,7 @@ tr:hover td,.extra-table tr:hover td{
 <button aria-controls="sheleapsComboPanel" aria-selected="false" class="combo-tab tab-sheleaps" data-tab="sheleaps" onclick="showComboTab('sheleaps',this)" role="tab"><span>SHE LEAPS</span><small>Farm & Non-Farm</small></button>
 <button aria-controls="mclfComboPanel" aria-selected="false" class="combo-tab tab-mclf" data-tab="mclf" onclick="showComboTab('mclf',this)" role="tab"><span>MCLF</span><small>Web App</small></button>
 <button aria-controls="vprpComboPanel" aria-selected="false" class="combo-tab tab-vprp" data-tab="vprp" onclick="showComboTab('vprp',this)" role="tab"><span>VPRP</span><small>SISD</small></button>
-<button id="cadresComboTab" aria-controls="cadresComboPanel" aria-selected="false" class="combo-tab tab-cadres" data-tab="cadres" onclick="showComboTab('cadres',this)" role="tab"><span>CADRES</span><small>Cadre Profiles</small></button>
+<button id="cadresComboTab" aria-controls="cadresComboPanel" aria-selected="false" class="combo-tab tab-cadres" data-tab="cadres" onclick="showComboTab('cadres',this)" role="tab"><span>CADRES</span><small>Cadre Details</small></button>
 </nav>
 <div class="combo-panel active" id="kycStandaloneComboPanel" role="tabpanel" aria-labelledby="kycStandaloneComboTab">
   <iframe id="kycStandaloneModuleFrame" class="standalone-module-frame" src="KYC.html" title="KYC - Member Details" loading="lazy" referrerpolicy="same-origin"></iframe>
@@ -4101,7 +4163,9 @@ function txExportExcelFallback(ds,rows){
   headers.forEach(h=>html+='<th>'+esc(h)+'</th>');html+='</tr>';
   const band=p=>p>=90?'g90':p>=80?'g80':p>=60?'g60':p>=50?'g50':p>=30?'g30':'g15';
   rows.forEach((r,i)=>{html+='<tr class="'+(i%2?'alt':'')+'"><td>'+(i+1)+'</td>'+r.map((v,c)=>{if(ds.pctCols.includes(c)){const p=txCellPct(ds,r,c);return '<td class="pct '+band(p)+'">'+p.toFixed(2)+'%</td>'}if(c===ds.connCol){const cv=String(v??'').trim().toLowerCase(),good=/good|yes|online|connected|available|1/.test(cv)&&!/(bad|poor|no|offline|0)/.test(cv);return '<td class="'+(good?'connG':'connB')+'">'+(good?'Good':'Bad')+'</td>'}return '<td class="'+(/district|block/i.test(ds.headers[c])?'left':'')+'">'+esc(v)+'</td>'}).join('')+'</tr>'});
-  html+='<tr class="total"><td>TOTAL</td>'+totalVals.map((v,c)=>ds.pctCols.includes(c)?'<td>'+((Number(v)||0)*100).toFixed(2)+'%</td>':'<td>'+esc(v)+'</td>').join('')+'</tr></table></body></html>';
+  html+='<tr class="total"><td>TOTAL</td>'+totalVals.map((v,c)=>ds.pctCols.includes(c)?'<td>'+((Number(v)||0)*100).toFixed(2)+'%</td>':'<td>'+esc(v)+'</td>').join('')+'</tr></table>
+
+</body></html>';
   const blob=new Blob(['\ufeff',html],{type:'application/vnd.ms-excel;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='MzSRLM_'+txNAMES[txCurrent].replace(/\s+/g,'_')+'_Transaction_Status_'+stampLocal()+'.xls';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1200);
 }
 
@@ -4912,19 +4976,134 @@ html, body, button, input, select, textarea, table, th, td, h1, h2, h3, h4, h5, 
 #transactionsComboPanel .table-wrap table th:nth-child(2),#transactionsComboPanel .table-wrap table td:nth-child(2){min-width:112px!important;width:112px!important}
 @media print{.viewport-sticky-clone-v109{display:none!important}}
 </style>
+<style id="v109-fullscreen-sticky-fix">
+/* In fullscreen, the frozen table header must live INSIDE the fullscreen
+   element; otherwise browsers hide a fixed clone appended to <body>. */
+.dashboard:fullscreen .viewport-sticky-clone-v109,
+.dashboard:-webkit-full-screen .viewport-sticky-clone-v109{
+  position:fixed!important;
+  top:0!important;
+  left:0;
+  z-index:10000!important;
+}
+.dashboard:fullscreen .viewport-sticky-clone-v109 table,
+.dashboard:-webkit-full-screen .viewport-sticky-clone-v109 table{
+  position:absolute!important;
+  top:0!important;
+  left:0!important;
+}
+</style>
 <script id="v109-frozen-header-script">
 (function(){
 'use strict';
 const SELECTOR=['#kycComboPanel .table-wrap > table','#darComboPanel .extra-table-wrap > table','#surveyComboPanel .extra-table-wrap > table','#transactionsComboPanel .table-wrap > table'].join(',');
 const state=new Map(),H=52;
-function panelVisible(el){const p=el&&el.closest('#kycComboPanel,#darComboPanel,#surveyComboPanel,#transactionsComboPanel');if(!p)return false;const cs=getComputedStyle(p);return cs.display!=='none'&&cs.visibility!=='hidden'&&p.getBoundingClientRect().height>0}
+
+function fs(){return document.fullscreenElement||document.webkitFullscreenElement||null}
+function scrollRoot(){return fs() || window}
+function panelVisible(el){
+ const p=el&&el.closest('#kycComboPanel,#darComboPanel,#surveyComboPanel,#transactionsComboPanel');
+ if(!p)return false;
+ const cs=getComputedStyle(p);
+ return cs.display!=='none'&&cs.visibility!=='hidden'&&p.getBoundingClientRect().height>0
+}
 function wrapperFor(t){return t.parentElement}
 function destroy(t){const x=state.get(t);if(x){x.remove();state.delete(t)}}
-function build(t){destroy(t);const head=t.querySelector('thead');if(!head||!head.rows.length)return;const w=wrapperFor(t);if(!w)return;const box=document.createElement('div');box.className='viewport-sticky-clone-v109';const clone=t.cloneNode(true);clone.querySelectorAll('tbody,tfoot').forEach(n=>n.remove());clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));clone.querySelectorAll('[onclick]').forEach(n=>n.removeAttribute('onclick'));clone.querySelectorAll('thead th').forEach((th,i)=>{th.style.position='static';th.style.top='auto';th.style.zIndex='auto';th.style.height=H+'px';th.style.minHeight=H+'px';th.style.maxHeight=H+'px';th.style.textAlign='center';th.style.pointerEvents='auto';th.addEventListener('click',function(e){const rows=head.rows;const original=rows[rows.length-1]&&rows[rows.length-1].cells[i];if(original){e.preventDefault();e.stopPropagation();original.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));setTimeout(()=>sync(t),0)}})});box.appendChild(clone);document.body.appendChild(box);state.set(t,box);sync(t)}
-function sync(t){const box=state.get(t);if(!box)return;const w=wrapperFor(t);if(!w)return;const tr=t.getBoundingClientRect(),head=t.querySelector('thead');if(!head)return;const hr=head.getBoundingClientRect();const active=panelVisible(t)&&tr.top<0&&tr.bottom>Math.max(1,hr.height);if(!active){box.style.display='none';return}box.style.display='block';const wr=w.getBoundingClientRect();box.style.left=Math.max(0,wr.left)+'px';box.style.width=Math.max(0,wr.width)+'px';box.style.height=H+'px';const clone=box.querySelector('table');if(!clone)return;const tableRect=t.getBoundingClientRect();clone.style.width=Math.max(tableRect.width,1)+'px';clone.style.minWidth=tableRect.width+'px';clone.style.maxWidth='none';clone.style.height=H+'px';clone.style.transform='translateX('+(-w.scrollLeft)+'px)';const src=head.rows[head.rows.length-1].cells,dst=clone.querySelector('thead').rows[head.rows.length-1].cells;for(let i=0;i<Math.min(src.length,dst.length);i++){const cw=src[i].getBoundingClientRect().width;dst[i].style.width=cw+'px';dst[i].style.minWidth=cw+'px';dst[i].style.maxWidth=cw+'px';dst[i].style.height=H+'px'}}
-function refresh(){document.querySelectorAll(SELECTOR).forEach(t=>{if(!state.has(t))build(t);sync(t)});state.forEach((_,t)=>{if(!document.documentElement.contains(t))destroy(t)})}
-let ticking=false;function schedule(){if(ticking)return;ticking=true;requestAnimationFrame(()=>{ticking=false;refresh()})}
-window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule,{passive:true});document.addEventListener('DOMContentLoaded',schedule);document.addEventListener('click',()=>setTimeout(schedule,0),true);function bind(){document.querySelectorAll(SELECTOR).forEach(t=>{const w=wrapperFor(t);if(w&&!w.__v109bound){w.__v109bound=true;w.addEventListener('scroll',schedule,{passive:true})}})}const mo=new MutationObserver(()=>{bind();schedule()});mo.observe(document.body,{childList:true,subtree:true});bind();setTimeout(schedule,200);setTimeout(schedule,700);setTimeout(schedule,1500);
+
+function build(t){
+ destroy(t);
+ const head=t.querySelector('thead'); if(!head||!head.rows.length)return;
+ const box=document.createElement('div');
+ box.className='viewport-sticky-clone-v109';
+ const clone=t.cloneNode(true);
+ clone.querySelectorAll('tbody,tfoot').forEach(n=>n.remove());
+ clone.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));
+ clone.querySelectorAll('[onclick]').forEach(n=>n.removeAttribute('onclick'));
+ clone.querySelectorAll('thead th').forEach((th,i)=>{
+   th.style.position='static'; th.style.top='auto'; th.style.zIndex='auto';
+   th.style.height=H+'px'; th.style.minHeight=H+'px'; th.style.maxHeight=H+'px';
+   th.style.textAlign='center'; th.style.pointerEvents='auto';
+   th.addEventListener('click',function(e){
+     const rows=head.rows;
+     const original=rows[rows.length-1]&&rows[rows.length-1].cells[i];
+     if(original){
+       e.preventDefault();e.stopPropagation();
+       original.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+       setTimeout(()=>sync(t),0);
+     }
+   });
+ });
+ box.appendChild(clone);
+ state.set(t,box);
+ place(t);
+ sync(t);
+}
+
+function place(t){
+ const box=state.get(t); if(!box)return;
+ const parent=fs()||document.body;
+ if(box.parentElement!==parent) parent.appendChild(box);
+}
+
+function sync(t){
+ const box=state.get(t); if(!box)return;
+ place(t);
+ const w=wrapperFor(t); if(!w)return;
+ const tr=t.getBoundingClientRect(), head=t.querySelector('thead'); if(!head)return;
+ const hr=head.getBoundingClientRect();
+ const full=!!fs();
+ const rootRect=full?fs().getBoundingClientRect():{top:0,left:0};
+ const topBoundary=full?rootRect.top:0;
+ const bottomBoundary=full?(rootRect.bottom||window.innerHeight):window.innerHeight;
+ const active=panelVisible(t)&&tr.top<topBoundary&&tr.bottom>topBoundary+Math.min(H,hr.height);
+ if(!active){box.style.display='none';return}
+ box.style.display='block';
+ const wr=w.getBoundingClientRect();
+ box.style.left=(full ? wr.left-rootRect.left : Math.max(0,wr.left))+'px';
+ box.style.top=(full ? 0 : 0)+'px';
+ box.style.width=Math.max(0,wr.width)+'px';
+ box.style.height=H+'px';
+
+ const clone=box.querySelector('table'); if(!clone)return;
+ const tableRect=t.getBoundingClientRect();
+ clone.style.width=Math.max(tableRect.width,1)+'px';
+ clone.style.minWidth=tableRect.width+'px';
+ clone.style.maxWidth='none';
+ clone.style.height=H+'px';
+ clone.style.transform='translateX('+(-w.scrollLeft)+'px)';
+ const src=head.rows[head.rows.length-1].cells;
+ const dst=clone.querySelector('thead').rows[head.rows.length-1].cells;
+ for(let i=0;i<Math.min(src.length,dst.length);i++){
+   const cw=src[i].getBoundingClientRect().width;
+   dst[i].style.width=cw+'px';dst[i].style.minWidth=cw+'px';dst[i].style.maxWidth=cw+'px';dst[i].style.height=H+'px';
+ }
+}
+
+function refresh(){
+ document.querySelectorAll(SELECTOR).forEach(t=>{if(!state.has(t))build(t);else place(t);sync(t)});
+ state.forEach((_,t)=>{if(!document.documentElement.contains(t))destroy(t)});
+}
+let ticking=false;
+function schedule(){if(ticking)return;ticking=true;requestAnimationFrame(()=>{ticking=false;refresh()})}
+
+window.addEventListener('scroll',schedule,{passive:true});
+window.addEventListener('resize',schedule,{passive:true});
+document.addEventListener('fullscreenchange',schedule);
+document.addEventListener('webkitfullscreenchange',schedule);
+document.addEventListener('DOMContentLoaded',schedule);
+document.addEventListener('click',()=>setTimeout(schedule,0),true);
+
+function bind(){
+ document.querySelectorAll(SELECTOR).forEach(t=>{
+   const w=wrapperFor(t);
+   if(w&&!w.__v109bound){w.__v109bound=true;w.addEventListener('scroll',schedule,{passive:true})}
+ });
+ const d=fs();
+ if(d&&!d.__v109fsbound){d.__v109fsbound=true;d.addEventListener('scroll',schedule,{passive:true})}
+}
+const mo=new MutationObserver(()=>{bind();schedule()});
+mo.observe(document.body,{childList:true,subtree:true});
+bind();setTimeout(schedule,200);setTimeout(schedule,700);setTimeout(schedule,1500);
 })();
 </script>
 
@@ -4953,6 +5132,47 @@ window.addEventListener('scroll',schedule,{passive:true});window.addEventListene
   Developed for monitoring and management purposes.
 </footer>
    
+<script id="presentation-fullscreen-script">
+(function () {
+  'use strict';
+  const btn = document.getElementById('fullscreenBtn');
+  const target = document.querySelector('.dashboard');
+  if (!btn || !target) return;
+
+  const getFullscreenElement = () =>
+    document.fullscreenElement || document.webkitFullscreenElement;
+
+  const requestFullscreen = (el) => {
+    if (el.requestFullscreen) return el.requestFullscreen();
+    if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+    return Promise.reject(new Error('Fullscreen API is not supported.'));
+  };
+
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) return document.exitFullscreen();
+    if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+    return Promise.reject(new Error('Fullscreen API is not supported.'));
+  };
+
+  function syncButton() {
+    const active = !!getFullscreenElement();
+    btn.textContent = active ? '⤢' : '⛶';
+    btn.title = active ? 'Exit presentation mode' : 'Full Screen';
+    btn.setAttribute('aria-label', active ? 'Exit presentation mode' : 'Enter presentation mode');
+  }
+
+  btn.addEventListener('click', function () {
+    const action = getFullscreenElement() ? exitFullscreen() : requestFullscreen(target);
+    Promise.resolve(action).catch(function (err) {
+      console.warn('Fullscreen unavailable:', err);
+    }).finally(syncButton);
+  });
+
+  document.addEventListener('fullscreenchange', syncButton);
+  document.addEventListener('webkitfullscreenchange', syncButton);
+  syncButton();
+})();
+</script>
 </body>
 <style id="v15-final-fixes">
 /* v15: KYC blockwise header fits all labels, including Mobile Verified %. */
