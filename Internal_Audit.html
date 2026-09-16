@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internal Audit Dashboard</title>
+<style>
+:root{
+ --bg:#f4f7fb;--surface:#fff;--text:#172033;--muted:#68758a;--border:#dce4ef;
+ --primary:#163b70;--primary2:#245a9b;--good:#146c35;--mid:#a66b00;--low:#b42318;
+ --shadow:0 5px 22px rgba(23,48,87,.08);
+}
+[data-theme="dark"]{
+ --bg:#07162e;--surface:#0d2343;--text:#edf5ff;--muted:#a8bdd8;--border:#254263;
+ --primary:#8fc7ff;--primary2:#3e91e8;--shadow:0 5px 22px rgba(0,0,0,.2);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;font-size:14px}
+button,select{font:inherit}
+.app{max-width:1700px;margin:auto;padding:18px}
+.header{position:sticky;top:0;z-index:10;background:var(--bg);padding-bottom:14px}
+.header-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:clamp(20px,2.6vw,32px);margin:0;color:var(--primary)}
+.subtitle{color:var(--muted);margin:5px 0 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;padding:9px 12px;cursor:pointer}
+.btn.primary{background:var(--primary2);color:white;border-color:var(--primary2)}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px;margin-top:15px}
+.filter label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:5px;text-transform:uppercase}
+select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:15px 0}
+.kpi{background:rgba(255,255,255,.96);color:#172033;border:1px solid #e5e9f0;border-radius:12px;padding:14px 16px;box-shadow:0 4px 16px rgba(23,48,87,.06);border-top:3px solid #e5e9f0}
+.kpi .value{font-size:clamp(30px,3.2vw,42px);font-weight:900;line-height:1.05;margin-top:7px;letter-spacing:-1.5px}
+.kpi .value .badge{background:transparent!important;padding:0;border-radius:0;font-size:inherit;font-weight:inherit}
+.kpi .value{color:#172033}.kpi .value .badge.excellent{color:#075e2b}.kpi .value .badge.high{color:#198754}.kpi .value .badge.good{color:#9a6700}.kpi .value .badge.medium{color:#c08a00}.kpi .value .badge.attention{color:#e07800}.kpi .value .badge.low{color:#c6283d}
+.kpi .label{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700}
+.kpi .detail{font-size:11px;color:var(--muted);margin-top:3px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:13px 15px;border-bottom:1px solid var(--border)}
+.panel-head h2{font-size:15px;margin:0}
+.meta{font-size:11px;color:var(--muted)}
+.table-wrap{max-height:62vh;overflow:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:1000px}
+th,td{padding:10px 11px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);white-space:nowrap;text-align:left}
+th{position:sticky;top:0;z-index:3;background:var(--primary);color:white;font-size:11px;text-transform:uppercase;letter-spacing:.03em;cursor:pointer}
+th:last-child,td:last-child{border-right:0}
+tbody tr:nth-child(even){background:color-mix(in srgb,var(--primary2) 4%,var(--surface))}
+tbody tr:hover{background:color-mix(in srgb,var(--primary2) 10%,var(--surface))}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;padding:4px 8px;border-radius:99px;font-size:11px;font-weight:800}
+.excellent{background:#c8f2d8;color:#075e2b}.high{background:#d9f5e5;color:#126b3c}.good{background:#e5f4d8;color:#3f7d27}.medium{background:#fff0cc;color:#8a5b00}.attention{background:#fff7cc;color:#927000}.low{background:#ffe0e4;color:#a32235}
+[data-theme="dark"] .excellent{background:#123f2b;color:#8cf0b6}
+[data-theme="dark"] .high{background:#123f2b;color:#8cf0b6}
+[data-theme="dark"] .good{background:#24451d;color:#b7f29a}
+[data-theme="dark"] .medium{background:#4b3812;color:#ffd67b}
+[data-theme="dark"] .attention{background:#514612;color:#ffe98a}
+[data-theme="dark"] .low{background:#4d1d28;color:#ff9cac}
+.footer{color:var(--muted);font-size:11px;text-align:right;margin-top:10px}
+.empty{text-align:center;padding:30px;color:var(--muted)}
+@media(max-width:900px){.filters{grid-template-columns:repeat(2,1fr)}.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.app{padding:10px}.filters,.kpis{grid-template-columns:1fr}.header-top{align-items:flex-start}.actions{width:100%}.btn{flex:1}}
+</style>
+
+<script id="global-theme-listener">
+(function () {
+  function applyGlobalTheme(theme) {
+    if (theme !== "dark" && theme !== "light") return;
+    document.documentElement.setAttribute("data-theme", theme);
+    try { localStorage.setItem("global-dashboard-theme", theme); } catch (e) {}
+  }
+
+  window.addEventListener("message", function (event) {
+    if (event.data && event.data.type === "theme-change") {
+      applyGlobalTheme(event.data.theme);
+    }
+  });
+
+  try {
+    var savedTheme = localStorage.getItem("global-dashboard-theme");
+    if (savedTheme === "dark" || savedTheme === "light") {
+      applyGlobalTheme(savedTheme);
+    }
+  } catch (e) {}
+})();
+</script>
+
+</head>
+<body>
+<div class="app">
+<header class="header">
+ <div class="header-top">
+  <div>
+</div>
+  <div class="actions">
+   <button class="btn" id="themeBtn">☾ Dark Mode</button>
+   <button class="btn" id="resetBtn">Reset Filters</button>
+   <button class="btn primary" id="exportBtn">Export CSV</button>
+  </div>
+ </div>
+ <div class="filters">
+  <div class="filter"><label>District</label><select id="district"></select></div>
+  <div class="filter"><label>Block</label><select id="block"></select></div>
+  <div class="filter"><label>Financial Year</label><select id="fy"></select></div>
+  <div class="filter"><label>Audit Period</label><select id="period"></select></div>
+ </div>
+</header>
+
+<section class="kpis" id="kpis"></section>
+
+<section class="panel">
+ <div class="panel-head">
+  <h2>Audit Achievement Details</h2>
+  <div class="meta" id="rowMeta"></div>
+ </div>
+ <div class="table-wrap">
+  <table id="auditTable">
+   <thead><tr>
+    <th data-key="financialYear">Financial Year ↕</th>
+    <th data-key="auditPeriod">Audit Period ↕</th>
+    <th data-key="block">Block ↕</th>
+    <th data-key="totalMCLFs" class="num">Total MCLFs ↕</th>
+    <th data-key="auditedMCLFs" class="num">Audited MCLFs ↕</th>
+    <th data-key="mclfPct" class="num">MCLF % ↕</th>
+    <th data-key="totalVOs" class="num">Total VOs ↕</th>
+    <th data-key="auditedVOs" class="num">Audited VOs ↕</th>
+    <th data-key="voPct" class="num">VO % ↕</th>
+    <th data-key="totalSHGs" class="num">Total SHGs ↕</th>
+    <th data-key="auditedSHGs" class="num">Audited SHGs ↕</th>
+    <th data-key="shgPct" class="num">SHG % ↕</th>
+    <th data-key="overallPct" class="num">Overall % ↕</th>
+   </tr></thead>
+   <tbody id="tableBody"></tbody>
+  </table>
+ </div>
+</section>
+<div class="footer" id="lastUpdated"></div>
+</div>
+
+<script>
+const DATA = [{"financialYear": "2025-2026", "auditPeriod": "1st", "district": "District", "block": "Block Name", "totalMCLFs": 0, "auditedMCLFs": 0, "totalVOs": 0, "auditedVOs": 0, "totalSHGs": 0, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Aizawl", "block": "AIBAWK", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 13, "totalSHGs": 326, "auditedSHGs": 324}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Aizawl", "block": "DARLAWN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 24, "totalSHGs": 379, "auditedSHGs": 379}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Aizawl", "block": "THINGSULTHLIAH", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 12, "auditedVOs": 15, "totalSHGs": 265, "auditedSHGs": 242}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Aizawl", "block": "TLANGNUAM", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 15, "auditedVOs": 0, "totalSHGs": 265, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Champhai", "block": "CHAMPHAI", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 18, "auditedVOs": 18, "totalSHGs": 352, "auditedSHGs": 263}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Champhai", "block": "KHAWBUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 33, "totalSHGs": 451, "auditedSHGs": 435}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Hnahthial", "block": "HNAHTHIAL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 33, "auditedVOs": 24, "totalSHGs": 675, "auditedSHGs": 385}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Khawzawl", "block": "KHAWZAWL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 29, "auditedVOs": 14, "totalSHGs": 383, "auditedSHGs": 188}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Kolasib", "block": "BILKHAWTHLIR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 17, "totalSHGs": 414, "auditedSHGs": 149}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Kolasib", "block": "THINGDAWL", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 25, "auditedVOs": 24, "totalSHGs": 408, "auditedSHGs": 410}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Lawngtlai", "block": "BUNGTLANG S", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 27, "auditedVOs": 22, "totalSHGs": 311, "auditedSHGs": 251}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Lawngtlai", "block": "CHAWNGTE", "totalMCLFs": 7, "auditedMCLFs": 7, "totalVOs": 86, "auditedVOs": 67, "totalSHGs": 833, "auditedSHGs": 504}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Lawngtlai", "block": "LAWNGTLAI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 33, "totalSHGs": 321, "auditedSHGs": 311}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Lawngtlai", "block": "SANGAU", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 22, "totalSHGs": 296, "auditedSHGs": 306}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Lunglei", "block": "BUNGHMUN", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 19, "auditedVOs": 19, "totalSHGs": 200, "auditedSHGs": 189}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Lunglei", "block": "LUNGLEI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 29, "auditedVOs": 0, "totalSHGs": 306, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Lunglei", "block": "LUNGSEN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 20, "auditedVOs": 20, "totalSHGs": 231, "auditedSHGs": 253}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Lunglei", "block": "TLABUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 28, "auditedVOs": 0, "totalSHGs": 424, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Mamit", "block": "KAWRTETHAWVENG", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 17, "auditedVOs": 16, "totalSHGs": 267, "auditedSHGs": 168}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Mamit", "block": "REIEK", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 21, "auditedVOs": 21, "totalSHGs": 312, "auditedSHGs": 286}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Mamit", "block": "WEST PHAILENG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 26, "auditedVOs": 25, "totalSHGs": 324, "auditedSHGs": 325}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Mamit", "block": "ZAWLNUAM", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 20, "auditedVOs": 7, "totalSHGs": 300, "auditedSHGs": 98}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Siaha", "block": "SAIHA", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 28, "auditedVOs": 24, "totalSHGs": 257, "auditedSHGs": 184}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Siaha", "block": "TUIPANG", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 44, "auditedVOs": 37, "totalSHGs": 449, "auditedSHGs": 326}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Saitual", "block": "NGOPA", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 19, "auditedVOs": 14, "totalSHGs": 325, "auditedSHGs": 247}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Saitual", "block": "PHULLEN", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 30, "auditedVOs": 27, "totalSHGs": 401, "auditedSHGs": 383}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Serchhip", "block": "EAST LUNGDAR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 16, "auditedVOs": 16, "totalSHGs": 293, "auditedSHGs": 267}, {"financialYear": "2025-2026", "auditPeriod": "1st", "district": "Serchhip", "block": "SERCHHIP", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 35, "auditedVOs": 35, "totalSHGs": 501, "auditedSHGs": 511}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "District", "block": "Block Name", "totalMCLFs": 0, "auditedMCLFs": 0, "totalVOs": 0, "auditedVOs": 0, "totalSHGs": 0, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Aizawl", "block": "AIBAWK", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 5, "totalSHGs": 326, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Aizawl", "block": "DARLAWN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 11, "totalSHGs": 379, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Aizawl", "block": "THINGSULTHLIAH", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 12, "auditedVOs": 10, "totalSHGs": 265, "auditedSHGs": 112}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Aizawl", "block": "TLANGNUAM", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 15, "auditedVOs": 16, "totalSHGs": 265, "auditedSHGs": 205}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Champhai", "block": "CHAMPHAI", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 18, "auditedVOs": 18, "totalSHGs": 352, "auditedSHGs": 351}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Champhai", "block": "KHAWBUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 33, "totalSHGs": 451, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Hnahthial", "block": "HNAHTHIAL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 33, "auditedVOs": 24, "totalSHGs": 675, "auditedSHGs": 278}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Khawzawl", "block": "KHAWZAWL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 29, "auditedVOs": 29, "totalSHGs": 383, "auditedSHGs": 285}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Kolasib", "block": "BILKHAWTHLIR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 414, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Kolasib", "block": "THINGDAWL", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 408, "auditedSHGs": 385}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Lawngtlai", "block": "BUNGTLANG S", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 27, "auditedVOs": 12, "totalSHGs": 311, "auditedSHGs": 150}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Lawngtlai", "block": "CHAWNGTE", "totalMCLFs": 7, "auditedMCLFs": 7, "totalVOs": 86, "auditedVOs": 31, "totalSHGs": 833, "auditedSHGs": 285}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Lawngtlai", "block": "LAWNGTLAI", "totalMCLFs": 3, "auditedMCLFs": 2, "totalVOs": 33, "auditedVOs": 21, "totalSHGs": 321, "auditedSHGs": 182}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Lawngtlai", "block": "SANGAU", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 22, "totalSHGs": 296, "auditedSHGs": 374}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Lunglei", "block": "BUNGHMUN", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 19, "auditedVOs": 0, "totalSHGs": 200, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Lunglei", "block": "LUNGLEI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 29, "auditedVOs": 29, "totalSHGs": 306, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Lunglei", "block": "LUNGSEN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 20, "auditedVOs": 20, "totalSHGs": 231, "auditedSHGs": 217}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Lunglei", "block": "TLABUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 28, "auditedVOs": 0, "totalSHGs": 424, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Mamit", "block": "KAWRTETHAWVENG", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 17, "auditedVOs": 12, "totalSHGs": 267, "auditedSHGs": 140}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Mamit", "block": "REIEK", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 21, "auditedVOs": 14, "totalSHGs": 312, "auditedSHGs": 221}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Mamit", "block": "WEST PHAILENG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 26, "auditedVOs": 25, "totalSHGs": 324, "auditedSHGs": 120}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Mamit", "block": "ZAWLNUAM", "totalMCLFs": 3, "auditedMCLFs": 2, "totalVOs": 20, "auditedVOs": 15, "totalSHGs": 300, "auditedSHGs": 127}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Siaha", "block": "SAIHA", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 28, "auditedVOs": 21, "totalSHGs": 257, "auditedSHGs": 250}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Siaha", "block": "TUIPANG", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 44, "auditedVOs": 0, "totalSHGs": 449, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Saitual", "block": "NGOPA", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 19, "auditedVOs": 19, "totalSHGs": 325, "auditedSHGs": 174}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Saitual", "block": "PHULLEN", "totalMCLFs": 4, "auditedMCLFs": 3, "totalVOs": 30, "auditedVOs": 17, "totalSHGs": 401, "auditedSHGs": 237}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Serchhip", "block": "EAST LUNGDAR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 16, "auditedVOs": 0, "totalSHGs": 293, "auditedSHGs": 574}, {"financialYear": "2025-2026", "auditPeriod": "2nd", "district": "Serchhip", "block": "SERCHHIP", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 35, "auditedVOs": 35, "totalSHGs": 501, "auditedSHGs": 484}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "District", "block": "Block Name", "totalMCLFs": 0, "auditedMCLFs": 0, "totalVOs": 0, "auditedVOs": 0, "totalSHGs": 0, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Aizawl", "block": "AIBAWK", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 0, "totalSHGs": 326, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Aizawl", "block": "DARLAWN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 5, "totalSHGs": 379, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Aizawl", "block": "THINGSULTHLIAH", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 12, "auditedVOs": 7, "totalSHGs": 265, "auditedSHGs": 120}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Aizawl", "block": "TLANGNUAM", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 15, "auditedVOs": 12, "totalSHGs": 265, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Champhai", "block": "CHAMPHAI", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 18, "auditedVOs": 18, "totalSHGs": 352, "auditedSHGs": 293}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Champhai", "block": "KHAWBUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 33, "totalSHGs": 451, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Hnahthial", "block": "HNAHTHIAL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 33, "auditedVOs": 15, "totalSHGs": 675, "auditedSHGs": 253}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Khawzawl", "block": "KHAWZAWL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 29, "auditedVOs": 29, "totalSHGs": 383, "auditedSHGs": 302}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Kolasib", "block": "BILKHAWTHLIR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 17, "totalSHGs": 414, "auditedSHGs": 20}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Kolasib", "block": "THINGDAWL", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 408, "auditedSHGs": 383}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Lawngtlai", "block": "BUNGTLANG S", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 27, "auditedVOs": 21, "totalSHGs": 311, "auditedSHGs": 237}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Lawngtlai", "block": "CHAWNGTE", "totalMCLFs": 7, "auditedMCLFs": 7, "totalVOs": 86, "auditedVOs": 61, "totalSHGs": 833, "auditedSHGs": 330}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Lawngtlai", "block": "LAWNGTLAI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 33, "totalSHGs": 321, "auditedSHGs": 318}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Lawngtlai", "block": "SANGAU", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 22, "totalSHGs": 296, "auditedSHGs": 341}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Lunglei", "block": "BUNGHMUN", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 19, "auditedVOs": 11, "totalSHGs": 200, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Lunglei", "block": "LUNGLEI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 29, "auditedVOs": 0, "totalSHGs": 306, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Lunglei", "block": "LUNGSEN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 20, "auditedVOs": 20, "totalSHGs": 231, "auditedSHGs": 233}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Lunglei", "block": "TLABUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 28, "auditedVOs": 27, "totalSHGs": 424, "auditedSHGs": 315}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Mamit", "block": "KAWRTETHAWVENG", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 17, "auditedVOs": 13, "totalSHGs": 267, "auditedSHGs": 180}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Mamit", "block": "REIEK", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 21, "auditedVOs": 14, "totalSHGs": 312, "auditedSHGs": 224}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Mamit", "block": "WEST PHAILENG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 26, "auditedVOs": 21, "totalSHGs": 324, "auditedSHGs": 214}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Mamit", "block": "ZAWLNUAM", "totalMCLFs": 3, "auditedMCLFs": 2, "totalVOs": 20, "auditedVOs": 15, "totalSHGs": 300, "auditedSHGs": 329}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Siaha", "block": "SAIHA", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 28, "auditedVOs": 0, "totalSHGs": 257, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Siaha", "block": "TUIPANG", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 44, "auditedVOs": 46, "totalSHGs": 449, "auditedSHGs": 351}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Saitual", "block": "NGOPA", "totalMCLFs": 3, "auditedMCLFs": 2, "totalVOs": 19, "auditedVOs": 10, "totalSHGs": 325, "auditedSHGs": 78}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Saitual", "block": "PHULLEN", "totalMCLFs": 4, "auditedMCLFs": 3, "totalVOs": 30, "auditedVOs": 22, "totalSHGs": 401, "auditedSHGs": 251}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Serchhip", "block": "EAST LUNGDAR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 16, "auditedVOs": 16, "totalSHGs": 293, "auditedSHGs": 293}, {"financialYear": "2025-2026", "auditPeriod": "3rd", "district": "Serchhip", "block": "SERCHHIP", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 35, "auditedVOs": 0, "totalSHGs": 501, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "District", "block": "Block Name", "totalMCLFs": 0, "auditedMCLFs": 0, "totalVOs": 0, "auditedVOs": 0, "totalSHGs": 0, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Aizawl", "block": "AIBAWK", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 0, "totalSHGs": 326, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Aizawl", "block": "DARLAWN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 14, "totalSHGs": 379, "auditedSHGs": 762}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Aizawl", "block": "THINGSULTHLIAH", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 12, "auditedVOs": 11, "totalSHGs": 265, "auditedSHGs": 162}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Aizawl", "block": "TLANGNUAM", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 15, "auditedVOs": 16, "totalSHGs": 265, "auditedSHGs": 43}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Champhai", "block": "CHAMPHAI", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 18, "auditedVOs": 18, "totalSHGs": 352, "auditedSHGs": 284}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Champhai", "block": "KHAWBUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 10, "totalSHGs": 451, "auditedSHGs": 151}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Hnahthial", "block": "HNAHTHIAL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 33, "auditedVOs": 15, "totalSHGs": 675, "auditedSHGs": 213}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Khawzawl", "block": "KHAWZAWL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 29, "auditedVOs": 29, "totalSHGs": 383, "auditedSHGs": 290}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Kolasib", "block": "BILKHAWTHLIR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 414, "auditedSHGs": 170}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Kolasib", "block": "THINGDAWL", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 408, "auditedSHGs": 401}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Lawngtlai", "block": "BUNGTLANG S", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 27, "auditedVOs": 20, "totalSHGs": 311, "auditedSHGs": 204}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Lawngtlai", "block": "CHAWNGTE", "totalMCLFs": 7, "auditedMCLFs": 7, "totalVOs": 86, "auditedVOs": 21, "totalSHGs": 833, "auditedSHGs": 373}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Lawngtlai", "block": "LAWNGTLAI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 33, "totalSHGs": 321, "auditedSHGs": 317}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Lawngtlai", "block": "SANGAU", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 22, "totalSHGs": 296, "auditedSHGs": 341}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Lunglei", "block": "BUNGHMUN", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 19, "auditedVOs": 3, "totalSHGs": 200, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Lunglei", "block": "LUNGLEI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 29, "auditedVOs": 29, "totalSHGs": 306, "auditedSHGs": 307}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Lunglei", "block": "LUNGSEN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 20, "auditedVOs": 20, "totalSHGs": 231, "auditedSHGs": 255}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Lunglei", "block": "TLABUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 28, "auditedVOs": 17, "totalSHGs": 424, "auditedSHGs": 272}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Mamit", "block": "KAWRTETHAWVENG", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 17, "auditedVOs": 0, "totalSHGs": 267, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Mamit", "block": "REIEK", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 21, "auditedVOs": 21, "totalSHGs": 312, "auditedSHGs": 307}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Mamit", "block": "WEST PHAILENG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 26, "auditedVOs": 19, "totalSHGs": 324, "auditedSHGs": 214}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Mamit", "block": "ZAWLNUAM", "totalMCLFs": 3, "auditedMCLFs": 2, "totalVOs": 20, "auditedVOs": 15, "totalSHGs": 300, "auditedSHGs": 242}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Siaha", "block": "SAIHA", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 28, "auditedVOs": 0, "totalSHGs": 257, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Siaha", "block": "TUIPANG", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 44, "auditedVOs": 33, "totalSHGs": 449, "auditedSHGs": 297}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Saitual", "block": "NGOPA", "totalMCLFs": 3, "auditedMCLFs": 2, "totalVOs": 19, "auditedVOs": 10, "totalSHGs": 325, "auditedSHGs": 160}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Saitual", "block": "PHULLEN", "totalMCLFs": 4, "auditedMCLFs": 3, "totalVOs": 30, "auditedVOs": 22, "totalSHGs": 401, "auditedSHGs": 244}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Serchhip", "block": "EAST LUNGDAR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 16, "auditedVOs": 16, "totalSHGs": 293, "auditedSHGs": 293}, {"financialYear": "2025-2026", "auditPeriod": "4th", "district": "Serchhip", "block": "SERCHHIP", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 35, "auditedVOs": 30, "totalSHGs": 501, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "District", "block": "Block Name", "totalMCLFs": 0, "auditedMCLFs": 0, "totalVOs": 0, "auditedVOs": 0, "totalSHGs": 0, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Aizawl", "block": "AIBAWK", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 23, "auditedVOs": 23, "totalSHGs": 326, "auditedSHGs": 323}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Aizawl", "block": "DARLAWN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 379, "auditedSHGs": 384}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Aizawl", "block": "THINGSULTHLIAH", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 12, "auditedVOs": 12, "totalSHGs": 265, "auditedSHGs": 264}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Aizawl", "block": "TLANGNUAM", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 15, "auditedVOs": 16, "totalSHGs": 265, "auditedSHGs": 43}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Champhai", "block": "CHAMPHAI", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 18, "auditedVOs": 18, "totalSHGs": 352, "auditedSHGs": 732}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Champhai", "block": "KHAWBUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 36, "totalSHGs": 451, "auditedSHGs": 446}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Hnahthial", "block": "HNAHTHIAL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 33, "auditedVOs": 33, "totalSHGs": 675, "auditedSHGs": 1210}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Khawzawl", "block": "KHAWZAWL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 29, "auditedVOs": 29, "totalSHGs": 383, "auditedSHGs": 364}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Kolasib", "block": "BILKHAWTHLIR", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 414, "auditedSHGs": 307}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Kolasib", "block": "THINGDAWL", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 408, "auditedSHGs": 401}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Lawngtlai", "block": "BUNGHMUN", "totalMCLFs": 2, "auditedMCLFs": 1, "totalVOs": 19, "auditedVOs": 9, "totalSHGs": 200, "auditedSHGs": 112}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Lawngtlai", "block": "LUNGLEI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 29, "auditedVOs": 22, "totalSHGs": 306, "auditedSHGs": 209}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Lawngtlai", "block": "LUNGSEN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 20, "auditedVOs": 20, "totalSHGs": 231, "auditedSHGs": 227}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Lawngtlai", "block": "TLABUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 28, "auditedVOs": 27, "totalSHGs": 424, "auditedSHGs": 436}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Lunglei", "block": "BUNGHMUN", "totalMCLFs": 2, "auditedMCLFs": 1, "totalVOs": 19, "auditedVOs": 9, "totalSHGs": 200, "auditedSHGs": 112}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Lunglei", "block": "LUNGLEI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 29, "auditedVOs": 22, "totalSHGs": 306, "auditedSHGs": 209}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Lunglei", "block": "LUNGSEN", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 20, "auditedVOs": 20, "totalSHGs": 231, "auditedSHGs": 227}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Lunglei", "block": "TLABUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 28, "auditedVOs": 27, "totalSHGs": 424, "auditedSHGs": 436}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Mamit", "block": "KAWRTETHAWVENG", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 17, "auditedVOs": 16, "totalSHGs": 267, "auditedSHGs": 246}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Mamit", "block": "REIEK", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 21, "auditedVOs": 21, "totalSHGs": 312, "auditedSHGs": 307}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Mamit", "block": "WEST PHAILENG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 26, "auditedVOs": 9, "totalSHGs": 324, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Mamit", "block": "ZAWLNUAM", "totalMCLFs": 3, "auditedMCLFs": 2, "totalVOs": 20, "auditedVOs": 15, "totalSHGs": 300, "auditedSHGs": 236}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Siaha", "block": "SAIHA", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 28, "auditedVOs": 0, "totalSHGs": 257, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Siaha", "block": "TUIPANG", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 44, "auditedVOs": 43, "totalSHGs": 449, "auditedSHGs": 441}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Saitual", "block": "NGOPA", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 19, "auditedVOs": 0, "totalSHGs": 325, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Saitual", "block": "PHULLEN", "totalMCLFs": 4, "auditedMCLFs": 0, "totalVOs": 30, "auditedVOs": 0, "totalSHGs": 401, "auditedSHGs": 0}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Serchhip", "block": "EAST LUNGDAR", "totalMCLFs": 3, "auditedMCLFs": 1, "totalVOs": 16, "auditedVOs": 6, "totalSHGs": 293, "auditedSHGs": 105}, {"financialYear": "2025-2026", "auditPeriod": "Yearly", "district": "Serchhip", "block": "SERCHHIP", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 35, "auditedVOs": 37, "totalSHGs": 501, "auditedSHGs": 504}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "District", "block": "Block Name", "totalMCLFs": 0, "auditedMCLFs": 0, "totalVOs": 0, "auditedVOs": 0, "totalSHGs": 0, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Aizawl", "block": "AIBAWK", "totalMCLFs": 2, "auditedMCLFs": 1, "totalVOs": 23, "auditedVOs": 10, "totalSHGs": 326, "auditedSHGs": 47}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Aizawl", "block": "DARLAWN", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 25, "auditedVOs": 0, "totalSHGs": 379, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Aizawl", "block": "THINGSULTHLIAH", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 12, "auditedVOs": 10, "totalSHGs": 265, "auditedSHGs": 210}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Aizawl", "block": "TLANGNUAM", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 15, "auditedVOs": 16, "totalSHGs": 265, "auditedSHGs": 87}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Champhai", "block": "CHAMPHAI", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 18, "auditedVOs": 18, "totalSHGs": 352, "auditedSHGs": 157}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Champhai", "block": "KHAWBUNG", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 33, "auditedVOs": 0, "totalSHGs": 451, "auditedSHGs": 458}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Hnahthial", "block": "HNAHTHIAL", "totalMCLFs": 4, "auditedMCLFs": 0, "totalVOs": 33, "auditedVOs": 0, "totalSHGs": 675, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Khawzawl", "block": "KHAWZAWL", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 29, "auditedVOs": 29, "totalSHGs": 383, "auditedSHGs": 229}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Kolasib", "block": "BILKHAWTHLIR", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 25, "auditedVOs": 0, "totalSHGs": 414, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Kolasib", "block": "THINGDAWL", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 25, "auditedVOs": 25, "totalSHGs": 408, "auditedSHGs": 400}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Lawngtlai", "block": "BUNGTLANG S", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 27, "auditedVOs": 0, "totalSHGs": 311, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Lawngtlai", "block": "CHAWNGTE", "totalMCLFs": 7, "auditedMCLFs": 6, "totalVOs": 86, "auditedVOs": 69, "totalSHGs": 833, "auditedSHGs": 932}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Lawngtlai", "block": "LAWNGTLAI", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 33, "auditedVOs": 0, "totalSHGs": 321, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Lawngtlai", "block": "SANGAU", "totalMCLFs": 2, "auditedMCLFs": 1, "totalVOs": 23, "auditedVOs": 14, "totalSHGs": 296, "auditedSHGs": 185}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Lunglei", "block": "BUNGHMUN", "totalMCLFs": 2, "auditedMCLFs": 2, "totalVOs": 19, "auditedVOs": 0, "totalSHGs": 200, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Lunglei", "block": "LUNGLEI", "totalMCLFs": 3, "auditedMCLFs": 3, "totalVOs": 29, "auditedVOs": 0, "totalSHGs": 306, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Lunglei", "block": "LUNGSEN", "totalMCLFs": 3, "auditedMCLFs": 1, "totalVOs": 20, "auditedVOs": 6, "totalSHGs": 231, "auditedSHGs": 35}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Lunglei", "block": "TLABUNG", "totalMCLFs": 3, "auditedMCLFs": 1, "totalVOs": 28, "auditedVOs": 0, "totalSHGs": 424, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Mamit", "block": "KAWRTETHAWVENG", "totalMCLFs": 2, "auditedMCLFs": 0, "totalVOs": 17, "auditedVOs": 0, "totalSHGs": 267, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Mamit", "block": "REIEK", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 21, "auditedVOs": 0, "totalSHGs": 312, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Mamit", "block": "WEST PHAILENG", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 26, "auditedVOs": 0, "totalSHGs": 324, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Mamit", "block": "ZAWLNUAM", "totalMCLFs": 3, "auditedMCLFs": 1, "totalVOs": 20, "auditedVOs": 0, "totalSHGs": 300, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Siaha", "block": "SAIHA", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 28, "auditedVOs": 0, "totalSHGs": 257, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Siaha", "block": "TUIPANG", "totalMCLFs": 4, "auditedMCLFs": 4, "totalVOs": 44, "auditedVOs": 31, "totalSHGs": 449, "auditedSHGs": 12}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Saitual", "block": "NGOPA", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 19, "auditedVOs": 0, "totalSHGs": 325, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Saitual", "block": "PHULLEN", "totalMCLFs": 4, "auditedMCLFs": 3, "totalVOs": 30, "auditedVOs": 0, "totalSHGs": 401, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Serchhip", "block": "EAST LUNGDAR", "totalMCLFs": 3, "auditedMCLFs": 0, "totalVOs": 16, "auditedVOs": 0, "totalSHGs": 293, "auditedSHGs": 0}, {"financialYear": "2026-2027", "auditPeriod": "1st", "district": "Serchhip", "block": "SERCHHIP", "totalMCLFs": 3, "auditedMCLFs": 2, "totalVOs": 35, "auditedVOs": 5, "totalSHGs": 501, "auditedSHGs": 54}];
+const LAST_UPDATED = "16 Sep 2026, 06:47 PM";
+// Remove worksheet header rows accidentally included as data.
+for(let i=DATA.length-1;i>=0;i--){if(DATA[i].district==="District" && DATA[i].block==="Block Name") DATA.splice(i,1);}
+let sortKey = "district", sortDir = 1;
+let theme = localStorage.getItem("auditTheme") || "light";
+
+const $ = id => document.getElementById(id);
+const unique = key => [...new Set(DATA.map(x=>x[key]))].sort();
+
+function pct(a,b){return b ? (a/b)*100 : 0}
+function enrich(x){
+ x.mclfPct=pct(x.auditedMCLFs,x.totalMCLFs);
+ x.voPct=pct(x.auditedVOs,x.totalVOs);
+ x.shgPct=pct(x.auditedSHGs,x.totalSHGs);
+ const total=x.totalMCLFs+x.totalVOs+x.totalSHGs;
+ const audited=x.auditedMCLFs+x.auditedVOs+x.auditedSHGs;
+ x.overallPct=pct(audited,total);
+ return x;
+}
+DATA.forEach(enrich);
+
+function setTheme(){
+ document.documentElement.setAttribute("data-theme",theme==="dark"?"dark":"light");
+ $("themeBtn").textContent=theme==="dark"?"☀ Light Mode":"☾ Dark Mode";
+ localStorage.setItem("auditTheme",theme);
+}
+setTheme();
+
+function fillSelect(id,values,allLabel){
+ const el=$(id), current=el.value;
+ el.innerHTML="";
+ const all=document.createElement("option");all.value="";all.textContent=allLabel;el.appendChild(all);
+ values.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;el.appendChild(o)});
+ if(values.includes(current))el.value=current;
+}
+function populateFilters(){
+ fillSelect("district",unique("district"),"All Districts");
+ fillSelect("fy",unique("financialYear"),"All Financial Years");
+ fillSelect("period",unique("auditPeriod"),"All Audit Periods");
+ updateBlocks();
+}
+function updateBlocks(){
+ const d=$("district").value;
+ fillSelect("block",[...new Set(DATA.filter(x=>!d||x.district===d).map(x=>x.block))].sort(),"All Blocks");
+}
+function filtered(){
+ const d=$("district").value,b=$("block").value,fy=$("fy").value,p=$("period").value;
+ return DATA.filter(x=>x.district!=="District" && x.block!=="Block Name" && (!d||x.district===d)&&(!b||x.block===b)&&(!fy||x.financialYear===fy)&&(!p||x.auditPeriod===p));
+}
+function classFor(p){
+ if(p>=90)return "excellent";
+ if(p>=80)return "high";
+ if(p>=60)return "good";
+ if(p>=50)return "medium";
+ if(p>=30)return "attention";
+ return "low";
+}
+function periodLabel(p){
+ const m=String(p).match(/^(1st|2nd|3rd|4th)$/i);
+ return m ? `${m[1]} Quarter` : String(p);
+}
+function badge(p){return `<span class="badge ${classFor(p)}">${p.toFixed(1)}%</span>`}
+function sum(rows,key){return rows.reduce((s,x)=>s+(Number(x[key])||0),0)}
+function overall(rows){
+ const total=sum(rows,"totalMCLFs")+sum(rows,"totalVOs")+sum(rows,"totalSHGs");
+ const audited=sum(rows,"auditedMCLFs")+sum(rows,"auditedVOs")+sum(rows,"auditedSHGs");
+ return pct(audited,total);
+}
+function renderKpis(rows){
+ const totalM=sum(rows,"totalMCLFs"),audM=sum(rows,"auditedMCLFs");
+ const totalV=sum(rows,"totalVOs"),audV=sum(rows,"auditedVOs");
+ const totalS=sum(rows,"totalSHGs"),audS=sum(rows,"auditedSHGs");
+ const cards=[
+  ["Overall Achievement",overall(rows),`${audM+audV+audS} audited / ${totalM+totalV+totalS} total`],
+  ["MCLF Achievement",pct(audM,totalM),`${audM} audited / ${totalM} total`],
+  ["VO Achievement",pct(audV,totalV),`${audV} audited / ${totalV} total`],
+  ["SHG Achievement",pct(audS,totalS),`${audS} audited / ${totalS} total`]
+ ];
+ $("kpis").innerHTML=cards.map(c=>`<div class="kpi ${classFor(c[1])}"><div class="label">${c[0]}</div><div class="value"><span class="badge ${classFor(c[1])}">${c[1].toFixed(1)}%</span></div><div class="detail">${c[2]}</div></div>`).join("");
+}
+function render(){
+ const rows=filtered().map(x=>({...x}));
+ rows.sort((a,b)=>{
+  let av=a[sortKey],bv=b[sortKey];
+  if(typeof av==="number"&&typeof bv==="number")return (av-bv)*sortDir;
+  return String(av??"").localeCompare(String(bv??""),undefined,{numeric:true,sensitivity:"base"})*sortDir;
+ });
+ renderKpis(rows);
+ $("rowMeta").textContent=`${rows.length} record(s)`;
+ $("tableBody").innerHTML=rows.length?rows.map(x=>`<tr>
+ <td>${x.financialYear}</td><td>${periodLabel(x.auditPeriod)}</td><td>${x.block}</td>
+ <td class="num">${x.totalMCLFs}</td><td class="num">${x.auditedMCLFs}</td><td class="num">${badge(x.mclfPct)}</td>
+ <td class="num">${x.totalVOs}</td><td class="num">${x.auditedVOs}</td><td class="num">${badge(x.voPct)}</td>
+ <td class="num">${x.totalSHGs}</td><td class="num">${x.auditedSHGs}</td><td class="num">${badge(x.shgPct)}</td>
+ <td class="num">${badge(x.overallPct)}</td></tr>`).join(""):`<tr><td colspan="13" class="empty">No records match the selected filters.</td></tr>`;
+}
+document.querySelectorAll("th[data-key]").forEach(th=>th.addEventListener("click",()=>{
+ const key=th.dataset.key;
+ if(sortKey===key)sortDir*=-1;else{sortKey=key;sortDir=1}
+ render();
+}));
+["district","block","fy","period"].forEach(id=>$(id).addEventListener("change",()=>{
+ if(id==="district")updateBlocks();
+ render();
+}));
+$("resetBtn").addEventListener("click",()=>{
+ ["district","block","fy","period"].forEach(id=>$(id).value="");
+ updateBlocks();render();
+});
+$("themeBtn").addEventListener("click",()=>{theme=theme==="dark"?"light":"dark";setTheme()});
+$("exportBtn").addEventListener("click",()=>{
+ const rows=filtered().map(x=>({
+  "Financial Year":x.financialYear,"Audit Period":periodLabel(x.auditPeriod),"Block":x.block,
+  "Total MCLFs":x.totalMCLFs,"Audited MCLFs":x.auditedMCLFs,"MCLF %":x.mclfPct.toFixed(2),
+  "Total VOs":x.totalVOs,"Audited VOs":x.auditedVOs,"VO %":x.voPct.toFixed(2),
+  "Total SHGs":x.totalSHGs,"Audited SHGs":x.auditedSHGs,"SHG %":x.shgPct.toFixed(2),
+  "Overall %":x.overallPct.toFixed(2)
+ }));
+ if(!rows.length)return;
+ const headers=Object.keys(rows[0]);
+ const csv=[headers,...rows.map(r=>headers.map(h=>`"${String(r[h]).replace(/"/g,'""')}"`))].map(r=>r.join(",")).join("\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="internal_audit_filtered.csv";a.click();URL.revokeObjectURL(a.href);
+});
+$("lastUpdated").textContent="Last Updated: "+LAST_UPDATED+" • Percentage ranges: ≥90% Excellent, 80–89.9% Green, 60–79.9% Good, 50–59.9% Amber, 30–49.9% Attention, <30% Critical";
+populateFilters();render();
+</script>
+</body>
+</html>

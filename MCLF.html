@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCLF Combined Dashboard</title>
+<style>
+:root {
+  --bg:#eef3f8;
+  --surface:#fff;
+  --text:#18324d;
+  --muted:#60758a;
+  --border:#dce5ef;
+  --navy:#073866;
+  --blue:#0d477d;
+}
+:root[data-theme="dark"] {
+  --bg:#071827;
+  --surface:#0d263c;
+  --text:#e8f1fa;
+  --muted:#a6bbcf;
+  --border:#25445f;
+  --navy:#0b3155;
+  --blue:#3e91e8;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Segoe UI,Arial,sans-serif;
+}
+.sub-tabs {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 16px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 2px 10px rgba(7,56,102,.06);
+}
+.sub-tabs button {
+  appearance:none;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px 18px;
+  background:transparent;
+  color:var(--muted);
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.sub-tabs button:hover {
+  background:color-mix(in srgb,var(--blue) 8%,var(--surface));
+  color:var(--text);
+  border-color:var(--blue);
+}
+.sub-tabs button.active {
+  background:var(--blue);
+  color:#fff;
+  border-color:var(--blue);
+  box-shadow:0 4px 12px rgba(13,71,125,.22);
+}
+.content { padding:16px 20px; }
+.card {
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--surface);
+}
+.toolbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+  font-weight:700;
+}
+.frame-wrap { position:relative; }
+iframe {
+  display:block;
+  width:100%;
+  height:1000px;
+  border:0;
+  background:var(--bg);
+}
+.loading {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--bg);
+  color:var(--muted);
+  z-index:2;
+}
+@media(max-width:600px) {
+      .sub-tabs { gap:6px; padding:10px; } .sub-tabs button { flex:1 1 0; font-size:11px; padding:10px 8px; }
+  .content { padding:10px; }
+  iframe { height:1150px; }
+}
+</style>
+</head>
+<body>
+
+
+
+<nav class="sub-tabs" id="subTabs">
+  <button data-page="monthly" class="active" onclick="loadPage('monthly')">
+    Monthly Input Entry
+  </button>
+  <button data-page="audit" onclick="loadPage('audit')">
+    Internal Audit
+  </button>
+</nav>
+
+<main class="content">
+  <section class="card">
+    <div class="frame-wrap">
+      <div class="loading" id="loading">Loading page…</div>
+      <iframe id="contentFrame" title="MCLF linked dashboard"></iframe>
+    </div>
+  </section>
+</main>
+
+<script>
+const pages = {
+  monthly: "MCLF_Monthly_Input.html",
+  audit: "Internal_Audit.html"
+};
+
+
+let currentPage = "monthly";
+
+const frame = document.getElementById("contentFrame");
+const loading = document.getElementById("loading");
+
+
+function loadPage(page) {
+  if (!pages[page]) return;
+
+  currentPage = page;
+  document.querySelectorAll(".sub-tabs button").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
+
+  loading.style.display = "flex";
+  frame.src = pages[page];
+}
+
+function refreshFrame() {
+  loading.style.display = "flex";
+  frame.src = frame.src;
+}
+
+frame.addEventListener("load", function () {
+  loading.style.display = "none";
+});
+
+loadPage("monthly");
+</script>
+</body>
+</html>
