@@ -3,232 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MzSRLM — Under Construction</title>
+<title>SHE-LEAPS [Farm Livelihoods | Non Farm- Livelihoods]</title>
 <style>
-  * { box-sizing: border-box; }
-
-  html, body {
-    width: 100%;
-    min-height: 100%;
-    margin: 0;
-  }
-
-  body {
-    min-height: 100vh;
-    display: flex;
-    align-items: top;
-    justify-content: center;
-    overflow: hidden;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #173f68;
-    background:
-      radial-gradient(circle at 15% 20%, rgba(21,91,152,.10), transparent 28%),
-      radial-gradient(circle at 85% 80%, rgba(13,71,125,.10), transparent 30%),
-      #f5f8fb;
-  }
-
-  .scene {
-    position: relative;
-    width: min(760px, 92vw);
-    text-align: center;
-    padding: 54px 28px 48px;
-  }
-
-  .glow {
-    position: absolute;
-    inset: 12% 15%;
-    border-radius: 50%;
-    background: rgba(13,71,125,.08);
-    filter: blur(55px);
-    animation: pulse 3.5s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  .construction {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 116px;
-    height: 116px;
-    margin-bottom: 28px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 16px 45px rgba(23,63,104,.12);
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .helmet {
-    position: relative;
-    width: 62px;
-    height: 42px;
-    border: 5px solid #0d477d;
-    border-bottom: 0;
-    border-radius: 42px 42px 8px 8px;
-  }
-
-  .helmet::before {
-    content: "";
-    position: absolute;
-    left: -12px;
-    right: -12px;
-    bottom: -8px;
-    height: 9px;
-    border-radius: 8px;
-    background: #0d477d;
-  }
-
-  .helmet::after {
-    content: "";
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    width: 5px;
-    height: 18px;
-    border-radius: 5px;
-    background: #0d477d;
-    transform: translateX(-50%);
-  }
-
-  .kicker {
-    position: relative;
-    margin-bottom: 10px;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: .16em;
-    color: #6d7c91;
-  }
-
-  h1 {
-    position: relative;
-    margin: 0;
-    font-size: clamp(32px, 6vw, 52px);
-    line-height: 1.08;
-    letter-spacing: -.025em;
-    color: #173f68;
-  }
-
-  .subtitle {
-    position: relative;
-    max-width: 590px;
-    margin: 18px auto 0;
-    font-size: clamp(15px, 2.5vw, 18px);
-    line-height: 1.6;
-    color: #5d7085;
-  }
-
-  .progress {
-    position: relative;
-    width: min(430px, 82vw);
-    height: 8px;
-    margin: 30px auto 0;
-    overflow: hidden;
-    border-radius: 10px;
-    background: #dce6ef;
-  }
-
-  .progress::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -35%;
-    width: 35%;
-    height: 100%;
-    border-radius: inherit;
-    background: #0d477d;
-    animation: loading 1.8s ease-in-out infinite;
-  }
-
-  .dots {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 20px;
-  }
-
-  .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #0d477d;
-    animation: dot 1.3s ease-in-out infinite;
-  }
-
-  .dot:nth-child(2) { animation-delay: .18s; }
-  .dot:nth-child(3) { animation-delay: .36s; }
-
-  .footer {
-    position: relative;
-    margin-top: 34px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .06em;
-    color: #8a98a8;
-    text-transform: uppercase;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0) rotate(-1deg); }
-    50% { transform: translateY(-9px) rotate(1deg); }
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: .45; transform: scale(.92); }
-    50% { opacity: .8; transform: scale(1.06); }
-  }
-
-  @keyframes loading {
-    0% { left: -35%; }
-    55%, 100% { left: 100%; }
-  }
-
-  @keyframes dot {
-    0%, 60%, 100% { transform: translateY(0); opacity: .45; }
-    30% { transform: translateY(-7px); opacity: 1; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: .01ms !important;
-      animation-iteration-count: 1 !important;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .scene { padding: 38px 18px 34px; }
-    .construction { width: 96px; height: 96px; margin-bottom: 22px; }
-    .helmet { transform: scale(.86); }
-    .subtitle { line-height: 1.5; }
-  }
+:root {
+  --navy:#071b3a; --navy2:#0c2d5b; --blue:#174a88; --line:#d7e0ec;
+  --bg:#f4f7fb; --text:#142238; --muted:#6b7a90; --white:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--navy),var(--navy2));color:white;padding:22px clamp(16px,3vw,42px);display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px #06152b35}
+.brand{position:relative;display:flex;align-items:center;gap:14px;z-index:1}.brand-logo{width:62px;height:62px;object-fit:contain;border-radius:14px;background:#fff;padding:4px;box-shadow:0 4px 12px #0002}.brand h1{position:relative}header:before,header:after{content:"";position:absolute;border:1px solid #ffffff18;border-radius:50%;pointer-events:none}header:before{width:280px;height:280px;right:-100px;top:-180px}header:after{width:180px;height:180px;right:120px;bottom:-150px}h1{position:relative;font-size:clamp(20px,3vw,30px);letter-spacing:.5px;margin:0;font-weight:800}
+.header-meta{font-size:12px;opacity:.75;text-align:right}
+main{max-width:1700px;margin:auto;padding:22px clamp(12px,2.5vw,36px)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.tab{border:1px solid #cbd7e7;background:white;color:var(--navy);border-radius:9px;padding:11px 15px;font-weight:750;cursor:pointer;transition:.2s}
+.tab:hover,.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;background:linear-gradient(135deg,#ffffff,#f1f6ff);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 3px 14px #13294b0b}
+.page-title{font-size:23px;font-weight:800;color:var(--navy)}
+select,input{border:1px solid #cbd7e7;border-radius:8px;padding:10px 12px;background:#fff;color:var(--text)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.card{background:white;border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:0 2px 8px #13294b0b}
+.card .label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.card .value{font-size:28px;font-weight:850;color:var(--navy);margin-top:6px}.card.kpi .value{display:inline-block;padding:5px 10px;border-radius:9px}.card.kpi.p90 .value{background:#d8f3df;color:#087f23}.card.kpi.p80 .value{background:#d9f0df;color:#27863d}.card.kpi.p60 .value{background:#fff0c7;color:#9a6b00}.card.kpi.p50 .value{background:#fff4b8;color:#8b7200}.card.kpi.p30 .value{background:#ffe0bd;color:#b34e00}.card.kpi.p0 .value{background:#ffd9d6;color:#b42318}
+.panel{background:white;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px #13294b0b}
+.table-wrap{overflow:auto;max-height:65vh}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:900px;font-size:13px}
+th{position:sticky;top:0;background:var(--navy2);color:white;padding:13px 12px;text-align:center;white-space:nowrap;cursor:pointer;z-index:3;border-right:1px solid #ffffff32}
+th:first-child{border-left:0}
+td{text-align:center;padding:11px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);white-space:nowrap}
+td:first-child{text-align:center}td:nth-child(2){text-align:left}tbody tr:nth-child(even){background:#f8faff}
+tbody tr:hover{background:#edf4ff}
+th .sort{opacity:.65;margin-left:6px}
+.num{text-align:center;font-variant-numeric:tabular-nums}
+.percent-cell{font-weight:800;border-radius:6px;padding:5px 8px;display:inline-block;min-width:65px;text-align:center}
+.p90{background:#d8f3df;color:#087f23} .p80{background:#d9f0df;color:#27863d}
+.p60{background:#fff0c7;color:#9a6b00} .p50{background:#fff4b8;color:#8b7200}
+.p30{background:#ffe0bd;color:#b34e00} .p0{background:#ffd9d6;color:#b42318}
+.footer{font-size:12px;color:var(--muted);padding:13px 0}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+@media (max-width:1024px){
+  header{padding:18px clamp(14px,3vw,28px)}
+  main{padding:18px clamp(12px,2.5vw,24px)}
+  .tabs{gap:7px}
+  .tab{padding:10px 12px}
+  .toolbar{align-items:stretch}
+  .toolbar > *{min-width:0}
+  .table-wrap{max-height:68vh;-webkit-overflow-scrolling:touch}
+  table{min-width:820px}
+}
+@media (max-width:650px){
+  header{padding:14px 12px;position:sticky}
+  .brand{gap:10px;align-items:center;min-width:0}
+  .brand-logo{width:44px;height:44px;border-radius:10px}
+  h1{font-size:clamp(15px,4.5vw,20px);line-height:1.25;letter-spacing:0}
+  .header-meta{display:none}
+  main{padding:12px 8px}
+  .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:12px}
+  .tab{width:100%;padding:10px 7px;font-size:11px;border-radius:8px;white-space:normal;line-height:1.2}
+  .toolbar{display:flex;flex-direction:column;gap:9px;padding:11px;margin-bottom:12px}
+  .toolbar > *{width:100%}
+  .page-title{font-size:18px;line-height:1.3}
+  select,input{width:100%;min-height:42px;font-size:14px}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+  .card{padding:12px 10px;border-radius:10px}
+  .card .label{font-size:10px;letter-spacing:.35px}
+  .card .value{font-size:23px}
+  .panel{border-radius:10px}
+  .panel .page-title{padding:14px 12px 10px !important}
+  .table-wrap{max-height:none;overflow-x:auto;overflow-y:visible}
+  table{min-width:760px;font-size:12px}
+  th{padding:11px 9px}
+  td{padding:10px 9px}
+  .footer{font-size:11px}
+}
+@media (max-width:380px){
+  .tabs{grid-template-columns:1fr}
+  h1{font-size:15px}
+  .cards{grid-template-columns:1fr 1fr}
+  .card .value{font-size:20px}
+}
 </style>
 </head>
 <body>
-  <main class="scene" aria-label="Page under construction">
-    <div class="glow"></div>
-
-    <div class="construction" aria-hidden="true">
-      <div class="helmet"></div>
+<header><div class="brand"><img class="brand-logo" src="data:image/jpeg;base64,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" alt="SHE-LEAPS logo"><h1>SHE-LEAPS [Farm Livelihoods | Non Farm- Livelihoods]</h1></div></header>
+<main>
+  <nav class="tabs" id="tabs" aria-label="Dashboard sections"></nav>
+  <section class="toolbar">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <select id="blockFilter" aria-label="Filter by block"><option value="">All Blocks</option></select>
+      <input id="search" placeholder="Search block..." aria-label="Search block">
+      <button class="tab" id="resetBtn" type="button">Reset</button>
     </div>
-
-    <div class="kicker">MIZORAM STATE RURAL LIVELIHOODS MISSION</div>
-
-    <h1>Under Construction</h1>
-
-    <p class="subtitle">
-      This page is currently being developed.<br>
-      Please check back soon for the completed module.
-    </p>
-
-    <div class="progress" aria-hidden="true"></div>
-
-    <div class="dots" aria-hidden="true">
-      <span class="dot"></span>
-      <span class="dot"></span>
-      <span class="dot"></span>
-    </div>
-
-    <div class="footer">MzSRLM Dashboard</div>
-  </main>
+  </section>
+  <section class="cards" id="cards"></section>
+  <section class="panel"><div class="page-title" id="pageTitle" style="padding:18px 18px 12px"></div><div class="table-wrap" id="tableWrap"></div></section>
+  <div class="footer">Embedded Excel data • Google Sheets connection can be enabled by replacing the data source in the configuration section.</div>
+</main>
+<script>
+/* DATA SOURCE
+   Replace EMBEDDED_DATA with Google Sheets JSON/CSV loader later.
+   Expected format: { "Sheet Name": [{column:value}, ...] }
+*/
+const EMBEDDED_DATA = {"IFC": [{"S.No": 1, "Block": "Aibawk", "Total": 6, "Approved": 2, "Rejected": 0, "Pending": 0, "Total.1": 2}, {"S.No": 2, "Block": "Darlawn", "Total": 9, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 3, "Block": "Thingsulthliah", "Total": 6, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 4, "Block": "Tlangnuam", "Total": 0, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 5, "Block": "Champhai", "Total": 3, "Approved": 1, "Rejected": 0, "Pending": 0, "Total.1": 1}, {"S.No": 6, "Block": "Khawbung", "Total": 6, "Approved": 2, "Rejected": 0, "Pending": 0, "Total.1": 2}, {"S.No": 7, "Block": "Hnahthial", "Total": 6, "Approved": 0, "Rejected": 0, "Pending": 2, "Total.1": 2}, {"S.No": 8, "Block": "Khawzawl", "Total": 9, "Approved": 3, "Rejected": 0, "Pending": 0, "Total.1": 3}, {"S.No": 9, "Block": "Bilkhawthlir", "Total": 8, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 10, "Block": "Thingdawl", "Total": 6, "Approved": 0, "Rejected": 0, "Pending": 2, "Total.1": 2}, {"S.No": 11, "Block": "Bungtlang S", "Total": 6, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 12, "Block": "Chawngte", "Total": 0, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 13, "Block": "Lawngtlai", "Total": 8, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 14, "Block": "Sangau", "Total": 6, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 15, "Block": "Bunghmun", "Total": 0, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 16, "Block": "Lunglei", "Total": 10, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 17, "Block": "Lungsen", "Total": 9, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 18, "Block": "Tlabung", "Total": 0, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 19, "Block": "Kawrtethawveng", "Total": 3, "Approved": 0, "Rejected": 0, "Pending": 1, "Total.1": 1}, {"S.No": 20, "Block": "Reiek", "Total": 8, "Approved": 2, "Rejected": 0, "Pending": 0, "Total.1": 2}, {"S.No": 21, "Block": "West Phaileng", "Total": 8, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 22, "Block": "Zawlnuam", "Total": 6, "Approved": 0, "Rejected": 0, "Pending": 2, "Total.1": 2}, {"S.No": 23, "Block": "Saiha", "Total": 7, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 24, "Block": "Tuipang", "Total": 10, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 25, "Block": "Ngopa", "Total": 9, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 26, "Block": "Phullen", "Total": 6, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}, {"S.No": 27, "Block": "East Lungdar", "Total": 9, "Approved": 0, "Rejected": 0, "Pending": 3, "Total.1": 3}, {"S.No": 28, "Block": "Serchhip", "Total": 14, "Approved": 0, "Rejected": 0, "Pending": 0, "Total.1": 0}], "PG": [{"S.No": 1, "Block": "Aibawk", "Total": 13, "Approved": 2, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 2, "Block": "Darlawn", "Total": 5, "Approved": 0, "Migrated": 0, "Pending": 2, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 3, "Block": "Thingsulthliah", "Total": 5, "Approved": 3, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 4, "Block": "Tlangnuam", "Total": 10, "Approved": 4, "Migrated": 2, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 5, "Block": "Champhai", "Total": 6, "Approved": 2, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 6, "Block": "Khawbung", "Total": 11, "Approved": 9, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 7, "Block": "Hnahthial", "Total": 5, "Approved": 0, "Migrated": 0, "Pending": 2, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 8, "Block": "Khawzawl", "Total": 11, "Approved": 5, "Migrated": 0, "Pending": 1, "Rejected": 2, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 9, "Block": "Bilkhawthlir", "Total": 23, "Approved": 4, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 10, "Block": "Thingdawl", "Total": 22, "Approved": 0, "Migrated": 0, "Pending": 4, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 11, "Block": "Bungtlang S", "Total": 6, "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 12, "Block": "Chawngte", "Total": 6, "Approved": 2, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 13, "Block": "Lawngtlai", "Total": 6, "Approved": 3, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 14, "Block": "Sangau", "Total": 6, "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 15, "Block": "Bunghmun", "Total": 5, "Approved": 2, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 16, "Block": "Lunglei", "Total": 5, "Approved": 2, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 17, "Block": "Lungsen", "Total": 5, "Approved": 0, "Migrated": 0, "Pending": 1, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 18, "Block": "Tlabung", "Total": 4, "Approved": 1, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 19, "Block": "Kawrtethawveng", "Total": 4, "Approved": 1, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 20, "Block": "Reiek", "Total": 7, "Approved": 0, "Migrated": 0, "Pending": 4, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 21, "Block": "West Phaileng", "Total": 7, "Approved": 0, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 22, "Block": "Zawlnuam", "Total": 6, "Approved": 0, "Migrated": 0, "Pending": 1, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 23, "Block": "Saiha", "Total": 6, "Approved": 3, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 24, "Block": "Tuipang", "Total": 7, "Approved": 3, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 25, "Block": "Ngopa", "Total": 6, "Approved": 3, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 26, "Block": "Phullen", "Total": 4, "Approved": 2, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 27, "Block": "East Lungdar", "Total": 18, "Approved": 3, "Migrated": 2, "Pending": 0, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}, {"S.No": 28, "Block": "Serchhip", "Total": 30, "Approved": 0, "Migrated": 2, "Pending": 3, "Rejected": 0, "Fresh PG - After 1 Apr 2026": 0}], "CHC": [{"S.No": 1, "Block": "Aibawk", "Total": 9, "Approved": 10.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 10.0}, {"S.No": 2, "Block": "Darlawn", "Total": 10, "Approved": 9.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 9.0}, {"S.No": 3, "Block": "Thingsulthliah", "Total": 7, "Approved": 7.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 7.0}, {"S.No": 4, "Block": "Tlangnuam", "Total": 8, "Approved": 7.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 7.0}, {"S.No": 5, "Block": "Champhai", "Total": 18, "Approved": 18.0, "Pending": 0.0, "Rejected": 1.0, "Total.1": 19.0}, {"S.No": 6, "Block": "Khawbung", "Total": 18, "Approved": 20.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 20.0}, {"S.No": 7, "Block": "Hnahthial", "Total": 13, "Approved": 10.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 10.0}, {"S.No": 8, "Block": "Khawzawl", "Total": 14, "Approved": 13.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 13.0}, {"S.No": 9, "Block": "Bilkhawthlir", "Total": 29, "Approved": 13.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 13.0}, {"S.No": 10, "Block": "Thingdawl", "Total": 33, "Approved": 0.0, "Pending": 10.0, "Rejected": 0.0, "Total.1": 10.0}, {"S.No": 11, "Block": "Bungtlang S", "Total": 10, "Approved": 0.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 0.0}, {"S.No": 12, "Block": "Chawngte", "Total": 11, "Approved": 10.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 10.0}, {"S.No": 13, "Block": "Lawngtlai", "Total": 14, "Approved": 11.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 11.0}, {"S.No": 14, "Block": "Sangau", "Total": 16, "Approved": 9.0, "Pending": 3.0, "Rejected": 0.0, "Total.1": 12.0}, {"S.No": 15, "Block": "Bunghmun", "Total": 11, "Approved": 10.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 10.0}, {"S.No": 16, "Block": "Lunglei", "Total": 11, "Approved": 6.0, "Pending": 5.0, "Rejected": 0.0, "Total.1": 11.0}, {"S.No": 17, "Block": "Lungsen", "Total": 10, "Approved": NaN, "Pending": NaN, "Rejected": NaN, "Total.1": NaN}, {"S.No": 18, "Block": "Tlabung", "Total": 4, "Approved": 3.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 3.0}, {"S.No": 19, "Block": "Kawrtethawveng", "Total": 7, "Approved": 5.0, "Pending": 0.0, "Rejected": 1.0, "Total.1": 6.0}, {"S.No": 20, "Block": "Reiek", "Total": 12, "Approved": 0.0, "Pending": 11.0, "Rejected": 0.0, "Total.1": 11.0}, {"S.No": 21, "Block": "West Phaileng", "Total": 16, "Approved": 3.0, "Pending": 2.0, "Rejected": 0.0, "Total.1": 5.0}, {"S.No": 22, "Block": "Zawlnuam", "Total": 13, "Approved": 3.0, "Pending": 6.0, "Rejected": 0.0, "Total.1": 9.0}, {"S.No": 23, "Block": "Saiha", "Total": 13, "Approved": 11.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 11.0}, {"S.No": 24, "Block": "Tuipang", "Total": 14, "Approved": 12.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 12.0}, {"S.No": 25, "Block": "Ngopa", "Total": 13, "Approved": 7.0, "Pending": 0.0, "Rejected": 1.0, "Total.1": 8.0}, {"S.No": 26, "Block": "Phullen", "Total": 12, "Approved": 12.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 12.0}, {"S.No": 27, "Block": "East Lungdar", "Total": 25, "Approved": 14.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 14.0}, {"S.No": 28, "Block": "Serchhip", "Total": 40, "Approved": 16.0, "Pending": 0.0, "Rejected": 0.0, "Total.1": 16.0}], "Enterprise Group": [{"S.No": 1, "Block": "Darlawn", "Approved": 0, "Migrated": 3, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 3}, {"S.No": 2, "Block": "Bilkhawthlir", "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 1}, {"S.No": 3, "Block": "Sangau", "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 1}, {"S.No": 4, "Block": "Zawlnuam", "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 1}, {"S.No": 5, "Block": "Saiha", "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 1}, {"S.No": 6, "Block": "Tuipang", "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 1}, {"S.No": 7, "Block": "Ngopa", "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 1}, {"S.No": 8, "Block": "East Lungdar", "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 1}], "Individual Enterprise": [{"S.No": 1, "Block": "Aibawk", "Approved": 5, "Migrated": 0, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 1, "Total": 6}, {"S.No": 2, "Block": "Darlawn", "Approved": 9, "Migrated": 19, "Pending": 0, "Rejected": 1, "Fresh EEP - After 1 Apr 2026": 0, "Total": 29}, {"S.No": 3, "Block": "Thingsulthliah", "Approved": 1, "Migrated": 12, "Pending": 5, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 18}, {"S.No": 4, "Block": "Tlangnuam", "Approved": 0, "Migrated": 33, "Pending": 1, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 34}, {"S.No": 5, "Block": "Champhai", "Approved": 16, "Migrated": 20, "Pending": 3, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 39}, {"S.No": 6, "Block": "Khawbung", "Approved": 0, "Migrated": 12, "Pending": 1, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 13}, {"S.No": 7, "Block": "Khawzawl", "Approved": 2, "Migrated": 34, "Pending": 2, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 38}, {"S.No": 8, "Block": "Bilkhawthlir", "Approved": 0, "Migrated": 81, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 81}, {"S.No": 9, "Block": "Thingdawl", "Approved": 0, "Migrated": 42, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 42}, {"S.No": 10, "Block": "Bungtlang S", "Approved": 0, "Migrated": 25, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 25}, {"S.No": 11, "Block": "Chawngte", "Approved": 0, "Migrated": 27, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 27}, {"S.No": 12, "Block": "Lawngtlai", "Approved": 5, "Migrated": 0, "Pending": 11, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 16}, {"S.No": 13, "Block": "Bunghmun", "Approved": 0, "Migrated": 1, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 1}, {"S.No": 14, "Block": "Lunglei", "Approved": 2, "Migrated": 0, "Pending": 1, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 3}, {"S.No": 15, "Block": "Lungsen", "Approved": 0, "Migrated": 27, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 27}, {"S.No": 16, "Block": "Reiek", "Approved": 0, "Migrated": 5, "Pending": 13, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 18}, {"S.No": 17, "Block": "West Phaileng", "Approved": 0, "Migrated": 63, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 63}, {"S.No": 18, "Block": "Zawlnuam", "Approved": 0, "Migrated": 59, "Pending": 2, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 61}, {"S.No": 19, "Block": "Saiha", "Approved": 0, "Migrated": 69, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 69}, {"S.No": 20, "Block": "Tuipang", "Approved": 0, "Migrated": 46, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 46}, {"S.No": 21, "Block": "Ngopa", "Approved": 0, "Migrated": 90, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 90}, {"S.No": 22, "Block": "Phullen", "Approved": 0, "Migrated": 4, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 4}, {"S.No": 23, "Block": "East Lungdar", "Approved": 1, "Migrated": 55, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 56}, {"S.No": 24, "Block": "Serchhip", "Approved": 1, "Migrated": 19, "Pending": 0, "Rejected": 0, "Fresh EEP - After 1 Apr 2026": 0, "Total": 20}]};
+const CONFIG = {
+  source: "embedded",
+  googleSheet: {
+    enabled: false,
+    spreadsheetId: "",
+    gidBySheet: {}
+  }
+};
+const TITLE_MAP={"IFC":"IFC - Integrated Farming Cluster","PG":"PG - Producers Group","CHC":"CHC - Custom Hiring Center","Enterprise Group":"Enterprise Group","Individual Enterprise":"Individual Enterprise"};
+const state={active:Object.keys(EMBEDDED_DATA)[0],sortKey:null,sortDir:1,query:"",block:""};
+const $=id=>document.getElementById(id);
+const numeric=(v)=>v!==null && v!=="" && !isNaN(Number(v));
+function pctClass(p){if(p>=90)return"p90";if(p>=80)return"p80";if(p>=60)return"p60";if(p>=50)return"p50";if(p>=30)return"p30";return"p0";}
+function pct(v){return Number.isFinite(v)?v.toFixed(1)+"%":"—";}
+function getRows(){return EMBEDDED_DATA[state.active]||[];}
+function getColumns(rows){const cols=[];rows.forEach(r=>Object.keys(r).forEach(k=>{if(!cols.includes(k))cols.push(k)}));return cols;}
+function findCol(cols,names){return cols.find(c=>names.some(n=>c.toLowerCase().trim()===n||c.toLowerCase().includes(n)))||null;}
+function achievement(row,cols){const total=findCol(cols,["total"]);const approved=findCol(cols,["approved"]);if(!total||!approved||!numeric(row[total])||Number(row[total])===0)return null;return Number(row[approved])/Number(row[total])*100;}
+function renderBlockFilter(rows){const blocks=[...new Set(rows.map(r=>r.Block).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b)));$("blockFilter").innerHTML=`<option value="">All Blocks</option>`+blocks.map(b=>`<option value="${b}" ${state.block===b?"selected":""}>${b}</option>`).join("");}
+function renderTabs(){$("tabs").innerHTML=Object.keys(EMBEDDED_DATA).map(s=>`<button class="tab ${s===state.active?"active":""}" data-sheet="${s}">${s}</button>`).join("");document.querySelectorAll("[data-sheet]").forEach(b=>b.onclick=()=>{state.active=b.dataset.sheet;state.sortKey=null;state.query="";state.block="";$("search").value="";render();});}
+function renderCards(rows,cols){let total=0,approved=0,pending=0,rejected=0;const t=findCol(cols,["total"]),a=findCol(cols,["approved"]),p=findCol(cols,["pending"]),r=findCol(cols,["rejected"]);rows.forEach(x=>{if(t&&numeric(x[t]))total+=Number(x[t]);if(a&&numeric(x[a]))approved+=Number(x[a]);if(p&&numeric(x[p]))pending+=Number(x[p]);if(r&&numeric(x[r]))rejected+=Number(x[r]);});const rate=total?approved/total*100:null;const cards=[["Blocks",rows.length],["Total",total],["Approved",approved],["Pending",pending],["Rejected",rejected],["Achievement",rate===null?"—":pct(rate)]];$("cards").innerHTML=cards.map(([l,v])=>{const isKpi=l==="Achievement"&&rate!==null;const cls=isKpi?"card kpi "+pctClass(rate):"card";return `<div class="${cls}"><div class="label">${l}</div><div class="value">${v}</div></div>`;}).join("");}
+function renderTable(rows,cols){let filtered=rows.filter(r=>(!state.block||r.Block===state.block)&&String(r.Block??"").toLowerCase().includes(state.query.toLowerCase()));if(state.sortKey)filtered.sort((a,b)=>{let x,y;if(state.sortKey==="__achievement"){x=achievement(a,cols);y=achievement(b,cols);}else{x=a[state.sortKey];y=b[state.sortKey];}if(x===null||x===undefined||x==="")return 1*state.sortDir;if(y===null||y===undefined||y==="")return -1*state.sortDir;if(numeric(x)&&numeric(y))return (Number(x)-Number(y))*state.sortDir;return String(x??"").localeCompare(String(y??""))*state.sortDir;});if(!filtered.length){$("tableWrap").innerHTML='<div class="empty">No matching records.</div>';return;}
+const displayCols=cols;const headerLabel=(c)=>{if(state.active==="IFC"||state.active==="PG"||state.active==="CHC"){if(/^total$/i.test(String(c).trim()))return "Target";if(/^total\.\d+$/i.test(String(c).trim()))return "Total";}return c;};const headers=[...displayCols,"Achievement %"];const sortKeyFor=(c)=>c==="Achievement %"?"__achievement":c;const isStaticSerial=(c)=>/^(s\.?\s*no|serial\s*no|serial\s*number)$/i.test(String(c).trim());let out="<table><thead><tr>"+headers.map(c=>{const key=sortKeyFor(c);const sortable=!isStaticSerial(c);return `<th ${sortable?`data-sort="${key}"`:"class=\"static-col\""}>${headerLabel(c)}${sortable?`<span class="sort">${state.sortKey===key?(state.sortDir===1?"▲":"▼"):"↕"}</span>`:""}</th>`;}).join("")+"</tr></thead><tbody>";
+filtered.forEach(r=>{out+="<tr>";displayCols.forEach(c=>{let v=r[c]; /* Keep each row's original serial number unchanged during sorting. */out+=`<td class="${numeric(v)?"num":""}">${v??"—"}</td>`});const p=achievement(r,cols);out+=`<td class="num">${p===null?"—":`<span class="percent-cell ${pctClass(p)}">${pct(p)}</span>`}</td></tr>`;});out+="</tbody></table>";$("tableWrap").innerHTML=out;document.querySelectorAll("th[data-sort]").forEach(th=>th.onclick=()=>{const k=th.dataset.sort;if(state.sortKey===k)state.sortDir*=-1;else{state.sortKey=k;state.sortDir=1;}render();});}
+function render(){const rows=getRows(),cols=getColumns(rows);$("pageTitle").textContent=TITLE_MAP[state.active]||state.active;renderTabs();renderBlockFilter(rows);renderCards(rows,cols);renderTable(rows,cols);}
+$("search").addEventListener("input",e=>{state.query=e.target.value;render();});
+$("blockFilter").addEventListener("change",e=>{state.block=e.target.value;render();});
+$("resetBtn").onclick=()=>{state.sortKey=null;state.sortDir=1;state.query="";state.block="";$("search").value="";render();};
+render();
+</script>
 </body>
 </html>
