@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
  :root{--bg:#f3f6fb;--surface:#fff;--ink:#334155;--muted:#64748b;--line:#e5eaf1;--primary:#1e3a8a;--shadow:0 10px 28px rgba(15,23,42,.07)} body.dark{--bg:#071a36;--surface:#0d2a52;--ink:#f1f5f9;--muted:#cbd5e1;--line:#24466f;--primary:#3b82f6} body.dark .control,body.dark button.alt{background:#12345f;color:#fff;border-color:#365b87} body.dark th{background:#12345f;color:#fff}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif}
@@ -21,7 +22,7 @@ h1{font-size:clamp(20px,2.5vw,30px);margin:0;letter-spacing:-1px}.brand{display:
 .logoImage{background:#fff;overflow:hidden;padding:3px}.logoImage img{width:100%;height:100%;object-fit:contain;border-radius:6px}.iconButton{display:inline-grid;place-items:center;padding:10px;width:44px;min-width:44px}.iconButton svg{width:20px;height:20px}.blockPanel{margin-top:12px}.blockPanel[hidden]{display:none}.blockPanel .tablewrap{max-height:430px}.blockPanel th{white-space:nowrap}.blockPanel td{text-align:center}.blockPanel td:first-child{text-align:left;font-weight:700}.blockPanel th{background:#1e3a8a;color:#fff}.blockPanel table{min-width:900px;border:1px solid #d7dee8}.blockPanel .pct-cell{font-weight:850}.blockPanel .serial-cell{width:56px;text-align:center}
 
 /* Latest visual refinements */
-.block-action{display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:flex-end}.block-action>span{font-size:10px;font-weight:800;color:var(--muted);line-height:1.1}.block-action button{height:44px;width:44px;min-width:44px;padding:10px}.kpis .card{background:linear-gradient(135deg,var(--surface),rgba(148,163,184,.09));}.chart-selected-title{font-size:19px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}.chart-selected-title.all-verticals{font-size:14px}.tablewrap{border:1px solid #cbd5e1}.tablewrap table{border:1px solid #cbd5e1}.block-cell{text-align:left!important}.serial-cell,table th:first-child,table td:first-child{width:66px;min-width:66px;text-align:center!important}.tablecard th[data-key="subRoleCount"],.tablecard td:nth-child(5){width:165px;min-width:165px}.pct-badge{display:inline-block;padding:3px 7px;border-radius:2px;font-weight:850;line-height:1.2;white-space:nowrap}.blockPanel .serial-cell{width:66px;min-width:66px;text-align:center!important}.blockPanel .pct-cell{padding-left:6px;padding-right:6px}.blockPanel td.block-cell{text-align:left!important}
+.block-action{display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:flex-end}.block-action>span{font-size:10px;font-weight:800;color:var(--muted);line-height:1.1}.block-action button{height:44px;width:44px;min-width:44px;padding:10px}.kpis .card{background:linear-gradient(135deg,var(--surface),rgba(148,163,184,.09));}.chart-selected-title{font-size:19px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}.chart-selected-title.all-verticals{font-size:14px}.tablewrap{border:1px solid #cbd5e1}.tablewrap table{border:1px solid #cbd5e1}.block-cell{text-align:left!important}.serial-cell,table th:first-child,table td:first-child{width:66px;min-width:66px;text-align:center!important}.tablecard th[data-key="subRoleCount"],.tablecard td:nth-child(5){width:165px;min-width:165px}.pct-badge{display:inline-block;padding:3px 7px;border-radius:4px;font-weight:850;line-height:1.2;white-space:nowrap;border:1px solid rgba(100,116,139,.18)} .blockPanel .pct-badge{font-weight:850!important;color:inherit}.blockPanel .serial-cell{width:66px;min-width:66px;text-align:center!important}.blockPanel .pct-cell{padding-left:6px;padding-right:6px}.blockPanel td.block-cell{text-align:left!important}
 
 .verticalReport{margin-top:12px}.verticalReport .tablewrap{max-height:360px}.verticalReport th,.verticalReport td{text-align:center}.verticalReport th:nth-child(2),.verticalReport td:nth-child(2){text-align:left}.verticalReport th{background:#1e3a8a;color:#fff}.verticalReport .vertical-total{font-weight:850}.verticalReport .pct-cell{font-weight:850}.tablewrap thead tr:nth-child(1) th{top:0}.tablewrap thead tr:nth-child(2) th{top:38px}
 
@@ -42,14 +43,61 @@ button{height:44px;}
 
 /* Distinct blockwise report controls and headers */
 #blockPerf{background:#0f766e!important;color:#fff!important;border-color:#0f766e!important;}
-#subroleReport{background:#6b5a91!important;color:#fff!important;border-color:#6b5a91!important;}
+#subroleReport{background:#0f766e!important;color:#fff!important;border-color:#0f766e!important;}
 #blockPanel .tablehead h2{color:#0f766e;}
 #blockPanel th{background:#0f766e!important;color:#fff!important;}
-#subrolePanel .tablehead h2{color:#6b5a91;}
-#subrolePanel th{background:#6b5a91!important;color:#fff!important;}
+#subrolePanel .tablehead h2{color:#0f766e;}
+#subrolePanel th{background:#0f766e!important;color:#fff!important;}
 #blockPerf svg,#subroleReport svg{width:21px;height:21px;display:block;}
 #blockPerf.is-active{box-shadow:0 0 0 3px rgba(15,118,110,.18),0 3px 8px rgba(15,118,110,.16);}
-#subroleReport.is-active{box-shadow:0 0 0 3px rgba(107,90,145,.20),0 3px 8px rgba(107,90,145,.16);}
+#subroleReport.is-active{box-shadow:0 0 0 3px rgba(15,118,110,.20),0 3px 8px rgba(15,118,110,.16);}
+.iconText{display:inline-flex;align-items:center;gap:7px}.iconText svg{width:17px;height:17px;flex:0 0 auto}
+
+
+/* Theme-aware export icons supplied by the user */
+.theme-icon{width:24px;height:24px;object-fit:contain;display:block}
+.theme-icon.light-icon{display:block}
+.theme-icon.dark-icon{display:none}
+body.dark .theme-icon.light-icon{display:none}
+body.dark .theme-icon.dark-icon{display:block}
+#blockExcel,#blockImage{padding:8px!important;width:44px!important;min-width:44px!important;display:inline-grid!important;place-items:center!important}
+
+/* Final requested export and readability refinements */
+.pct-badge,.blockPanel .pct-badge,.note.pct-badge{color:#000000!important;}
+.iconText span{display:none!important;} .iconText svg{width:22px!important;height:22px!important;} #toggleCadres::after{font-size:12px!important;}
+.iconText{width:44px!important;min-width:44px!important;padding:10px!important;justify-content:center;}
+#cadresListBody{display:none;}
+#toggleCadres{font-size:0;}
+#toggleCadres::after{content:'Expand ▼';font-size:inherit;}
+.export-capture .pct-badge{color:#000!important;}
+.export-capture th,.export-capture td{padding:5px 7px!important;font-size:18px!important;line-height:1.15!important;}
+.export-capture th{font-size:19px!important;}
+.export-capture .pct-badge{font-size:18px!important;padding:3px 6px!important;}
+
+/* Robust frozen header for the expanded Cadres list */
+#cadresListBody {
+  position: relative;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  max-height: 590px;
+  overscroll-behavior: contain;
+}
+#cadresListBody table {
+  border-collapse: separate !important;
+  border-spacing: 0;
+}
+#cadresListBody thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30 !important;
+  background: #1e3a8a !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 -2px 0 rgba(255,255,255,.28);
+}
+#cadresListBody tbody td {
+  position: relative;
+  z-index: 1;
+}
 </style>
 </head>
 <body>
@@ -61,7 +109,7 @@ button{height:44px;}
 <select id="status" class="control"><option value="">All Approval Status</option><option>Approved</option><option>Pending</option><option>Rejected</option></select>
 <select id="filled" class="control"><option value="">All Profile Filled</option><option>Yes</option><option>No</option></select>
 <select id="vertical" class="control"><option value="">All Verticals</option></select>
-<button id="reset" class="alt">Reset</button><div class="block-action"><button id="blockPerf" title="Blockwise performance" aria-label="Blockwise performance"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V10M12 19V5M19 19V8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M3 19h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div><div class="block-action"><button id="subroleReport" title="Blockwise vertical sub-role report" aria-label="Blockwise vertical sub-role report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v5h10V4M12 9v5M4 14h16M4 14v6M12 14v6M20 14v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="2" width="6" height="4" rx="1" fill="currentColor"/><rect x="15" y="2" width="6" height="4" rx="1" fill="currentColor"/><rect x="1" y="18" width="6" height="4" rx="1" fill="currentColor"/><rect x="9" y="18" width="6" height="4" rx="1" fill="currentColor"/><rect x="17" y="18" width="6" height="4" rx="1" fill="currentColor"/></svg></button></div><button id="xls" class="iconButton" title="Export Excel" aria-label="Export Excel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h10l6 6v12H4zM14 3v7h6M7 14l4 4m0-4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<button id="reset" class="alt">Reset</button><div class="block-action"><button id="blockPerf" title="Blockwise performance" aria-label="Blockwise performance"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V10M12 19V5M19 19V8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M3 19h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div><div class="block-action"><button id="subroleReport" title="Blockwise vertical sub-role report" aria-label="Blockwise vertical sub-role report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v5h10V4M12 9v5M4 14h16M4 14v6M12 14v6M20 14v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="2" width="6" height="4" rx="1" fill="currentColor"/><rect x="15" y="2" width="6" height="4" rx="1" fill="currentColor"/><rect x="1" y="18" width="6" height="4" rx="1" fill="currentColor"/><rect x="9" y="18" width="6" height="4" rx="1" fill="currentColor"/><rect x="17" y="18" width="6" height="4" rx="1" fill="currentColor"/></svg></button></div><button id="xls" class="alt iconText" title="Export Excel" aria-label="Export Excel"><img class="theme-icon light-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFK0lEQVR4nO2dS6hVVRjHf17TDCy1IPMiEkVWCBIpOUgrsrBJNAkSosegG0QDgyDpMZAadCF6DqI7qOhWgx44uQ4yKBqEFUUPwkFFodDLtIeVklSuWPhd2ndzzl7f3mfvs9bZ+/vDNzp7f+e/vt85a7/WWhvapzHgfGArMAnsBr4HvgG2xDbXdi0C1gMTwNPAHuBPwPWJfbENt0lLgI3ANmAKeBf4q6D4/cJUQePAtcB2YBrYCxyvUHwDUlLzgXOk+DuAGeBATYU3IAEtBNYANwNPSpdzpOHiOwNyQksz/f1sl/NPhOK7LgIZz3Q5r0rxYxfddQHISZkuZ1L6+4MJFNh1AcipwLpcf380gWK6LgCZB1wB3Cddzlc1nmKmGMnr8QSKZEAyOtJxIC5S/A7sBFanYqjrQJzEz8DKlAx1HYiTY3dShroO5HBqhroOxKVoyBmQtAw5A5KWIWdA0jLkDEhahpwBScuQMyBpGXIGJC1DzoCkZcgZkLQMuUhAQoAGlQHBgIxUhGRADAgGJKPYfmoB8hZwuyIerpj/fkXuXQZk7vPgFehGtHxeMvcuRd7TgZ8MyNx4Fp1uLJHzX+AiRc6pOhreNiC+eBuUI9y/VOZ8QZFvvXy3AekRH8kUspAmFLmOydSEIvnv+qCuhrcRiI9bFUAWAPsDeR5T5Lmjzoa3FciPMt0spG2Bk4QzA/ufARwyILp4RDlB84c++z+g2P/5uhveZiDHZCpySPf22PeAjLYv0qUNzjFsJRAfbxLWacAvuf38cSF0lvZJEw3vo7Lbl803NCBOZlKF9FBm+69l7mGR7mrql6gs4EgD8XNLTlYcnGdH3PsJQUVaIcMsDcgA4Y8TIT0nKy4sDmz3cgP+yhZw5IH4X/+qgMkrFVflmxqayVW1YE1Ho4ZeVFwobgh8vrfphncJiP9lX0Z13TOMhncJiI+P5ZS1rFYCfxiQZsI/SCqr14bV8C4C8Q+RlpWAsXmYDe8ikF+Bs0oAWV1xDSwDoozbKK8HDUgz8Y48Uy+rU+SWigGpMXy3cyHVtcWA1Bt+3ZQiXaf49+wcEpAQoEEVHchncqVdJH+rfm1gm1WBFUYNiCL8qnGXBAwuB/4GHo10xd4pIJqBCk/Itkfza3z0WTTN/+MMSIXYr7idfnbuOuMZRYM21XzXt2rBmo7aDWmeFr7Uo4u7QLHftAEpF77QIa3tM+LwFcW+y3s8izcgfeKQYkyV1xt99j+uHJJ6pwHRxU2KYl5ew4iVMeB9AxKeJxK6wPOfv6fItVkBZV0NCzK3Foh/dn6uoog3KPN9qLz35V9LYUB6xN2K4i0oMRXBAdcrci4bcMH+VgL5VC7a6j4Qf6HMe4sB+T/8bY+LFUVbXDC4uigmFLl91/a2ATkR/vT1KkU8VdHYt8DVivxVh5i2DsioR16x/RiQgMpuXzafAcGAJB0hGRADggHJKLYfA5JTbD8GJKfYfgxITrH9GJCcYvsxIDnF9mNAcortx4DkFNuPAckpth8DklNsPwYkJ5dA/Jaaoa4DeT01Q11/seR5WUP26lWixGH5Z8yBgUwh6DKQ5DRPhnra67sTlr3gfgTkB7CtEUiTwAxwMIECu64C6adxmayzQ7q8ppZVcgakupYCG2Wt3mmBNOiodWdA6tXCTJc3e1yKccptKtB8We99tsubGXBkuwFp+Li0PdPlNbWQsqmilmSOS1PS5VVZysnUoBbJ+0QmZGbVnsByHPtiG+6ixmQd+q1yvbRbjkvfAdfENhfSf9LVG+3VQfOdAAAAAElFTkSuQmCC" alt=""><img class="theme-icon dark-icon" src="data:image/png;base64,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" alt=""></button>
 </div>
 <section class="kpis">
 <div class="card"><div class="label"><span class="kicon">◈</span>Total Cadre</div><div id="kTotal" class="value">0</div><div class="note">Unique cadre records</div></div>
@@ -72,7 +120,7 @@ button{height:44px;}
 <div class="card"><div class="label"><span class="kicon">◈</span>Rejected</div><div id="kRejected" class="value">0</div><div id="pRejected" class="note">0%</div></div>
 </section>
 <section id="blockPanel" class="card blockPanel" hidden>
-<div class="tablehead"><h2>Blockwise Performance Dashboard</h2><button id="closeBlock" class="alt" title="Close">✕</button></div>
+<div class="tablehead"><h2>Cadres Profile Blockwise status</h2><div class="hero-actions"><button id="blockExcel" class="alt iconText" title="Export blockwise performance to Excel" aria-label="Export blockwise performance to Excel"><img class="theme-icon light-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFK0lEQVR4nO2dS6hVVRjHf17TDCy1IPMiEkVWCBIpOUgrsrBJNAkSosegG0QDgyDpMZAadCF6DqI7qOhWgx44uQ4yKBqEFUUPwkFFodDLtIeVklSuWPhd2ndzzl7f3mfvs9bZ+/vDNzp7f+e/vt85a7/WWhvapzHgfGArMAnsBr4HvgG2xDbXdi0C1gMTwNPAHuBPwPWJfbENt0lLgI3ANmAKeBf4q6D4/cJUQePAtcB2YBrYCxyvUHwDUlLzgXOk+DuAGeBATYU3IAEtBNYANwNPSpdzpOHiOwNyQksz/f1sl/NPhOK7LgIZz3Q5r0rxYxfddQHISZkuZ1L6+4MJFNh1AcipwLpcf380gWK6LgCZB1wB3Cddzlc1nmKmGMnr8QSKZEAyOtJxIC5S/A7sBFanYqjrQJzEz8DKlAx1HYiTY3dShroO5HBqhroOxKVoyBmQtAw5A5KWIWdA0jLkDEhahpwBScuQMyBpGXIGJC1DzoCkZcgZkLQMuUhAQoAGlQHBgIxUhGRADAgGJKPYfmoB8hZwuyIerpj/fkXuXQZk7vPgFehGtHxeMvcuRd7TgZ8MyNx4Fp1uLJHzX+AiRc6pOhreNiC+eBuUI9y/VOZ8QZFvvXy3AekRH8kUspAmFLmOydSEIvnv+qCuhrcRiI9bFUAWAPsDeR5T5Lmjzoa3FciPMt0spG2Bk4QzA/ufARwyILp4RDlB84c++z+g2P/5uhveZiDHZCpySPf22PeAjLYv0qUNzjFsJRAfbxLWacAvuf38cSF0lvZJEw3vo7Lbl803NCBOZlKF9FBm+69l7mGR7mrql6gs4EgD8XNLTlYcnGdH3PsJQUVaIcMsDcgA4Y8TIT0nKy4sDmz3cgP+yhZw5IH4X/+qgMkrFVflmxqayVW1YE1Ho4ZeVFwobgh8vrfphncJiP9lX0Z13TOMhncJiI+P5ZS1rFYCfxiQZsI/SCqr14bV8C4C8Q+RlpWAsXmYDe8ikF+Bs0oAWV1xDSwDoozbKK8HDUgz8Y48Uy+rU+SWigGpMXy3cyHVtcWA1Bt+3ZQiXaf49+wcEpAQoEEVHchncqVdJH+rfm1gm1WBFUYNiCL8qnGXBAwuB/4GHo10xd4pIJqBCk/Itkfza3z0WTTN/+MMSIXYr7idfnbuOuMZRYM21XzXt2rBmo7aDWmeFr7Uo4u7QLHftAEpF77QIa3tM+LwFcW+y3s8izcgfeKQYkyV1xt99j+uHJJ6pwHRxU2KYl5ew4iVMeB9AxKeJxK6wPOfv6fItVkBZV0NCzK3Foh/dn6uoog3KPN9qLz35V9LYUB6xN2K4i0oMRXBAdcrci4bcMH+VgL5VC7a6j4Qf6HMe4sB+T/8bY+LFUVbXDC4uigmFLl91/a2ATkR/vT1KkU8VdHYt8DVivxVh5i2DsioR16x/RiQgMpuXzafAcGAJB0hGRADggHJKLYfA5JTbD8GJKfYfgxITrH9GJCcYvsxIDnF9mNAcortx4DkFNuPAckpth8DklNsPwYkJ5dA/Jaaoa4DeT01Q11/seR5WUP26lWixGH5Z8yBgUwh6DKQ5DRPhnra67sTlr3gfgTkB7CtEUiTwAxwMIECu64C6adxmayzQ7q8ppZVcgakupYCG2Wt3mmBNOiodWdA6tXCTJc3e1yKccptKtB8We99tsubGXBkuwFp+Li0PdPlNbWQsqmilmSOS1PS5VVZysnUoBbJ+0QmZGbVnsByHPtiG+6ixmQd+q1yvbRbjkvfAdfENhfSf9LVG+3VQfOdAAAAAElFTkSuQmCC" alt=""><img class="theme-icon dark-icon" src="data:image/png;base64,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" alt=""></button><button id="blockImage" class="alt iconText" title="Save blockwise performance as image" aria-label="Save blockwise performance as image"><img class="theme-icon light-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAADcUlEQVR4nO2cS4hOYRjHfwymhEhqECIW7haU2Ni4lYUkbBhrl8RIWaizGkIiNlJyaTIuS/dIyoKSe8jIgsGCUMJoZhy99W4w53POdy7fe875/+rp6/tmet55n9/XeS/nnQNCCCGEEEIIIYQQQgghhBBCiH+ZBpwA2oEuwC9pdNkaHAemZlX8TSUvul9Bxsa0i7/KgY76DscvYHlaxa8H3jnQSd/xaLe1SpzFDnTOz0ksSkPAVgc65uckmtIQ4DnQMT8nYWolAUhAacOTACSgzOFJABIQJh4Cq4GRQF/7usZ+XusiFl7AfqAuoC3z+QEHCllYAadCtNcLaHWgmIUT0AEMD9nmCPv7tS5ooQRcjNjuJQcKWigBeyK2u9eBghZKgCloFPY5UNBSX4IuO1DQQgnosINrGDQIpzQNbbXTzEqYn592oJiFFODbhVZdQFtaiGUgwAceAY3AKKCffTXvHztQxFII8AsaEoAElDo8CUACyhyeBCABLsYX4DZwA3hmz3JKAOnHTWAB0OevPjUAO6wYCSD56Aa2hdj2GAvckwASjZ/2OH1YBgBXJIBE4ps9zR0Vsx1yRgKIFZ+BuTH6aTYCDxddgLk83AJagHP2HFASM5K3wJQE+mrGjJ1FFPDFnp0f2EP+McBBO3BWk7vNDqZJsqXKL4aTAu6HLNA84EPE3A/slDINzPZ4Z94FmNnFoAhtjQOehsxtFlZDSZclwPe8CjjSwwIoDEOA6//JfR7oTzbMBj7mSUC3vYbGYQLwIyD/SXugN0umA+/zIMAUbWXM9iYCrwPyHwJ6UxvMOPbCZQHmGzIrZlszKwzEu6g9DXZS4ZyAJ3Y6GYf5wNeAS9p63GGwnQA4I+Ca/aPisDTgmm+mgWtxD88VAUcTGBAbA+bb1e7rlEaAeVRLXLYHrDg/AXNwFycEeDH3XHZXGMxn4Da5FlBnF2k95XwFjMd9civAPM7lbIWZlPlvyTyQSwHmztPVgFx3MtjXKZyA5gg5hgF3A/JcyHBfJymaXRDQFvJ6PRp4HpCjpQb7OiSwT/UySwFNFdYBCv6IzWkI0CPLCB0L0xBQb++51rpzvuPxxp6uSIUVKR7n8wsQpjbLSJkNVdwjLUN0AuvIiMnAMXvDpMxP0e2yNTCbkZOyKr4QQgghhBBCCCGEEEIIIYQQ5IbfN1BizyfrNm8AAAAASUVORK5CYII=" alt=""><img class="theme-icon dark-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAADAUlEQVR4nO2cO2gUURSGP18EHyBi4aOTIDYxirWFYKGrCFYmhZWIjegSErHdKtZiITZi7Cy0sBIrQVAEsVAbsfGRVaxEg4K67pWBu7CY7Oy87529/wc/IYTkzjkfszNzdm9ACCGEEEIIIYQQQgghhBBCCLGcSeA2sAh0ABNoOrYHC7YnldAMvOkmRsbFsps/7UGhxuN0gamymj8GfPKgSON52rZXhdPwoDhTkxwtQ8CcB4WZmmS2DAGtAYu9BcYJj3Fb+0o9iXpVmYB5wmXeBwGlLFYTKu2JBCxHAhwjAY6pvYDJvpnSbxdzlZAFNGNmSpXMVUIWMO16rhKygDQzpXZZc5WQBTR8mKuELGDOh7lKyAJmUwqYwV+CeAk6gr/UUsCYvbgaXYTdLTZlbzNNTKKfn8JvaisA+6DVGfA39SBW0WJ7gVvAB+CX/Rp9P0E9qL2AuiMBjpEAx0iAYyTAMRLgGAlIwVbgPHAPeAo8tre80UPhOrIhAQlYZQeA32Oeut9lnDlJwBCiOdKdISOPXv4Cl0iHBMSwEXiQsPn9uQqsJhkSMIAtwJMMze8l+qTGWoYjASuwA3iZo/m93AfWM4ICJuzbkteBm/b3D6c47ePYYy+opqA8AjaPioDdwMOYYt/Yd8uycgD4UmDze3kBbCupJ6nIs9hJYClBsV3gSoaz4RDwrYTm9xLtA9hVcE9Sk3Wxpr3FS1PwXWBDwuM6Afwssfm9fAb2FdSTTKRdbA1wLUfBz4DtQ47ptP1MqakoX4GDOXqSizSLbbJ3EXkLXgT2DzieCxnOrCLyAzjms4CdwPMCC14Cjv+3xmUHje/PH+CMjwKi18iPJRV8zr6s3XDc/P4bhtc+CWgMGXgVkVceND5JKhdwtuKLofE8lQp470HBJmQBChJgPIsEIAFBpyUBSEDIaUkAoycg7d6ukDNThgD9yzLc7mtLs7cr5LTL3NeWZG9XyOlWsa8tbm9XyOlUua+tf29XyDI6NdzXJoQQQgghhBBCCCGEEEIIIQTV8Q9jHg7CPAGNZgAAAABJRU5ErkJggg==" alt=""></button><button id="closeBlock" class="alt" title="Close">✕</button></div></div>
 <div class="tablewrap"><table id="blockTable"><thead><tr><th data-bkey="_serial">S.No. ↕</th><th data-bkey="block">Block ↕</th><th data-bkey="total">Total Cadre ↕</th><th data-bkey="noRole">Without Role ↕</th><th data-bkey="filled">Profile Filled ↕</th><th data-bkey="filledPct">Filled % ↕</th><th data-bkey="approved">Approved ↕</th><th data-bkey="approvedPct">Approved % ↕</th><th data-bkey="pending">Pending ↕</th><th data-bkey="rejected">Rejected ↕</th></tr></thead><tbody id="blockTbody"></tbody></table></div>
 </section>
 <section id="subrolePanel" class="card subrolePanel" hidden>
@@ -85,8 +133,8 @@ button{height:44px;}
 <div class="card"><h2>Profile Status Metrics</h2><div class="chartbox"><canvas id="statusChart"></canvas></div></div>
 </section>
 <section class="card tablecard">
-<div class="tablehead"><h2>List-wise Cadre Details</h2><div id="count" class="label"></div></div>
-<div class="tablewrap"><table><thead><tr>
+<div class="tablehead"><h2>List-wise Cadre Details</h2><div class="hero-actions"><div id="count" class="label"></div><button id="toggleCadres" class="alt" aria-expanded="false" title="Expand cadre list">Expand ▼</button></div></div>
+<div id="cadresListBody" class="tablewrap"><table><thead><tr>
 <th data-key="_serial">S.No. ↕</th><th data-key="block">Block ↕</th><th data-key="name">Name ↕</th><th data-key="cadreId">Cadre ID ↕</th><th data-key="subRoleCount">No. of Sub Roles ↕</th><th data-key="subRoles">Assigned Sub-Roles ↕</th><th data-key="vertical">Vertical ↕</th><th data-key="profileFilled">Profile Filled ↕</th><th data-key="status">Approval Status ↕</th>
 </tr></thead><tbody id="tbody"></tbody></table></div>
 </section>
@@ -104,10 +152,10 @@ const blocks=[...new Set(rows.map(x=>x.block))].sort();
 blocks.forEach(x=>$('block').add(new Option(x,x)));
 Object.keys(verticalMap).sort().forEach(x=>$('vertical').add(new Option(x,x)));
 function pct(n,total){return total?Math.round(n*1000/total)/10:0}
-function colorFor(p){return p>=90?'#166534':p>=80?'#16a34a':p>=60?'#a16207':p>=50?'#ca8a04':p>=30?'#ea580c':'#dc2626'}
-function bgFor(p){return p>=90?'#dcfce7':p>=80?'#d1fae5':p>=60?'#fef3c7':p>=50?'#fef9c3':p>=30?'#ffedd5':'#fee2e2'}
-function pctBadge(p){return `<span class="pct-badge" style="color:${colorFor(p)};background:${bgFor(p)}">${p}%</span>`}
-function setPct(id,n,total){const p=pct(n,total),el=$(id);el.textContent=p+'% achievement';el.style.color=colorFor(p);el.style.fontWeight='800'}
+function colorFor(p){return '#000000'}
+function bgFor(p){return p>=90?'#22c55e':p>=80?'#86efac':p>=60?'#fde047':p>=50?'#facc15':p>=30?'#fb923c':'#f87171'}
+function pctBadge(p){return `<span class="pct-badge" style="color:#000000;background:${bgFor(p)}">${p}%</span>`}
+function setPct(id,n,total){const p=pct(n,total),el=$(id);el.textContent=p+'% achievement';el.classList.add('pct-badge');el.style.setProperty('color','#000000','important');el.style.setProperty('background',bgFor(p),'important');el.style.fontWeight='800';el.style.display='inline-block';el.style.padding='3px 7px';el.style.borderRadius='4px'}
 function selected(){const q=$('search').value.toLowerCase(),b=$('block').value,s=$('status').value,f=$('filled').value,v=$('vertical').value;return rows.filter(x=>(!b||x.block===b)&&(!s||x.status===s)&&(!f||x.profileFilled===f)&&(!v||x.vertical.split(', ').includes(v))&&(!q||Object.values(x).join(' ').toLowerCase().includes(q)))}
 function countBy(arr,key){return arr.reduce((o,x)=>{let k=x[key]||'-';o[k]=(o[k]||0)+1;return o},{})}
 function vClass(v){const t=(v||'Unmapped').toLowerCase();if(t.includes('financial'))return 'v-financial';if(t.includes('institutional'))return 'v-institutional';if(t.includes('farm')&&!t.includes('non'))return 'v-farm';if(t.includes('non-farm'))return 'v-nonfarm';if(t.includes('sisd'))return 'v-sisd';return 'v-unmapped'}
@@ -143,19 +191,77 @@ function drawCharts(r){
  const titleEl=$('selectedVerticalTitle');titleEl.textContent=selectedVertical||'All Verticals — Cadre Count';titleEl.classList.toggle('all-verticals',!selectedVertical);
 }
 document.querySelectorAll('th[data-key]').forEach(th=>th.addEventListener('click',()=>{let k=th.dataset.key;if(sortKey===k)asc=!asc;else{sortKey=k;asc=true}render()}));$('reset').onclick=()=>{['search','block','status','filled','vertical'].forEach(id=>$(id).value='');sortKey='block';asc=true;render()};$('theme').onclick=()=>{document.body.classList.toggle('dark');$('theme').textContent=document.body.classList.contains('dark')?'☀':'☾'};
+function blockSummaryRows(){
+ const r=selected();
+ const summary=[...new Set(r.map(x=>x.block||'-'))].map(block=>{
+  const rows=r.filter(x=>(x.block||'-')===block),total=rows.length;
+  const noRole=rows.filter(x=>!(x.subRoles||'').trim()).length;
+  const filled=rows.filter(x=>x.profileFilled==='Yes').length;
+  const approved=rows.filter(x=>x.status==='Approved').length;
+  const pending=rows.filter(x=>x.status==='Pending').length;
+  const rejected=rows.filter(x=>x.status==='Rejected').length;
+  return {block,total,noRole,filled,filledPct:pct(filled,total),approved,approvedPct:pct(approved,total),pending,rejected};
+ });
+ summary.sort((a,b)=>b.approvedPct-a.approvedPct || String(a.block).localeCompare(String(b.block),undefined,{numeric:true}));
+ return summary.map((x,i)=>[i+1,x.block,x.total,x.noRole,x.filled,x.filledPct,x.approved,x.approvedPct,x.pending,x.rejected]);
+}
+function styleWorksheet(ws,headers){
+ const navy='0F766E',light='E8F3F1';
+ ws['!cols']=[{wch:8},{wch:24},{wch:14},{wch:16},{wch:16},{wch:14},{wch:14},{wch:15},{wch:12},{wch:12}];
+ ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:9}},{s:{r:1,c:0},e:{r:1,c:9}},{s:{r:2,c:0},e:{r:2,c:9}}];
+ ws['A1'].s={font:{name:'Arial',sz:18,bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:navy}},alignment:{horizontal:'left'}};
+ ws['A2'].s={font:{name:'Arial',sz:11,italic:true,color:{rgb:'334155'}}};
+ headers.forEach((h,c)=>{const a=XLSX.utils.encode_cell({r:4,c});ws[a].s={font:{name:'Arial',sz:11,bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:navy}},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:{bottom:{style:'thin',color:{rgb:'CBD5E1'}}}}});
+ for(let r=5;r<5+blockSummaryRows().length;r++)for(let c=0;c<headers.length;c++){const a=XLSX.utils.encode_cell({r,c});if(ws[a])ws[a].s={font:{name:'Arial',sz:10,color:{rgb:'111827'}},fill:{fgColor:{rgb:r%2?'FFFFFF':light}},alignment:{horizontal:[0,2,3,4,6,8,9].includes(c)?'center':'left',vertical:'center'},border:{bottom:{style:'hair',color:{rgb:'D1D5DB'}}}}}
+ for(let r=5;r<5+blockSummaryRows().length;r++){[5,7].forEach(c=>{const a=XLSX.utils.encode_cell({r,c});if(ws[a]){const v=Number(ws[a].v)||0;ws[a].s=ws[a].s||{};ws[a].s.font={name:'Arial',sz:10,color:{rgb:'000000'},bold:true};ws[a].s.fill={fgColor:{rgb:(v>=90?'22C55E':v>=80?'86EFAC':v>=60?'FDE047':v>=50?'FACC15':v>=30?'FB923C':'F87171')}};}})}
+ ws['!rows']=[{hpt:30},{hpt:20},{hpt:20},{hpt:8},{hpt:32}];
+}
+function exportDate(){return new Date().toISOString().slice(0,10)}
+$('blockExcel').onclick=()=>{
+ const headers=['S.No.','Block','Total Cadre','Without Role','Profile Filled','Filled %','Approved','Approved %','Pending','Rejected'];
+ const data=[['Cadres Profile Blockwise status'],[$('lastUpdated').textContent||'Last updated: Not available'],['Generated: '+new Date().toLocaleString()],[],headers,...blockSummaryRows()];
+ const ws=XLSX.utils.aoa_to_sheet(data);styleWorksheet(ws,headers);
+ const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Blockwise Performance');
+ XLSX.writeFile(wb,`Cadres Profile Blockwise status - ${exportDate()}.xlsx`,{bookType:'xlsx',compression:true});
+};
+$('blockImage').onclick=async()=>{
+ const panel=$('blockPanel');
+ try{
+   const exportWrap=document.createElement('div');
+   exportWrap.style.cssText='position:fixed;left:-100000px;top:0;width:1400px;padding:28px;background:#ffffff;color:#111827;font-family:Arial,sans-serif;z-index:-1';
+   const title=document.createElement('div');
+   const logo=$('heroLogo')||document.querySelector('.hero img'); const logoHtml=logo?'<img src="'+logo.src+'" style="width:72px;height:72px;object-fit:contain;float:left;margin-right:18px">':''; title.innerHTML=logoHtml+'<div style="font-size:34px;font-weight:800;margin-bottom:10px;padding-top:4px">Cadres Profile Blockwise status</div><div style="font-size:14px;margin-bottom:4px">Mizoram State Rural Livelihoods Mission</div><div style="font-size:12px;color:#475569;margin-bottom:16px">'+($('lastUpdated').textContent||'Last updated: Not available')+' &nbsp; | &nbsp; Generated: '+new Date().toLocaleString()+'</div>';
+   exportWrap.appendChild(title);
+   const clone=panel.cloneNode(true); clone.hidden=false; clone.querySelectorAll('button').forEach(b=>b.remove());
+   clone.classList.add('export-capture'); clone.style.cssText='display:block;margin:0;background:#fff;color:#111827;box-shadow:none;width:100%;max-height:none;overflow:visible';
+   clone.querySelectorAll('.tablewrap').forEach(el=>{el.style.maxHeight='none';el.style.height='auto';el.style.overflow='visible';el.style.overflowY='visible';el.style.overflowX='visible'});
+   clone.querySelectorAll('table').forEach(el=>{el.style.width='100%';el.style.tableLayout='fixed';el.style.borderCollapse='collapse'});
+   clone.querySelectorAll('th,td').forEach(el=>{el.style.overflow='visible';el.style.whiteSpace='normal';el.style.pageBreakInside='avoid'});
+   clone.querySelectorAll('th').forEach(th=>{th.style.background='#1e3a8a';th.style.color='#fff'});
+   clone.querySelectorAll('.pct-badge').forEach(el=>{el.style.fontWeight='800';el.style.color='#000000';el.style.border='1px solid rgba(15,23,42,.18)';el.style.webkitPrintColorAdjust='exact';el.style.printColorAdjust='exact'});
+   exportWrap.appendChild(clone); document.body.appendChild(exportWrap);
+   const canvas=await html2canvas(exportWrap,{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,windowWidth:1500});
+   document.body.removeChild(exportWrap);
+   const a=document.createElement('a');a.download=`Cadres Profile Blockwise status - ${exportDate()}.png`;a.href=canvas.toDataURL('image/png');a.click();
+ }catch(e){console.error(e);alert('Unable to save image. Please try again.');}
+};
+$('toggleCadres').onclick=()=>{
+ const body=$('cadresListBody'),btn=$('toggleCadres');const collapsed=body.style.display==='none'||getComputedStyle(body).display==='none';
+ body.style.display=collapsed?'block':'none';btn.setAttribute('aria-expanded',String(collapsed));btn.style.fontSize='0';btn.style.setProperty('--toggle-label',collapsed?'Collapse ▲':'Expand ▼');btn.title=collapsed?'Collapse cadre list':'Expand cadre list';btn.textContent=collapsed?'Collapse ▲':'Expand ▼';
+};
 $('xls').onclick=()=>{
  const r=selected();
  const headers=['S.No.','Block','Name','Cadre ID','No. of Sub Roles','Assigned Sub-Roles','Vertical','Profile Filled','Approval Status'];
- const data=[['Cadres Profile List'],['Last updated: As on 8 September 2026'],[],headers,...r.map((x,i)=>[i+1,x.block||'-',x.name||'-',x.cadreId||'-',Number(x.subRoleCount)||0,x.subRoles||'-',x.vertical||'Unmapped',x.profileFilled||'-',x.status||'-'])];
+ const data=[['Cadres Profile List'],[$('lastUpdated').textContent||'Last updated: Not available'],['Generated: '+new Date().toLocaleString()],[],headers,...r.map((x,i)=>[i+1,x.block||'-',x.name||'-',x.cadreId||'-',Number(x.subRoleCount)||0,x.subRoles||'-',x.vertical||'Unmapped',x.profileFilled||'-',x.status||'-'])];
  const ws=XLSX.utils.aoa_to_sheet(data);
- ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:8}},{s:{r:1,c:0},e:{r:1,c:8}}];
+ ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:8}},{s:{r:1,c:0},e:{r:1,c:8}},{s:{r:2,c:0},e:{r:2,c:8}}];
  ws['!cols']=[{wch:8},{wch:20},{wch:25},{wch:24},{wch:16},{wch:48},{wch:24},{wch:16},{wch:18}];
  const navy='1E3A8A', light='E8EEF7';
  ws['A1'].s={font:{name:'Arial',sz:18,bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:navy}},alignment:{horizontal:'left',vertical:'center'}};
  ws['A2'].s={font:{name:'Arial',sz:11,italic:true,color:{rgb:'334155'}},alignment:{horizontal:'left',vertical:'center'}};
  headers.forEach((h,c)=>{const cell=ws[XLSX.utils.encode_cell({r:3,c})];cell.s={font:{name:'Arial',sz:12,bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:navy}},alignment:{horizontal:'center',vertical:'center',wrapText:true},border:{bottom:{style:'thin',color:{rgb:'CBD5E1'}}}};});
- for(let rix=4;rix<data.length;rix++) for(let c=0;c<headers.length;c++) {const addr=XLSX.utils.encode_cell({r:rix,c}); if(!ws[addr])continue; ws[addr].s={font:{name:'Arial',sz:11,color:{rgb:'111827'}},fill:{fgColor:{rgb:rix%2?'FFFFFF':light}},alignment:{horizontal:c in [0,4]?'center':'left',vertical:'top',wrapText:true},border:{bottom:{style:'hair',color:{rgb:'D1D5DB'}}}};}
- ws['!rows']=[{hpt:28},{hpt:20},{hpt:8},{hpt:34}];
+ for(let rix=5;rix<data.length;rix++) for(let c=0;c<headers.length;c++) {const addr=XLSX.utils.encode_cell({r:rix,c}); if(!ws[addr])continue; ws[addr].s={font:{name:'Arial',sz:11,color:{rgb:'111827'}},fill:{fgColor:{rgb:rix%2?'FFFFFF':light}},alignment:{horizontal:c in [0,4]?'center':'left',vertical:'top',wrapText:true},border:{bottom:{style:'hair',color:{rgb:'D1D5DB'}}}};}
+ ws['!rows']=[{hpt:30},{hpt:20},{hpt:20},{hpt:8},{hpt:34}];
  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Cadres Profile List');
  XLSX.writeFile(wb,'cadres_profile_list.xlsx',{bookType:'xlsx',compression:true});
 };
@@ -238,7 +344,7 @@ function renderBlockPerformance(){
    const rejected=rows.filter(x=>x.status==='Rejected').length;
    return {block,total,noRole,filled,filledPct:pct(filled,total),approved,approvedPct:pct(approved,total),pending,rejected};
  });
- summary.sort((a,b)=>{const av=a[blockSortKey],bv=b[blockSortKey];return (typeof av==='number'&&typeof bv==='number'?av-bv:String(av).localeCompare(String(bv),undefined,{numeric:true}))* (blockAsc?1:-1)});
+ summary.sort((a,b)=>b.approvedPct-a.approvedPct || String(a.block).localeCompare(String(b.block),undefined,{numeric:true}));
  summary.forEach((x,i)=>x._serial=i+1);
  $('blockTbody').innerHTML=summary.map(x=>`<tr><td class="serial-cell">${x._serial}</td><td class="block-cell">${x.block}</td><td>${x.total}</td><td>${x.noRole}</td><td>${x.filled}</td><td class="pct-cell">${pctBadge(x.filledPct)}</td><td>${x.approved}</td><td class="pct-cell">${pctBadge(x.approvedPct)}</td><td>${x.pending}</td><td>${x.rejected}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">No matching records</td></tr>';
 }
