@@ -63,13 +63,13 @@ body.dark .theme-icon.dark-icon{display:block}
 #blockExcel,#blockImage{padding:8px!important;width:44px!important;min-width:44px!important;display:inline-grid!important;place-items:center!important}
 
 /* Final requested export and readability refinements */
-.pct-badge,.blockPanel .pct-badge,.note.pct-badge{color:#000000!important;}
+
 .iconText span{display:none!important;} .iconText svg{width:22px!important;height:22px!important;} #toggleCadres::after{font-size:12px!important;}
 .iconText{width:44px!important;min-width:44px!important;padding:10px!important;justify-content:center;}
 #cadresListBody{display:none;}
 #toggleCadres{font-size:0;}
 #toggleCadres::after{content:'Expand ▼';font-size:inherit;}
-.export-capture .pct-badge{color:#000!important;}
+
 .export-capture th,.export-capture td{padding:5px 7px!important;font-size:18px!important;line-height:1.15!important;}
 .export-capture th{font-size:19px!important;}
 .export-capture .pct-badge{font-size:18px!important;padding:3px 6px!important;}
@@ -248,7 +248,7 @@ $('blockImage').onclick=async()=>{
    clone.querySelectorAll('table').forEach(el=>{el.style.width='100%';el.style.tableLayout='fixed';el.style.borderCollapse='collapse'});
    clone.querySelectorAll('th,td').forEach(el=>{el.style.overflow='visible';el.style.whiteSpace='normal';el.style.pageBreakInside='avoid'});
    clone.querySelectorAll('th').forEach(th=>{th.style.background='#1e3a8a';th.style.color='#fff'});
-   clone.querySelectorAll('.pct-badge').forEach(el=>{el.style.fontWeight='800';el.style.color=colorFor(Number(el.textContent)||0);el.style.border='1px solid rgba(15,23,42,.18)';el.style.webkitPrintColorAdjust='exact';el.style.printColorAdjust='exact'});
+   clone.querySelectorAll('.pct-badge').forEach(el=>{el.style.fontWeight='800';el.style.border='1px solid rgba(15,23,42,.18)';el.style.webkitPrintColorAdjust='exact';el.style.printColorAdjust='exact'});
    exportWrap.appendChild(clone); document.body.appendChild(exportWrap);
    const canvas=await html2canvas(exportWrap,{backgroundColor:'#ffffff',scale:2,useCORS:true,logging:false,windowWidth:1500});
    document.body.removeChild(exportWrap);
@@ -354,8 +354,17 @@ function renderBlockPerformance(){
    const rejected=rows.filter(x=>x.status==='Rejected').length;
    return {block,total,noRole,filled,filledPct:pct(filled,total),approved,approvedPct:pct(approved,total),pending,rejected};
  });
- summary.sort((a,b)=>b.approvedPct-a.approvedPct || String(a.block).localeCompare(String(b.block),undefined,{numeric:true}));
- summary.forEach((x,i)=>x._serial=i+1);
+ // Keep S.No. fixed to the default block order, while sorting only the displayed rows.
+ const serialByBlock=new Map([...summary].sort((a,b)=>String(a.block).localeCompare(String(b.block),undefined,{numeric:true})).map((x,i)=>[x.block,i+1]));
+ summary.forEach(x=>x._serial=serialByBlock.get(x.block));
+ const valueFor=(x,key)=>key==='block'?String(x.block??''):Number(x[key]??0);
+ summary.sort((a,b)=>{
+   const av=valueFor(a,blockSortKey), bv=valueFor(b,blockSortKey);
+   let cmp;
+   if(blockSortKey==='block') cmp=av.localeCompare(bv,undefined,{numeric:true,sensitivity:'base'});
+   else cmp=(Number.isFinite(av)?av:0)-(Number.isFinite(bv)?bv:0);
+   return (cmp||String(a.block).localeCompare(String(b.block),undefined,{numeric:true,sensitivity:'base'}))*(blockAsc?1:-1);
+ });
  $('blockTbody').innerHTML=summary.map(x=>`<tr><td class="serial-cell">${x._serial}</td><td class="block-cell">${x.block}</td><td>${x.total}</td><td>${x.noRole}</td><td>${x.filled}</td><td class="pct-cell">${pctBadge(x.filledPct)}</td><td>${x.approved}</td><td class="pct-cell">${pctBadge(x.approvedPct)}</td><td>${x.pending}</td><td>${x.rejected}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">No matching records</td></tr>';
 }
 let subroleSortKey='block', subroleAsc=true;
