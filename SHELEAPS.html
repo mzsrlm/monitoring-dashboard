@@ -357,7 +357,7 @@ function renderTable(rows,cols){
   if(state.sortKey)filtered.sort((a,b)=>{const rank=targetBottom(a,b);if(rank)return rank;let x,y;if(state.sortKey==="__achievement"){x=achievement(a,cols);y=achievement(b,cols);}else{x=a[state.sortKey];y=b[state.sortKey];}if(x===null||x===undefined||x==="")return 1*state.sortDir;if(y===null||y===undefined||y==="")return -1*state.sortDir;if(numeric(x)&&numeric(y))return (Number(x)-Number(y))*state.sortDir;return String(x??"").localeCompare(String(y??""))*state.sortDir;});
   else filtered=[...filtered.map((r,i)=>({r,i})).sort((a,b)=>{const rank=targetBottom(a.r,b.r);return rank||a.i-b.i;}).map(x=>x.r)];
   if(!filtered.length){$("tableWrap").innerHTML='<div class="empty">No matching records.</div>';return;}
-  const displayCols=cols;const headerLabel=(c)=>{if(["IFC","PG","CHC"].includes(state.active)){if(/^total$/i.test(String(c).trim())||/^target$/i.test(String(c).trim()))return "Target";if(/^total\.\d+$/i.test(String(c).trim()))return "Total";}return c;};
+  const displayCols=cols.filter(c=>!/^target$/i.test(String(c).trim()));const headerLabel=(c)=>{if(["IFC","PG","CHC"].includes(state.active)){if(/^total$/i.test(String(c).trim())||/^target$/i.test(String(c).trim()))return "Target";if(/^total\.\d+$/i.test(String(c).trim()))return "Total";}return c;};
   const headers=[...displayCols,"Achievement %"];const sortKeyFor=(c)=>c==="Achievement %"?"__achievement":c;const isStaticSerial=(c)=>/^(s\.?\s*no|serial\s*no|serial\s*number)$/i.test(String(c).trim());
   let out="<table><thead><tr>"+headers.map(c=>{const key=sortKeyFor(c);const sortable=!isStaticSerial(c);return `<th ${sortable?`data-sort="${key}"`:"class=\"static-col\""}>${headerLabel(c)}${sortable?`<span class="sort">${state.sortKey===key?(state.sortDir===1?"▲":"▼"):"↕"}</span>`:""}</th>`;}).join("")+"</tr></thead><tbody>";
   filtered.forEach((r,rowIndex)=>{out+="<tr>";displayCols.forEach(c=>{const isSerial=isStaticSerial(c);let v=isSerial?rowIndex+1:r[c];out+=`<td class="${numeric(v)?"num":""}">${v??"—"}</td>`});const p=achievement(r,cols);out+=`<td class="num">${p===null?"—":`<span class="percent-cell ${pctClass(p)}">${pct(p)}</span>`}</td></tr>`;});out+="</tbody></table>";$("tableWrap").innerHTML=out;
@@ -386,7 +386,7 @@ function exportExcel(){
   const {rows,cols}=getVisibleRows();
   const title=TITLE_MAP[state.active]||state.active;
   const wb=XLSX.utils.book_new();
-  const headers=cols.map(c=>{if(["IFC","PG","CHC"].includes(state.active)&&/^total$/i.test(String(c).trim()))return 'Target';if(["IFC","PG","CHC"].includes(state.active)&&/^total\.\d+$/i.test(String(c).trim()))return 'Total';return c;});
+  const exportCols=cols.filter(c=>!/^target$/i.test(String(c).trim()));const headers=exportCols.map(c=>{if(["IFC","PG","CHC"].includes(state.active)&&/^total$/i.test(String(c).trim()))return 'Target';if(["IFC","PG","CHC"].includes(state.active)&&/^total\.\d+$/i.test(String(c).trim()))return 'Total';return c;});
   headers.push('Achievement %');
   const body=rows.map((r,i)=>[...cols.map(c=>/^(s\.?\s*no|serial\s*no|serial\s*number)$/i.test(String(c).trim())?i+1:(r[c]??'')),achievement(r,cols)===null?'':achievement(r,cols)/100]);
   const livelihood=["IFC","PG","CHC"].includes(state.active)?"Farm Livelihoods":"Non-Farm Livelihoods"; const ws=XLSX.utils.aoa_to_sheet([['SHE-LEAPS'],[title],[livelihood],[`Last Updated: ${activeLastUpdated()}`],[],headers,...body]);
