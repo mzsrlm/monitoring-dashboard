@@ -167,9 +167,14 @@ function bgFor(p){
 function pctBadge(p){return `<span class="pct-badge" style="color:${colorFor(p)};background:${bgFor(p)}">${p}%</span>`}
 function setPct(id,n,total){const p=pct(n,total),el=$(id);el.textContent=p+'% achievement';el.classList.add('pct-badge');el.style.setProperty('color',colorFor(p),'important');el.style.setProperty('background',bgFor(p),'important');el.style.fontWeight='800';el.style.display='inline-block';el.style.padding='3px 7px';el.style.borderRadius='4px'}
 function selected(){const q=$('search').value.toLowerCase(),b=$('block').value,s=$('status').value,f=$('filled').value,v=$('vertical').value;return rows.filter(x=>(!b||x.block===b)&&(!s||x.status===s)&&(!f||x.profileFilled===f)&&(!v||x.vertical.split(', ').includes(v))&&(!q||Object.values(x).join(' ').toLowerCase().includes(q)))}
+function sortedCadreRows(list){
+ const out=[...list];
+ out.sort((a,b)=>String(a[sortKey]??'').localeCompare(String(b[sortKey]??''),undefined,{numeric:true})*(asc?1:-1));
+ return out;
+}
 function countBy(arr,key){return arr.reduce((o,x)=>{let k=x[key]||'-';o[k]=(o[k]||0)+1;return o},{})}
 function vClass(v){const t=(v||'Unmapped').toLowerCase();if(t.includes('financial'))return 'v-financial';if(t.includes('institutional'))return 'v-institutional';if(t.includes('farm')&&!t.includes('non'))return 'v-farm';if(t.includes('non-farm'))return 'v-nonfarm';if(t.includes('sisd'))return 'v-sisd';return 'v-unmapped'}
-function render(){const r=selected(),total=r.length,filled=r.filter(x=>x.profileFilled.toLowerCase()==='yes').length,approved=r.filter(x=>x.status==='Approved').length,pending=r.filter(x=>x.status==='Pending').length,rejected=r.filter(x=>x.status==='Rejected').length,noRole=r.filter(x=>!(x.subRoles||'').trim()).length;$('kTotal').textContent=total.toLocaleString();$('kNoRole').textContent=noRole;$('kFilled').textContent=filled;$('kApproved').textContent=approved;$('kPending').textContent=pending;$('kRejected').textContent=rejected;setPct('pFilled',filled,total);setPct('pApproved',approved,total);setPct('pPending',pending,total);setPct('pRejected',rejected,total);$('count').textContent=total+' records';r.sort((a,b)=>String(a[sortKey]??'').localeCompare(String(b[sortKey]??''),undefined,{numeric:true})*(asc?1:-1));$('tbody').innerHTML=r.length?r.map((x,i)=>`<tr><td class="num">${i+1}</td><td class="block-cell">${x.block}</td><td><b>${x.name}</b></td><td>${x.cadreId}</td><td class="num">${x.subRoleCount}</td><td>${x.subRoles||'—'}</td><td class="vcell ${vClass(x.vertical)}">${x.vertical||'Unmapped'}</td><td><span class="pill ${x.profileFilled.toLowerCase()==='yes'?'yes':'no'}">${x.profileFilled||'—'}</span></td><td><span class="pill ${(x.status||'').toLowerCase()}">${x.status||'-'}</span></td></tr>`).join(''):`<tr><td colspan="10" class="empty">No matching records</td></tr>`;drawCharts(r)}
+function render(){const r=sortedCadreRows(selected()),total=r.length,filled=r.filter(x=>x.profileFilled.toLowerCase()==='yes').length,approved=r.filter(x=>x.status==='Approved').length,pending=r.filter(x=>x.status==='Pending').length,rejected=r.filter(x=>x.status==='Rejected').length,noRole=r.filter(x=>!(x.subRoles||'').trim()).length;$('kTotal').textContent=total.toLocaleString();$('kNoRole').textContent=noRole;$('kFilled').textContent=filled;$('kApproved').textContent=approved;$('kPending').textContent=pending;$('kRejected').textContent=rejected;setPct('pFilled',filled,total);setPct('pApproved',approved,total);setPct('pPending',pending,total);setPct('pRejected',rejected,total);$('count').textContent=total+' records';$('tbody').innerHTML=r.length?r.map((x,i)=>`<tr><td class="num">${i+1}</td><td class="block-cell">${x.block}</td><td><b>${x.name}</b></td><td>${x.cadreId}</td><td class="num">${x.subRoleCount}</td><td>${x.subRoles||'—'}</td><td class="vcell ${vClass(x.vertical)}">${x.vertical||'Unmapped'}</td><td><span class="pill ${x.profileFilled.toLowerCase()==='yes'?'yes':'no'}">${x.profileFilled||'—'}</span></td><td><span class="pill ${(x.status||'').toLowerCase()}">${x.status||'-'}</span></td></tr>`).join(''):`<tr><td colspan="10" class="empty">No matching records</td></tr>`;drawCharts(r)}
 function drawCharts(r){
  if(roleChart)roleChart.destroy();
  if(statusChart)statusChart.destroy();
@@ -212,9 +217,17 @@ function blockSummaryRows(){
   const rejected=rows.filter(x=>x.status==='Rejected').length;
   return {block,total,noRole,filled,filledPct:pct(filled,total),approved,approvedPct:pct(approved,total),pending,rejected};
  });
- summary.sort((a,b)=>b.approvedPct-a.approvedPct || String(a.block).localeCompare(String(b.block),undefined,{numeric:true}));
+ const valueFor=(x,key)=>key==='block'?String(x.block??''):Number(x[key]??0);
+ summary.sort((a,b)=>{
+  const av=valueFor(a,blockSortKey),bv=valueFor(b,blockSortKey);
+  let cmp;
+  if(blockSortKey==='block') cmp=av.localeCompare(bv,undefined,{numeric:true,sensitivity:'base'});
+  else cmp=(Number.isFinite(av)?av:0)-(Number.isFinite(bv)?bv:0);
+  return (cmp||String(a.block).localeCompare(String(b.block),undefined,{numeric:true,sensitivity:'base'}))*(blockAsc?1:-1);
+ });
  return summary.map((x,i)=>[i+1,x.block,x.total,x.noRole,x.filled,x.filledPct,x.approved,x.approvedPct,x.pending,x.rejected]);
 }
+
 function styleWorksheet(ws,headers){
  const navy='0F766E',light='E8F3F1';
  ws['!cols']=[{wch:8},{wch:24},{wch:14},{wch:16},{wch:16},{wch:14},{wch:14},{wch:15},{wch:12},{wch:12}];
@@ -260,7 +273,7 @@ $('toggleCadres').onclick=()=>{
  body.style.display=collapsed?'block':'none';btn.setAttribute('aria-expanded',String(collapsed));btn.style.fontSize='0';btn.style.setProperty('--toggle-label',collapsed?'Collapse ▲':'Expand ▼');btn.title=collapsed?'Collapse cadre list':'Expand cadre list';btn.textContent=collapsed?'Collapse ▲':'Expand ▼';
 };
 $('xls').onclick=()=>{
- const r=selected();
+ const r=sortedCadreRows(selected());
  const headers=['S.No.','Block','Name','Cadre ID','No. of Sub Roles','Assigned Sub-Roles','Vertical','Profile Filled','Approval Status'];
  const data=[['Cadres Profile List'],[$('lastUpdated').textContent||'Last updated: Not available'],['Generated: '+new Date().toLocaleString()],[],headers,...r.map((x,i)=>[i+1,x.block||'-',x.name||'-',x.cadreId||'-',Number(x.subRoleCount)||0,x.subRoles||'-',x.vertical||'Unmapped',x.profileFilled||'-',x.status||'-'])];
  const ws=XLSX.utils.aoa_to_sheet(data);
@@ -365,7 +378,7 @@ function renderBlockPerformance(){
    else cmp=(Number.isFinite(av)?av:0)-(Number.isFinite(bv)?bv:0);
    return (cmp||String(a.block).localeCompare(String(b.block),undefined,{numeric:true,sensitivity:'base'}))*(blockAsc?1:-1);
  });
- $('blockTbody').innerHTML=summary.map(x=>`<tr><td class="serial-cell">${x._serial}</td><td class="block-cell">${x.block}</td><td>${x.total}</td><td>${x.noRole}</td><td>${x.filled}</td><td class="pct-cell">${pctBadge(x.filledPct)}</td><td>${x.approved}</td><td class="pct-cell">${pctBadge(x.approvedPct)}</td><td>${x.pending}</td><td>${x.rejected}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">No matching records</td></tr>';
+ $('blockTbody').innerHTML=summary.map((x,i)=>`<tr><td class="serial-cell">${i+1}</td><td class="block-cell">${x.block}</td><td>${x.total}</td><td>${x.noRole}</td><td>${x.filled}</td><td class="pct-cell">${pctBadge(x.filledPct)}</td><td>${x.approved}</td><td class="pct-cell">${pctBadge(x.approvedPct)}</td><td>${x.pending}</td><td>${x.rejected}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">No matching records</td></tr>';
 }
 let subroleSortKey='block', subroleAsc=true;
 function renderBlockSubroleReport(){
