@@ -1007,8 +1007,8 @@ body{-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
       <select id="selMetric">
         <option value="basic">Basic profile</option>
         <option value="cutoff">Cut-off</option>
-        <option value="june" selected>August 2026</option>
-        <option value="july">September 2026</option>
+        <option value="a">Month A</option>
+        <option value="b" selected>Month B</option>
       </select>
     </div>
     <div class="ctrl">
@@ -1033,8 +1033,8 @@ body{-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
   <div class="kpi-grid">
     <div class="kpi k-total"><div class="k-label">Total CLFs</div><div class="k-val" id="kTotal">—</div><div class="k-sub" id="kTotalSub">—</div></div>
     <div class="kpi k-clf"><div class="k-label">Basic profile</div><div class="k-val" id="kBasic">—</div><div class="k-sub" id="kBasicSub">—</div></div>
-    <div class="kpi k-jun"><div class="k-label">August 2026 approved</div><div class="k-val" id="kJun">—</div><div class="k-sub" id="kJunSub">—</div></div>
-    <div class="kpi k-jul"><div class="k-label">September 2026 approved</div><div class="k-val" id="kJul">—</div><div class="k-sub" id="kJulSub">—</div></div>
+    <div class="kpi k-jun"><div class="k-label" id="kJunLabel">Month A approved</div><div class="k-val" id="kJun">—</div><div class="k-sub" id="kJunSub">—</div></div>
+    <div class="kpi k-jul"><div class="k-label" id="kJulLabel">Month B approved</div><div class="k-val" id="kJul">—</div><div class="k-sub" id="kJulSub">—</div></div>
   </div>
 
   <div class="charts-row">
@@ -1083,12 +1083,38 @@ body{-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 // status strings: 'approved' | 'pending' | 'review'
-const RAW = [{"district": "Aizawl", "block": "Aibawk", "clf": "Chhimphei CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Aizawl", "block": "Aibawk", "clf": "Zotlangsang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Aizawl", "block": "Darlawn", "clf": "Chalfilh CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Aizawl", "block": "Darlawn", "clf": "Tuisual CLF Sakawrdai", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Aizawl", "block": "Darlawn", "clf": "Tuivawl Cluster Level Federation", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Aizawl", "block": "Thingsulthliah", "clf": "Khawthlir CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Aizawl", "block": "Thingsulthliah", "clf": "Raltiang", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Aizawl", "block": "Tlangnuam", "clf": "Chhawrpial CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Aizawl", "block": "Tlangnuam", "clf": "Zonun CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Champhai", "block": "Khawbung", "clf": "Hlakungpui CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Champhai", "block": "Khawbung", "clf": "Lurhtlang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Champhai", "block": "Khawbung", "clf": "Khuaitlang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Champhai", "block": "Champhai", "clf": "Champhai South CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Champhai", "block": "Champhai", "clf": "Champhai North CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Kolasib", "block": "Thingdawl", "clf": "Sekibuhchhuak CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Kolasib", "block": "Thingdawl", "clf": "Intodelh CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Kolasib", "block": "Bilkhawthlir", "clf": "Serlui CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Kolasib", "block": "Bilkhawthlir", "clf": "Lamtluang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Kolasib", "block": "Bilkhawthlir", "clf": "Chite CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Sangau", "clf": "Farpak CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Sangau", "clf": "Chhawkhlei CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Kamalanagar CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Niribili CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Eksomar CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Ekjoda CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "pending"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Tero CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Thega Valley CLF", "basic": "approved", "cutoff": "approved", "june": "review", "july": "review"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Agathor CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Lawngtlai", "clf": "Chhimtupui CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Lawngtlai", "clf": "Western CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Lawngtlai", "clf": "Lungmawi", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Bungtlang South", "clf": "First CLF Bungtlang", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Bungtlang South", "clf": "Tuichawng CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lawngtlai", "block": "Bungtlang South", "clf": "Chamdur CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Bunghmun", "clf": "Zawlbuk CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Bunghmun", "clf": "Thorang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Lunglei", "clf": "Vanva Cluster Level Federation", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Lunglei", "clf": "Leitlang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Lunglei", "clf": "Ngengrual CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Lungsen", "clf": "Thorang 1 CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Lungsen", "clf": "Beiseina CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Lungsen", "clf": "Hmasawnna CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "pending"}, {"district": "Lunglei", "block": "Tlabung", "clf": "Nunsury CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Tlabung", "clf": "Tlabung CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Lunglei", "block": "Tlabung", "clf": "Zodin CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "Zawlnuam", "clf": "Hachhek CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "Zawlnuam", "clf": "Sekibuhchhuak CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "Zawlnuam", "clf": "Langkaih", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "Kawrtethawveng", "clf": "Happy Land", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "Kawrtethawveng", "clf": "Pheichham CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "W Phaileng", "clf": "Chhekin CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "W Phaileng", "clf": "Khawlbawm", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "W Phaileng", "clf": "Huapzo", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "Reiek", "clf": "Lentupui CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "Reiek", "clf": "Tlaizawng CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Mamit", "block": "Reiek", "clf": "Zotlang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "pending"}, {"district": "Siaha", "block": "Tipa", "clf": "Violet", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Siaha", "block": "Tipa", "clf": "Kahrie", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Siaha", "block": "Tipa", "clf": "Vawhutlathlo", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Siaha", "block": "Tipa", "clf": "Palak CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Siaha", "block": "Siaha", "clf": "AB.Lorrain", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Siaha", "block": "Siaha", "clf": "Beino", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Siaha", "block": "Siaha", "clf": "Mauma CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Hnahthial", "block": "Hnahthial", "clf": "Virginia Cluster Level Federation", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Hnahthial", "block": "Hnahthial", "clf": "Lalrin CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Hnahthial", "block": "Hnahthial", "clf": "Tuiphai CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Hnahthial", "block": "Hnahthial", "clf": "Vulmawi CLF", "basic": "approved", "cutoff": "approved", "june": "pending", "july": "pending"}, {"district": "Khawzawl", "block": "Khawzawl", "clf": "Tuivawlral CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Khawzawl", "block": "Khawzawl", "clf": "Huapzo CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Khawzawl", "block": "Khawzawl", "clf": "Damdiai CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Khawzawl", "block": "Khawzawl", "clf": "Tuichangral CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Saitual", "block": "Ngopa", "clf": "Lengteng CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "review"}, {"district": "Saitual", "block": "Ngopa", "clf": "Mawmrang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "review"}, {"district": "Saitual", "block": "Ngopa", "clf": "Sialkal CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "review"}, {"district": "Saitual", "block": "Phullen", "clf": "Tuivai CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Saitual", "block": "Phullen", "clf": "Vanzau CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Saitual", "block": "Phullen", "clf": "Tawi CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Saitual", "block": "Phullen", "clf": "Rungdil CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Serchhip", "block": "E Lungdar", "clf": "Buhzem CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Serchhip", "block": "E Lungdar", "clf": "Vahrva CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Serchhip", "block": "E Lungdar", "clf": "Maicham CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Serchhip", "block": "Serchhip", "clf": "Tuikum CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Serchhip", "block": "Serchhip", "clf": "Vantawng CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}, {"district": "Serchhip", "block": "Serchhip", "clf": "Tuichang CLF", "basic": "approved", "cutoff": "approved", "june": "approved", "july": "approved"}];
+const RAW = [{"district": "Aizawl", "block": "Aibawk", "clf": "Chhimphei CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Aizawl", "block": "Aibawk", "clf": "Zotlangsang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Aizawl", "block": "Darlawn", "clf": "Chalfilh CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Aizawl", "block": "Darlawn", "clf": "Tuisual CLF Sakawrdai", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Aizawl", "block": "Darlawn", "clf": "Tuivawl Cluster Level Federation", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Aizawl", "block": "Thingsulthliah", "clf": "Khawthlir CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Aizawl", "block": "Thingsulthliah", "clf": "Raltiang", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Aizawl", "block": "Tlangnuam", "clf": "Chhawrpial CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Aizawl", "block": "Tlangnuam", "clf": "Zonun CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Champhai", "block": "Khawbung", "clf": "Hlakungpui CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Champhai", "block": "Khawbung", "clf": "Lurhtlang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Champhai", "block": "Khawbung", "clf": "Khuaitlang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Champhai", "block": "Champhai", "clf": "Champhai South CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Champhai", "block": "Champhai", "clf": "Champhai North CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Kolasib", "block": "Thingdawl", "clf": "Sekibuhchhuak CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Kolasib", "block": "Thingdawl", "clf": "Intodelh CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Kolasib", "block": "Bilkhawthlir", "clf": "Serlui CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Kolasib", "block": "Bilkhawthlir", "clf": "Lamtluang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Kolasib", "block": "Bilkhawthlir", "clf": "Chite CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Sangau", "clf": "Farpak CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Sangau", "clf": "Chhawkhlei CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Kamalanagar CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Niribili CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Eksomar CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Ekjoda CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "pending"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Tero CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Thega Valley CLF", "basic": "approved", "cutoff": "approved", "a": "review", "b": "review"}, {"district": "Lawngtlai", "block": "Chawngte", "clf": "Agathor CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Lawngtlai", "clf": "Chhimtupui CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Lawngtlai", "clf": "Western CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Lawngtlai", "clf": "Lungmawi", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Bungtlang South", "clf": "First CLF Bungtlang", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Bungtlang South", "clf": "Tuichawng CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lawngtlai", "block": "Bungtlang South", "clf": "Chamdur CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Bunghmun", "clf": "Zawlbuk CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Bunghmun", "clf": "Thorang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Lunglei", "clf": "Vanva Cluster Level Federation", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Lunglei", "clf": "Leitlang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Lunglei", "clf": "Ngengrual CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Lungsen", "clf": "Thorang 1 CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Lungsen", "clf": "Beiseina CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Lungsen", "clf": "Hmasawnna CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "pending"}, {"district": "Lunglei", "block": "Tlabung", "clf": "Nunsury CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Tlabung", "clf": "Tlabung CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Lunglei", "block": "Tlabung", "clf": "Zodin CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "Zawlnuam", "clf": "Hachhek CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "Zawlnuam", "clf": "Sekibuhchhuak CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "Zawlnuam", "clf": "Langkaih", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "Kawrtethawveng", "clf": "Happy Land", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "Kawrtethawveng", "clf": "Pheichham CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "W Phaileng", "clf": "Chhekin CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "W Phaileng", "clf": "Khawlbawm", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "W Phaileng", "clf": "Huapzo", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "Reiek", "clf": "Lentupui CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "Reiek", "clf": "Tlaizawng CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Mamit", "block": "Reiek", "clf": "Zotlang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "pending"}, {"district": "Siaha", "block": "Tipa", "clf": "Violet", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Siaha", "block": "Tipa", "clf": "Kahrie", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Siaha", "block": "Tipa", "clf": "Vawhutlathlo", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Siaha", "block": "Tipa", "clf": "Palak CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Siaha", "block": "Siaha", "clf": "AB.Lorrain", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Siaha", "block": "Siaha", "clf": "Beino", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Siaha", "block": "Siaha", "clf": "Mauma CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Hnahthial", "block": "Hnahthial", "clf": "Virginia Cluster Level Federation", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Hnahthial", "block": "Hnahthial", "clf": "Lalrin CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Hnahthial", "block": "Hnahthial", "clf": "Tuiphai CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Hnahthial", "block": "Hnahthial", "clf": "Vulmawi CLF", "basic": "approved", "cutoff": "approved", "a": "pending", "b": "pending"}, {"district": "Khawzawl", "block": "Khawzawl", "clf": "Tuivawlral CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Khawzawl", "block": "Khawzawl", "clf": "Huapzo CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Khawzawl", "block": "Khawzawl", "clf": "Damdiai CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Khawzawl", "block": "Khawzawl", "clf": "Tuichangral CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Saitual", "block": "Ngopa", "clf": "Lengteng CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "review"}, {"district": "Saitual", "block": "Ngopa", "clf": "Mawmrang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "review"}, {"district": "Saitual", "block": "Ngopa", "clf": "Sialkal CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "review"}, {"district": "Saitual", "block": "Phullen", "clf": "Tuivai CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Saitual", "block": "Phullen", "clf": "Vanzau CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Saitual", "block": "Phullen", "clf": "Tawi CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Saitual", "block": "Phullen", "clf": "Rungdil CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Serchhip", "block": "E Lungdar", "clf": "Buhzem CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Serchhip", "block": "E Lungdar", "clf": "Vahrva CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Serchhip", "block": "E Lungdar", "clf": "Maicham CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Serchhip", "block": "Serchhip", "clf": "Tuikum CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Serchhip", "block": "Serchhip", "clf": "Vantawng CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}, {"district": "Serchhip", "block": "Serchhip", "clf": "Tuichang CLF", "basic": "approved", "cutoff": "approved", "a": "approved", "b": "approved"}];
 
-const METRICS=['basic','cutoff','june','july'];
-const MLABELS={basic:'Basic profile',cutoff:'Cut-off',june:'July 2026',july:'August 2026'};
-const MCOLORS={basic:'#1d4ed8',cutoff:'#7c3aed',june:'#15803d',july:'#b45309'};
-const MCOLORS_DK={basic:'#60a5fa',cutoff:'#c084fc',june:'#4ade80',july:'#fbbf24'};
+const METRICS=['basic','cutoff','a','b'];
+/* Stable internal keys. Visible month names come from the live Google Sheet
+   headers for columns G and H. Changing months in the Sheet therefore does
+   not require changing any JavaScript variable names. */
+const MONTH_LABELS={a:'Month A',b:'Month B'};
+const MLABELS={basic:'Basic profile',cutoff:'Cut-off',a:MONTH_LABELS.a,b:MONTH_LABELS.b};
+const MCOLORS={basic:'#1d4ed8',cutoff:'#7c3aed',a:'#15803d',b:'#b45309'};
+const MCOLORS_DK={basic:'#60a5fa',cutoff:'#c084fc',a:'#4ade80',b:'#fbbf24'};
+function setMonthLabels(labelA,labelB){
+  const clean=(v,fallback)=>{const x=String(v??'').trim();return x||fallback;};
+  MONTH_LABELS.a=clean(labelA,'Month A');
+  MONTH_LABELS.b=clean(labelB,'Month B');
+  MLABELS.a=MONTH_LABELS.a;
+  MLABELS.b=MONTH_LABELS.b;
+  const metricSelect=document.getElementById('selMetric');
+  if(metricSelect){
+    const current=metricSelect.value;
+    const optA=metricSelect.querySelector('option[value="a"]');
+    const optB=metricSelect.querySelector('option[value="b"]');
+    if(optA)optA.textContent=MONTH_LABELS.a;
+    if(optB)optB.textContent=MONTH_LABELS.b;
+    // Column H (b) is the latest monthly column, so always make it the default
+    // after the live Google Sheet headers are loaded.
+    metricSelect.value='b';
+  }
+  const kA=document.getElementById('kJunLabel');
+  const kB=document.getElementById('kJulLabel');
+  if(kA)kA.textContent=MONTH_LABELS.a+' approved';
+  if(kB)kB.textContent=MONTH_LABELS.b+' approved';
+}
 const isDark=()=>document.documentElement.getAttribute('data-theme')==='dark';
 const col=k=>isDark()?MCOLORS_DK[k]:MCOLORS[k];
 
@@ -1131,14 +1157,14 @@ function mclfGetExportLastUpdated(){
   return text.replace(/^Last updated:\s*/i,'').trim() || '—';
 }
 function mclfBuildXlsx(rows,scope,search){
-  const headers=['S.No.','Internet Connectivity','District','Block','CLF Name','Basic Profile','Cut-off','July 2026','August 2026'];
+  const headers=['S.No.','Internet Connectivity','District','Block','CLF Name','Basic Profile','Cut-off','b 2026','August 2026'];
   const matrix=[
     ['MCLF WEB APPLICATION'],
     ['Mizoram State Rural Livelihoods Mission'],
     ['CLF Monthly Input Entry - Status'],
     ['Last updated: '+mclfGetExportLastUpdated()+(scope!=='All districts'?'  |  District: '+scope:'')+(search?'  |  Search: '+search:'')],
     headers,
-    ...rows.map((r,i)=>[(r.sno||i+1),r.connectivity||'—',r.district||'',r.block||'',r.clf||'',mclfStatusLabel(r.basic),mclfStatusLabel(r.cutoff),mclfStatusLabel(r.june),mclfStatusLabel(r.july)])
+    ...rows.map((r,i)=>[(r.sno||i+1),r.connectivity||'—',r.district||'',r.block||'',r.clf||'',mclfStatusLabel(r.basic),mclfStatusLabel(r.cutoff),mclfStatusLabel(r.a),mclfStatusLabel(r.b)])
   ];
   const lastData=5+rows.length;
   const esc=mclfXmlEsc;
@@ -1196,7 +1222,7 @@ function mclfExportExcel(){
     const district=document.getElementById('selDistrict').value;
     const search=document.getElementById('txtSearch').value.trim();
     const scope=district==='ALL'?'All districts':district;
-    const headers=['S.No.','Internet Connectivity','District','Block','CLF Name','Basic Profile','Cut-off','July 2026','August 2026'];
+    const headers=['S.No.','Internet Connectivity','District','Block','CLF Name','Basic Profile','Cut-off','b 2026','August 2026'];
     const aoa=[
       ['MCLF WEB APPLICATION'],
       ['Mizoram State Rural Livelihoods Mission'],
@@ -1206,7 +1232,7 @@ function mclfExportExcel(){
     ];
     rows.forEach((r,i)=>aoa.push([
       (r.sno||i+1),r.connectivity||'—',r.district||'',r.block||'',r.clf||'',
-      mclfStatusLabel(r.basic),mclfStatusLabel(r.cutoff),mclfStatusLabel(r.june),mclfStatusLabel(r.july)
+      mclfStatusLabel(r.basic),mclfStatusLabel(r.cutoff),mclfStatusLabel(r.a),mclfStatusLabel(r.b)
     ]));
     const lastDataRow=aoa.length;
 
@@ -1371,15 +1397,15 @@ function aggregate(rows,field){
   const map={};
   rows.forEach(r=>{
     const k=r[field];
-    if(!map[k]) map[k]={label:k,clfs:0,basic:0,cutoff:0,june:0,july:0,basicReview:0,cutoffReview:0,juneReview:0,julyReview:0,basicPending:0,cutoffPending:0,junePending:0,julyPending:0,connectivities:[]};
+    if(!map[k]) map[k]={label:k,clfs:0,basic:0,cutoff:0,a:0,b:0,basicReview:0,cutoffReview:0,juneReview:0,julyReview:0,basicPending:0,cutoffPending:0,junePending:0,julyPending:0,connectivities:[]};
     const m=map[k];
     m.clfs+=1;
     m.basic+=isApproved(r.basic);m.cutoff+=isApproved(r.cutoff);
-    m.june+=isApproved(r.june);m.july+=isApproved(r.july);
+    m.a+=isApproved(r.a);m.b+=isApproved(r.b);
     m.basicReview+=(r.basic==='review'?1:0);m.cutoffReview+=(r.cutoff==='review'?1:0);
-    m.juneReview+=(r.june==='review'?1:0);m.julyReview+=(r.july==='review'?1:0);
+    m.juneReview+=(r.a==='review'?1:0);m.julyReview+=(r.b==='review'?1:0);
     m.basicPending+=(r.basic==='pending'?1:0);m.cutoffPending+=(r.cutoff==='pending'?1:0);
-    m.junePending+=(r.june==='pending'?1:0);m.julyPending+=(r.july==='pending'?1:0);
+    m.junePending+=(r.a==='pending'?1:0);m.julyPending+=(r.b==='pending'?1:0);
     if(r.connectivity) m.connectivities.push(String(r.connectivity).trim());
   });
   return Object.values(map).map(m=>{
@@ -1416,16 +1442,16 @@ function statusProgressColor(g,metric){
 function updateKPIs(rows){
   const tot=rows.length;
   const bas=rows.reduce((a,r)=>a+isApproved(r.basic),0);
-  const jun=rows.reduce((a,r)=>a+isApproved(r.june),0);
-  const jul=rows.reduce((a,r)=>a+isApproved(r.july),0);
+  const aCount=rows.reduce((sum,r)=>sum+isApproved(r.a),0);
+  const bCount=rows.reduce((sum,r)=>sum+isApproved(r.b),0);
   document.getElementById('kTotal').textContent=tot;
   document.getElementById('kTotalSub').textContent=document.getElementById('selDistrict').value==='ALL'?(new Set(RAW.map(r=>r.district).filter(Boolean)).size+' districts'):'1 district selected';
   document.getElementById('kBasic').textContent=bas+'/'+tot;
   document.getElementById('kBasicSub').textContent=bas>=tot?'All approved':(tot-bas)+' pending';
-  document.getElementById('kJun').textContent=jun+'/'+tot;
-  document.getElementById('kJunSub').textContent=jun>=tot?'All approved':(tot-jun)+' not yet approved';
-  document.getElementById('kJul').textContent=jul+'/'+tot;
-  document.getElementById('kJulSub').textContent=jul>=tot?'All approved':(tot-jul)+' not yet approved';
+  document.getElementById('kJun').textContent=aCount+'/'+tot;
+  document.getElementById('kJunSub').textContent=aCount>=tot?'All approved':(tot-aCount)+' not yet approved';
+  document.getElementById('kJul').textContent=bCount+'/'+tot;
+  document.getElementById('kJulSub').textContent=bCount>=tot?'All approved':(tot-bCount)+' not yet approved';
 }
 
 function updateBar(rows){
@@ -1491,8 +1517,8 @@ function updateTable(rows){
       <th style="width:19%" data-k="clf">CLF name ${makeArrow('clf')}</th>
       <th style="width:10.5%" data-k="basic">Basic profile ${makeArrow('basic')}</th>
       <th style="width:10.5%" data-k="cutoff">Cut-off ${makeArrow('cutoff')}</th>
-      <th style="width:10.5%" data-k="june">July 2026 ${makeArrow('june')}</th>
-      <th style="width:10.5%" data-k="july">August 2026 ${makeArrow('july')}</th>
+      <th style="width:10.5%" data-k="a">${MLABELS.a} ${makeArrow('a')}</th>
+      <th style="width:10.5%" data-k="b">${MLABELS.b} ${makeArrow('b')}</th>
     </tr>`;
     thead.querySelectorAll('th').forEach(th=>{
       const k=th.dataset.k; if(!k) return;
@@ -1512,8 +1538,8 @@ function updateTable(rows){
       <td><div style="font-weight:600;font-size:12px">${r.clf}</div></td>
       <td>${statusBadgeFor(r.basic)}</td>
       <td>${statusBadgeFor(r.cutoff)}</td>
-      <td>${statusBadgeFor(r.june)}</td>
-      <td>${statusBadgeFor(r.july)}</td>
+      <td>${statusBadgeFor(r.a)}</td>
+      <td>${statusBadgeFor(r.b)}</td>
     </tr>`).join('');
   } else {
     const grouped=aggregate(rows,groupField);
@@ -1523,8 +1549,8 @@ function updateTable(rows){
       <th style="width:10%" data-k="clfs">CLFs ${makeArrow('clfs')}</th>
       <th style="width:14%" data-k="basic">Basic profile ${makeArrow('basic')}</th>
       <th style="width:14%" data-k="cutoff">Cut-off ${makeArrow('cutoff')}</th>
-      <th style="width:14%" data-k="june">July 2026 ${makeArrow('june')}</th>
-      <th style="width:14%" data-k="july">August 2026 ${makeArrow('july')}</th>
+      <th style="width:14%" data-k="a">${MLABELS.a} ${makeArrow('a')}</th>
+      <th style="width:14%" data-k="b">${MLABELS.b} ${makeArrow('b')}</th>
     </tr>`;
     thead.querySelectorAll('th').forEach(th=>{
       const k=th.dataset.k; if(!k) return;
@@ -1542,8 +1568,8 @@ function updateTable(rows){
       <td style="font-variant-numeric:tabular-nums">${g.clfs}</td>
       <td>${groupBadge(g.basic,g.clfs)}${miniBar(g.basic,g.clfs,'basic',g)}</td>
       <td>${groupBadge(g.cutoff,g.clfs)}${miniBar(g.cutoff,g.clfs,'cutoff',g)}</td>
-      <td>${groupBadge(g.june,g.clfs)}${miniBar(g.june,g.clfs,'june',g)}</td>
-      <td>${groupBadge(g.july,g.clfs)}${miniBar(g.july,g.clfs,'july',g)}</td>
+      <td>${groupBadge(g.a,g.clfs)}${miniBar(g.a,g.clfs,'a',g)}</td>
+      <td>${groupBadge(g.b,g.clfs)}${miniBar(g.b,g.clfs,'b',g)}</td>
     </tr>`).join('');
   }
 }
@@ -1607,15 +1633,9 @@ function rowsFromGviz(obj){
 }
 function mapMclfRows(records){
   if(!records.length)throw new Error('MCLF A:H returned no rows');
-  /* v37 source layout is EXACTLY the first eight columns of the MCLF tab:
-     A=S.No, B=District, C=Block, D=CLF Name, E=Basic Profile,
-     F=Cut-off, G=August 2026, H=August 2026.
-     No column after H is read. Internet Connectivity is not sourced from the sheet. */
-  /* IMPORTANT: the Gviz request uses headers=1, so Google has ALREADY
-     consumed the header row. The first item in records is therefore the
-     first real data row (Row 2 in the spreadsheet). Never discard it. */
-  const start=0;
-  return records.slice(start).map(v=>({
+  /* Stable source layout: A=S.No, B=District, C=Block, D=CLF Name,
+     E=Basic Profile, F=Cut-off, G=Month A, H=Month B. */
+  return records.map(v=>({
     sno:cleanCell(v[0]),
     connectivity:'',
     district:cleanCell(v[1]),
@@ -1623,9 +1643,9 @@ function mapMclfRows(records){
     clf:cleanCell(v[3]),
     basic:statusValue(v[4]),
     cutoff:statusValue(v[5]),
-    june:statusValue(v[6]),
-    july:statusValue(v[7])
-  })).filter(r=>r.sno||r.district||r.block||r.clf||r.basic||r.cutoff||r.june||r.july);
+    a:statusValue(v[6]),
+    b:statusValue(v[7])
+  })).filter(r=>r.sno||r.district||r.block||r.clf||r.basic||r.cutoff||r.a||r.b);
 }
 function gvizJsonp(gid,timeout=MCLF_GVIZ_TIMEOUT){
   return new Promise((resolve,reject)=>{
@@ -1649,6 +1669,14 @@ function validateGviz(obj){
   return obj;
 }
 function fetchGvizText(gid,timeout=MCLF_GVIZ_TIMEOUT){return gvizJsonp(gid,timeout).then(validateGviz);}
+function getMclfMonthHeaders(obj){
+  const cols=obj?.table?.cols||[];
+  return {
+    a:cleanCell(cols[6]?.label||cols[6]?.id),
+    b:cleanCell(cols[7]?.label||cols[7]?.id)
+  };
+}
+
 /* v50 — Last Updated reads ONLY cell B1 from GID 237220054.
    Uses the SAME direct Google Sheets GViz endpoint as the working MCLF data connection.
    It does not depend on the published /pub workbook endpoint. */
@@ -1736,6 +1764,9 @@ async function loadLiveMclfSheet(){
   console.info('[MCLF] Connecting to Google Sheet · MCLF GID '+MCLF_SHEET_CONFIG.mclfGid+' · Columns A:H only');
   try{
     const gviz=await fetchGvizText(MCLF_SHEET_CONFIG.mclfGid);
+    const monthHeaders=getMclfMonthHeaders(gviz);
+    setMonthLabels(monthHeaders.a,monthHeaders.b);
+    console.info('[MCLF] Live month headers:',monthHeaders);
     const liveRows=mapMclfRows(rowsFromGviz(gviz));
     console.info('[MCLF] Live record count:',liveRows.length);
     console.info('[MCLF] First live record:',liveRows[0]);
@@ -1768,7 +1799,7 @@ function mclfReset(){
   const group=document.getElementById('selGroup');
   const search=document.getElementById('txtSearch');
   if(district) district.value='ALL';
-  if(metric) metric.value='june';
+  if(metric) metric.value='b';
   if(group) group.value='district';
   if(search) search.value='';
   connectivityFilter='All';
