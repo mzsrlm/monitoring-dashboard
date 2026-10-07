@@ -2386,6 +2386,7 @@ body:fullscreen, body:-webkit-full-screen {
 <button id="transactionsStandaloneComboTab" aria-controls="transactionsStandaloneComboPanel" aria-selected="false" class="combo-tab tab-transactions-standalone" data-tab="transactionsStandalone" onclick="showComboTab('transactionsStandalone',this)" role="tab"><span>TRANSACTIONS</span><small>CLFs•VOs•SHGs</small></button>
 <button aria-controls="sheleapsComboPanel" aria-selected="false" class="combo-tab tab-sheleaps" data-tab="sheleaps" onclick="showComboTab('sheleaps',this)" role="tab"><span>SHE LEAPS</span><small>Farm & Non-Farm</small></button>
 <button aria-controls="mclfComboPanel" aria-selected="false" class="combo-tab tab-mclf" data-tab="mclf" onclick="showComboTab('mclf',this)" role="tab"><span>MCLF</span><small>Web App</small></button>
+<button aria-controls="fiComboPanel" aria-selected="false" class="combo-tab tab-fi" data-tab="fi" onclick="showComboTab('fi',this)" role="tab"><span>FI</span><small>Financial Inclusion</small></button>
 <button aria-controls="vprpComboPanel" aria-selected="false" class="combo-tab tab-vprp" data-tab="vprp" onclick="showComboTab('vprp',this)" role="tab"><span>VPRP</span><small>SISD</small></button>
 <button id="cadresComboTab" aria-controls="cadresComboPanel" aria-selected="false" class="combo-tab tab-cadres" data-tab="cadres" onclick="showComboTab('cadres',this)" role="tab"><span>CADRES</span><small>Cadre Details</small></button>
 </nav>
@@ -2652,6 +2653,30 @@ body:fullscreen, body:-webkit-full-screen {
   }
   @media (max-width: 700px) {
     .mclf-module-frame { min-height: 760px; height: calc(100vh - 125px); }
+  }
+</style>
+
+<!-- FI / Financial Inclusion is a separate HTML file displayed inside this dashboard tab. -->
+<div aria-labelledby="fiComboTab" class="combo-panel fi-panel" id="fiComboPanel" role="tabpanel">
+  <iframe id="fiModuleFrame" class="fi-module-frame" src="Financial Inclusion.html" title="Financial Inclusion module" loading="lazy" referrerpolicy="same-origin"></iframe>
+</div>
+
+<style id="fi-page">
+  /* Financial Inclusion module is loaded inside the FI tab. */
+  #fiComboPanel { padding: 0; }
+  .fi-module-frame {
+    display: block;
+    width: 100%;
+    min-height: 720px;
+    height: calc(100vh - 155px);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .combo-tab.tab-fi { color:#0b6b67!important; }
+  .combo-tab.active.tab-fi { color:#fff!important; }
+  @media (max-width: 700px) {
+    .fi-module-frame { min-height: 760px; height: calc(100vh - 125px); }
   }
 </style>
 
@@ -3047,6 +3072,10 @@ function showComboTab(id,btn){
   if(id==="transactionsStandalone"){
     const frame=document.getElementById("transactionsStandaloneModuleFrame");
     if(frame && (!frame.getAttribute("src") || frame.getAttribute("src")==="about:blank")) frame.setAttribute("src","Transactions.html");
+  }
+  if(id==="fi"){
+    const frame=document.getElementById("fiModuleFrame");
+    if(frame && (!frame.getAttribute("src") || frame.getAttribute("src")==="about:blank")) frame.setAttribute("src","Financial Inclusion.html");
   }
   if(id==="vprp"){
     const frame=document.getElementById("vprpModuleFrame");
