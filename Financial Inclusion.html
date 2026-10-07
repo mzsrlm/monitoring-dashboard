@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MzSRLM | Financial Inclusion</title>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root{
+  --navy:#0A326E;--navy2:#123F82;--bg:#f5f7fb;--card:#fff;--text:#172033;
+  --muted:#6b7280;--line:#e5e9f0;--hover:#f0f5ff;--shadow:0 8px 25px rgba(15,35,70,.08);
+  --good:#087F23;--green:#4CAF50;--amber:#D99F25;--yellow:#F2C94C;--orange:#EF6C00;--red:#D93025;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+body.dark{--bg:#071426;--card:#0d203b;--text:#eef4ff;--muted:#aab7ca;--line:#203753;--hover:#132c4d;--shadow:0 10px 30px rgba(0,0,0,.28);--navy:#0d3c7d;--navy2:#16519e}
+.app{min-height:100vh}
+.header{position:sticky;top:0;z-index:50;background:var(--navy);color:white;padding:14px 20px;box-shadow:0 4px 18px rgba(0,0,0,.16)}
+.header-row{max-width:1500px;margin:auto;display:flex;align-items:center;gap:16px}
+.brand{flex:1}.brand h1{font-size:20px;margin:0;font-weight:750;letter-spacing:.2px}.brand p{margin:3px 0 0;font-size:12px;opacity:.78}
+.actions{display:flex;gap:8px}.icon-btn{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.10);color:white;border-radius:9px;padding:8px 11px;cursor:pointer}
+.tabs-wrap{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:68px;z-index:40}
+.tabs{max-width:1500px;margin:auto;display:flex;gap:4px;overflow-x:auto;padding:8px 20px}
+.tab{white-space:nowrap;border:0;background:transparent;color:var(--muted);padding:10px 16px;border-radius:9px;font-weight:700;cursor:pointer}
+.tab:hover{background:var(--hover);color:var(--navy)}.tab.active{background:var(--navy);color:#fff}
+.main{max-width:1500px;margin:auto;padding:18px 20px 40px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:15px}
+.search{flex:1;min-width:230px;position:relative}.search input{width:100%;padding:11px 14px 11px 38px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);outline:none}.search span{position:absolute;left:13px;top:9px}
+select,.control-btn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:10px 12px}
+.control-btn{cursor:pointer;font-weight:650}.control-btn:hover{background:var(--hover)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi .label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.kpi .value{font-size:25px;font-weight:800;margin-top:5px;color:var(--navy)}
+.dark .kpi .value{color:#72a9ff}.sub{font-size:11px;color:var(--muted);margin-top:3px}
+.status{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-left:auto}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:#aaa}.dot.good{background:#20b85a;box-shadow:0 0 7px #20b85a}.dot.bad{background:#e33}
+.table-card{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:var(--shadow)}
+.table-head{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border-bottom:1px solid var(--line)}
+.table-title{font-weight:800}.count{font-size:12px;color:var(--muted)}
+.table-scroll{overflow:auto;max-height:67vh}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1080px;table-layout:auto}
+thead th{position:sticky;top:0;background:var(--navy);color:#fff;padding:12px 12px;font-size:14px;line-height:1.3;text-align:center;white-space:normal;word-break:break-word;cursor:pointer;z-index:5}
+thead th:first-child{left:0;z-index:7}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--line);font-size:14px;line-height:1.4;white-space:normal;overflow-wrap:anywhere;word-break:break-word;text-align:center;vertical-align:middle}
+tbody tr:nth-child(even){background:rgba(127,145,170,.045)}tbody tr:hover{background:var(--hover)}
+td.num,th.num{text-align:center}td.center,th.center{text-align:center}td.left,th.left{text-align:left}
+.progress-cell{min-width:120px}.bar{height:7px;background:#e7ebf1;border-radius:20px;overflow:hidden;margin-top:4px}.fill{height:100%;border-radius:20px}
+.pct-good{color:var(--good);font-weight:800}.pct-green{color:var(--green);font-weight:800}.pct-amber{color:var(--amber);font-weight:800}.pct-yellow{color:#9a7600;font-weight:800}.pct-orange{color:var(--orange);font-weight:800}.pct-red{color:var(--red);font-weight:800}
+.empty{padding:45px;text-align:center;color:var(--muted)}
+.loading{padding:45px;text-align:center;color:var(--muted)}
+.footer{display:none;max-width:1500px;margin:auto;padding:12px 20px 25px;color:var(--muted);font-size:11px;text-align:right}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}\n@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.tabs-wrap{top:64px}.header{padding:12px 14px}.main{padding:13px}.brand h1{font-size:17px}}
+@media(max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{padding:11px}.kpi .value{font-size:20px}.toolbar>*{width:100%}.status{margin-left:0}.actions .icon-btn{padding:7px 9px}.header-row{gap:8px}}
+
+.action-icon{width:22px;height:22px;object-fit:contain;display:block}
+.icon-btn .action-icon{width:19px;height:19px}
+.control-btn.icon-only{width:42px;height:42px;padding:8px;display:inline-flex;align-items:center;justify-content:center}
+.excel-icon-light,.image-icon-light{display:block}
+.excel-icon-dark,.image-icon-dark{display:none}
+body.dark .excel-icon-light,body.dark .image-icon-light{display:none}
+body.dark .excel-icon-dark,body.dark .image-icon-dark{display:block}
+.kpi .value.pct-good,.kpi .value.pct-green,.kpi .value.pct-amber,.kpi .value.pct-yellow,.kpi .value.pct-orange,.kpi .value.pct-red{font-weight:900}
+.kpi .amount-words{font-size:11px;line-height:1.35;color:var(--muted);margin-top:5px;text-transform:none;font-weight:600}
+.serial-col{min-width:64px;width:64px}
+
+
+/* Rebuilt responsive/lively layer */
+html,body{max-width:100%;overflow-x:hidden}.main{width:100%;max-width:1600px}.status{display:none!important}
+.kpis{grid-template-columns:repeat(5,minmax(0,1fr));width:100%;gap:14px}.kpi{min-width:0;transition:transform .2s ease,box-shadow .2s ease;animation:kpiIn .35s ease both}.kpi:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(15,35,70,.13)}
+@keyframes kpiIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.table-card{width:100%}.table-scroll{max-height:72vh;overflow:auto}.table-scroll table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse}.table-scroll th,.table-scroll td{border:1px solid var(--line);padding:12px 9px}.table-scroll th:nth-child(1),.table-scroll td:nth-child(1){width:5%}.table-scroll th:nth-child(2),.table-scroll td:nth-child(2){width:14%;text-align:left}.table-scroll th:nth-child(3),.table-scroll td:nth-child(3){width:15%;text-align:left}.table-scroll th:nth-child(4),.table-scroll td:nth-child(4){width:10%}
+.metric-panel{background:var(--card);border:1px solid var(--line);border-radius:13px;margin:0 0 15px;overflow:hidden;box-shadow:var(--shadow)}.metric-toggle{width:100%;border:0;background:transparent;color:var(--text);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer}.metric-toggle small{display:block;color:var(--muted);margin-top:3px}.chevron{font-size:22px;transition:transform .25s}.metric-toggle[aria-expanded="true"] .chevron{transform:rotate(180deg)}.metric-body{border-top:1px solid var(--line);padding:16px}.metric-chart{display:grid;gap:10px}.metric-row{display:grid;grid-template-columns:minmax(130px,220px) 1fr 64px;gap:10px;align-items:center;font-size:13px}.metric-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.metric-track{height:11px;border-radius:999px;background:var(--line);overflow:hidden}.metric-fill{height:100%;border-radius:999px;transform-origin:left;animation:grow .7s ease both}@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.table-scroll{max-height:68vh}}
+@media(max-width:820px){.header-row{flex-wrap:wrap}.brand{min-width:0}.tabs{padding:7px 12px}.main{padding:12px}.toolbar{display:grid;grid-template-columns:1fr 1fr}.search{grid-column:1/-1;min-width:0}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi{padding:12px}.table-scroll{max-height:62vh}.table-scroll table{min-width:900px;table-layout:auto}.metric-row{grid-template-columns:120px 1fr 55px}}
+@media(max-width:520px){.header{padding:10px 12px}.brand h1{font-size:18px}.brand p{font-size:11px}.actions{margin-left:auto}.toolbar{grid-template-columns:1fr}.search{grid-column:auto}.toolbar>*{width:100%}.control-btn.icon-only{width:100%}.kpis{grid-template-columns:1fr}.kpi .value{font-size:23px}.metric-row{grid-template-columns:1fr 52px}.metric-track{grid-column:1/-1;grid-row:2}.table-scroll{max-height:58vh}}
+
+
+.metric-chart{display:flex;align-items:flex-end;gap:12px;min-height:280px;overflow-x:auto;overflow-y:hidden;padding:18px 8px 8px}.metric-col{flex:0 0 74px;height:245px;display:grid;grid-template-rows:28px 175px 42px;align-items:end;text-align:center}.metric-col-value{font-size:11px;font-weight:900}.metric-col-track{height:175px;display:flex;align-items:flex-end;justify-content:center}.metric-col-fill{width:34px;min-height:4px;border-radius:7px 7px 2px 2px;box-shadow:0 5px 12px rgba(15,35,70,.12);animation:growCol .65s ease both}.metric-col-label{font-size:10px;line-height:1.2;white-space:normal;word-break:break-word;color:var(--muted);overflow:hidden}@keyframes growCol{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@media(max-width:820px){.metric-chart{min-height:240px;gap:8px}.metric-col{flex-basis:64px;height:215px;grid-template-rows:26px 150px 39px}.metric-col-track{height:150px}.metric-col-fill{width:28px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+  <div class="header-row">
+    <div class="brand">
+      <h1 id="pageTitle">Financial Inclusion</h1>
+      <p id="lastUpdated">Loading live Google Sheet data…</p>
+    </div>
+    <div class="actions">
+      <button class="icon-btn" id="themeBtn" title="Switch theme">☾</button>
+      <button class="icon-btn" id="fullscreenBtn" title="Fullscreen">⛶</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs-wrap"><div class="tabs" id="tabs"></div></nav>
+
+<main class="main">
+  <div class="toolbar">
+    <div class="search"><span>⌕</span><input id="searchBox" placeholder="Search all columns…"></div>
+    <select id="districtFilter"><option value="">All Districts</option></select>
+    <select id="blockFilter"><option value="">All Blocks</option></select>
+    <button class="control-btn" id="resetBtn">↺ Reset</button>
+    
+    <button class="control-btn icon-only" id="imageBtn" title="Save as Image" aria-label="Save as Image">
+      <img class="action-icon image-icon-light" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAADcUlEQVR4nO2cS4hOYRjHfwymhEhqECIW7haU2Ni4lYUkbBhrl8RIWaizGkIiNlJyaTIuS/dIyoKSe8jIgsGCUMJoZhy99W4w53POdy7fe875/+rp6/tmet55n9/XeS/nnQNCCCGEEEIIIYQQQgghhBBCiH+ZBpwA2oEuwC9pdNkaHAemZlX8TSUvul9Bxsa0i7/KgY76DscvYHlaxa8H3jnQSd/xaLe1SpzFDnTOz0ksSkPAVgc65uckmtIQ4DnQMT8nYWolAUhAacOTACSgzOFJABIQJh4Cq4GRQF/7usZ+XusiFl7AfqAuoC3z+QEHCllYAadCtNcLaHWgmIUT0AEMD9nmCPv7tS5ooQRcjNjuJQcKWigBeyK2u9eBghZKgCloFPY5UNBSX4IuO1DQQgnosINrGDQIpzQNbbXTzEqYn592oJiFFODbhVZdQFtaiGUgwAceAY3AKKCffTXvHztQxFII8AsaEoAElDo8CUACyhyeBCABLsYX4DZwA3hmz3JKAOnHTWAB0OevPjUAO6wYCSD56Aa2hdj2GAvckwASjZ/2OH1YBgBXJIBE4ps9zR0Vsx1yRgKIFZ+BuTH6aTYCDxddgLk83AJagHP2HFASM5K3wJQE+mrGjJ1FFPDFnp0f2EP+McBBO3BWk7vNDqZJsqXKL4aTAu6HLNA84EPE3A/slDINzPZ4Z94FmNnFoAhtjQOehsxtFlZDSZclwPe8CjjSwwIoDEOA6//JfR7oTzbMBj7mSUC3vYbGYQLwIyD/SXugN0umA+/zIMAUbWXM9iYCrwPyHwJ6UxvMOPbCZQHmGzIrZlszKwzEu6g9DXZS4ZyAJ3Y6GYf5wNeAS9p63GGwnQA4I+Ca/aPisDTgmm+mgWtxD88VAUcTGBAbA+bb1e7rlEaAeVRLXLYHrDg/AXNwFycEeDH3XHZXGMxn4Da5FlBnF2k95XwFjMd9civAPM7lbIWZlPlvyTyQSwHmztPVgFx3MtjXKZyA5gg5hgF3A/JcyHBfJymaXRDQFvJ6PRp4HpCjpQb7OiSwT/UySwFNFdYBCv6IzWkI0CPLCB0L0xBQb++51rpzvuPxxp6uSIUVKR7n8wsQpjbLSJkNVdwjLUN0AuvIiMnAMXvDpMxP0e2yNTCbkZOyKr4QQgghhBBCCCGEEEIIIYQQ5IbfN1BizyfrNm8AAAAASUVORK5CYII=" alt="">
+      <img class="action-icon image-icon-dark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAADAUlEQVR4nO2cO2gUURSGP18EHyBi4aOTIDYxirWFYKGrCFYmhZWIjegSErHdKtZiITZi7Cy0sBIrQVAEsVAbsfGRVaxEg4K67pWBu7CY7Oy87529/wc/IYTkzjkfszNzdm9ACCGEEEIIIYQQQgghhBBCCLGcSeA2sAh0ABNoOrYHC7YnldAMvOkmRsbFsps/7UGhxuN0gamymj8GfPKgSON52rZXhdPwoDhTkxwtQ8CcB4WZmmS2DAGtAYu9BcYJj3Fb+0o9iXpVmYB5wmXeBwGlLFYTKu2JBCxHAhwjAY6pvYDJvpnSbxdzlZAFNGNmSpXMVUIWMO16rhKygDQzpXZZc5WQBTR8mKuELGDOh7lKyAJmUwqYwV+CeAk6gr/UUsCYvbgaXYTdLTZlbzNNTKKfn8JvaisA+6DVGfA39SBW0WJ7gVvAB+CX/Rp9P0E9qL2AuiMBjpEAx0iAYyTAMRLgGAlIwVbgPHAPeAo8tre80UPhOrIhAQlYZQeA32Oeut9lnDlJwBCiOdKdISOPXv4Cl0iHBMSwEXiQsPn9uQqsJhkSMIAtwJMMze8l+qTGWoYjASuwA3iZo/m93AfWM4ICJuzbkteBm/b3D6c47ePYYy+opqA8AjaPioDdwMOYYt/Yd8uycgD4UmDze3kBbCupJ6nIs9hJYClBsV3gSoaz4RDwrYTm9xLtA9hVcE9Sk3Wxpr3FS1PwXWBDwuM6Afwssfm9fAb2FdSTTKRdbA1wLUfBz4DtQ47ptP1MqakoX4GDOXqSizSLbbJ3EXkLXgT2DzieCxnOrCLyAzjms4CdwPMCC14Cjv+3xmUHje/PH+CMjwKi18iPJRV8zr6s3XDc/P4bhtc+CWgMGXgVkVceND5JKhdwtuKLofE8lQp470HBJmQBChJgPIsEIAFBpyUBSEDIaUkAoycg7d6ukDNThgD9yzLc7mtLs7cr5LTL3NeWZG9XyOlWsa8tbm9XyOlUua+tf29XyDI6NdzXJoQQQgghhBBCCCGEEEIIIQTV8Q9jHg7CPAGNZgAAAABJRU5ErkJggg==" alt="">
+    </button>
+    <button class="control-btn icon-only" id="excelBtn" title="Export to Excel" aria-label="Export to Excel">
+      <img class="action-icon excel-icon-light" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFK0lEQVR4nO2dS6hVVRjHf17TDCy1IPMiEkVWCBIpOUgrsrBJNAkSosegG0QDgyDpMZAadCF6DqI7qOhWgx44uQ4yKBqEFUUPwkFFodDLtIeVklSuWPhd2ndzzl7f3mfvs9bZ+/vDNzp7f+e/vt85a7/WWhvapzHgfGArMAnsBr4HvgG2xDbXdi0C1gMTwNPAHuBPwPWJfbENt0lLgI3ANmAKeBf4q6D4/cJUQePAtcB2YBrYCxyvUHwDUlLzgXOk+DuAGeBATYU3IAEtBNYANwNPSpdzpOHiOwNyQksz/f1sl/NPhOK7LgIZz3Q5r0rxYxfddQHISZkuZ1L6+4MJFNh1AcipwLpcf380gWK6LgCZB1wB3Cddzlc1nmKmGMnr8QSKZEAyOtJxIC5S/A7sBFanYqjrQJzEz8DKlAx1HYiTY3dShroO5HBqhroOxKVoyBmQtAw5A5KWIWdA0jLkDEhahpwBScuQMyBpGXIGJC1DzoCkZcgZkLQMuUhAQoAGlQHBgIxUhGRADAgGJKPYfmoB8hZwuyIerpj/fkXuXQZk7vPgFehGtHxeMvcuRd7TgZ8MyNx4Fp1uLJHzX+AiRc6pOhreNiC+eBuUI9y/VOZ8QZFvvXy3AekRH8kUspAmFLmOydSEIvnv+qCuhrcRiI9bFUAWAPsDeR5T5Lmjzoa3FciPMt0spG2Bk4QzA/ufARwyILp4RDlB84c++z+g2P/5uhveZiDHZCpySPf22PeAjLYv0qUNzjFsJRAfbxLWacAvuf38cSF0lvZJEw3vo7Lbl803NCBOZlKF9FBm+69l7mGR7mrql6gs4EgD8XNLTlYcnGdH3PsJQUVaIcMsDcgA4Y8TIT0nKy4sDmz3cgP+yhZw5IH4X/+qgMkrFVflmxqayVW1YE1Ho4ZeVFwobgh8vrfphncJiP9lX0Z13TOMhncJiI+P5ZS1rFYCfxiQZsI/SCqr14bV8C4C8Q+RlpWAsXmYDe8ikF+Bs0oAWV1xDSwDoozbKK8HDUgz8Y48Uy+rU+SWigGpMXy3cyHVtcWA1Bt+3ZQiXaf49+wcEpAQoEEVHchncqVdJH+rfm1gm1WBFUYNiCL8qnGXBAwuB/4GHo10xd4pIJqBCk/Itkfza3z0WTTN/+MMSIXYr7idfnbuOuMZRYM21XzXt2rBmo7aDWmeFr7Uo4u7QLHftAEpF77QIa3tM+LwFcW+y3s8izcgfeKQYkyV1xt99j+uHJJ6pwHRxU2KYl5ew4iVMeB9AxKeJxK6wPOfv6fItVkBZV0NCzK3Foh/dn6uoog3KPN9qLz35V9LYUB6xN2K4i0oMRXBAdcrci4bcMH+VgL5VC7a6j4Qf6HMe4sB+T/8bY+LFUVbXDC4uigmFLl91/a2ATkR/vT1KkU8VdHYt8DVivxVh5i2DsioR16x/RiQgMpuXzafAcGAJB0hGRADggHJKLYfA5JTbD8GJKfYfgxITrH9GJCcYvsxIDnF9mNAcortx4DkFNuPAckpth8DklNsPwYkJ5dA/Jaaoa4DeT01Q11/seR5WUP26lWixGH5Z8yBgUwh6DKQ5DRPhnra67sTlr3gfgTkB7CtEUiTwAxwMIECu64C6adxmayzQ7q8ppZVcgakupYCG2Wt3mmBNOiodWdA6tXCTJc3e1yKccptKtB8We99tsubGXBkuwFp+Li0PdPlNbWQsqmilmSOS1PS5VVZysnUoBbJ+0QmZGbVnsByHPtiG+6ixmQd+q1yvbRbjkvfAdfENhfSf9LVG+3VQfOdAAAAAElFTkSuQmCC" alt="">
+      <img class="action-icon excel-icon-dark" src="data:image/png;base64,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" alt="">
+    </button>
+    <span class="status"><i class="dot" id="statusDot"></i><span id="statusText">Connecting…</span></span>
+  </div>
+
+  <section class="kpis" id="kpis"></section>
+  <section class="metric-panel" id="metricPanel">
+    <button class="metric-toggle" id="metricToggle" type="button" aria-expanded="false">
+      <span><strong>Chart Metric</strong><small>Visual achievement overview</small></span><span class="chevron">⌄</span>
+    </button>
+    <div class="metric-body" id="metricBody" hidden><div id="metricChart" class="metric-chart"></div></div>
+  </section>
+
+  <section class="table-card">
+    <div class="table-head">
+      <div class="table-title" id="tableTitle">Bank Loan Status</div>
+      <div class="count" id="rowCount">0 records</div>
+    </div>
+    <div class="table-scroll" id="tableWrap"><div class="loading">Loading…</div></div>
+  </section>
+</main>
+<footer class="footer"></footer>
+</div>
+
+<script>
+/*
+  ============================================================
+  DASHBOARD CONFIGURATION
+  ============================================================
+  To add a future tab, add one object to DASHBOARD_TABS.
+  spreadsheetId = Google Spreadsheet ID
+  gid            = individual sheet/tab GID
+*/
+const DASHBOARD_TABS = [
+  {
+    id: "bank-loan",
+    name: "Bank Loan",
+    spreadsheetId: "1EPXQVAguNYxEAQGwsEgOnDGh7GMUePsF",
+    publishedId: "2PACX-1vRcbXP_XDssDp9h5N9OocGb9FiCKWB-339ZRhZFGOgkcVOrmZHU0WSBQpsDPtwArQ",
+    gid: "1122971084"
+  },
+  {
+    id: "oiela",
+    name: "OIELA",
+    spreadsheetId: "1EPXQVAguNYxEAQGwsEgOnDGh7GMUePsF",
+    publishedId: "2PACX-1vRcbXP_XDssDp9h5N9OocGb9FiCKWB-339ZRhZFGOgkcVOrmZHU0WSBQpsDPtwArQ",
+    gid: "1677292809"
+  }
+];
+
+let activeTab = DASHBOARD_TABS[0];
+let rawRows = [];
+let filteredRows = [];
+let headers = [];
+let sortState = {index:null, dir:1};
+let refreshTimer = null;
+
+google.charts.load("current", {packages:["table"]});
+
+const $ = id => document.getElementById(id);
+
+function sheetUrl(tab){
+  // IMPORTANT:
+  // Use the real Spreadsheet ID here, NOT the /d/e/ published ID.
+  // The GID selects the individual worksheet.
+  return `https://docs.google.com/spreadsheets/d/${tab.spreadsheetId}/gviz/tq?gid=${encodeURIComponent(tab.gid)}&headers=1&tqx=out:json`;
+}
+
+function escapeHtml(v){
+  return String(v ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+}
+
+function clean(v){
+  if(v === null || v === undefined) return "";
+  return String(v).trim();
+}
+
+function number(v){
+  if(typeof v === "number") return v;
+  const s = clean(v).replace(/,/g,"").replace(/%/g,"");
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+function isPercentHeader(h){
+  // "Total Achievement (Disbursement)" is a NUMBER column in Bank Loan.
+  if(/^total\s*achievement\s*\(\s*(disbursement|sanction\s*no)\s*\)$/i.test(clean(h))) return false;
+  return /%|percent|percentage|achievement|progress|rate|ratio/i.test(h);
+}
+
+function pctClass(n){
+  if(n >= 90) return "pct-good";
+  if(n >= 80) return "pct-green";
+  if(n >= 60) return "pct-amber";
+  if(n >= 50) return "pct-yellow";
+  if(n >= 30) return "pct-orange";
+  return "pct-red";
+}
+
+function pctColor(n){
+  if(n >= 90) return "#087F23";
+  if(n >= 80) return "#4CAF50";
+  if(n >= 60) return "#D99F25";
+  if(n >= 50) return "#F2C94C";
+  if(n >= 30) return "#EF6C00";
+  return "#D93025";
+}
+
+function renderTabs(){
+  $("tabs").innerHTML = DASHBOARD_TABS.map((t,i) =>
+    `<button class="tab ${t.id===activeTab.id?'active':''}" onclick="switchTab('${t.id}')">${escapeHtml(t.name)}</button>`
+  ).join("");
+}
+
+window.switchTab = function(id){
+  const found = DASHBOARD_TABS.find(t=>t.id===id);
+  if(!found) return;
+  activeTab = found;
+  sortState = {index:null,dir:1};
+  $("searchBox").value="";
+  loadSheet();
+  renderTabs();
+};
+
+
+function loadGoogleVisualization(tab){
+  return new Promise((resolve,reject)=>{
+    const callbackName = "__sheetCallback_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+    const script = document.createElement("script");
+    let finished=false;
+
+    const cleanup=()=>{
+      if(finished) return;
+      finished=true;
+      try{delete window[callbackName]}catch(e){window[callbackName]=undefined}
+      script.remove();
+    };
+
+    const timer=setTimeout(()=>{
+      cleanup();
+      reject(new Error("Google Sheet request timed out."));
+    },15000);
+
+    window[callbackName]=(json)=>{
+      clearTimeout(timer);
+      cleanup();
+      if(!json || json.status!=="ok"){
+        const msg=(json?.errors||[]).map(e=>e.detailed_message||e.message).filter(Boolean).join(" | ");
+        reject(new Error(msg || "Google Visualization returned an error."));
+        return;
+      }
+      resolve(json);
+    };
+
+    script.onerror=()=>{
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error("Google blocked the data request. Check that the spreadsheet is published."));
+    };
+
+    script.src =
+      `https://docs.google.com/spreadsheets/d/${tab.spreadsheetId}/gviz/tq` +
+      `?gid=${encodeURIComponent(tab.gid)}` +
+      (tab.range ? `&range=${encodeURIComponent(tab.range)}` : ``) +
+      `&headers=${tab.headers===undefined?1:tab.headers}` +
+      `&tqx=responseHandler:${encodeURIComponent(callbackName)}`;
+
+    document.head.appendChild(script);
+  });
+}
+
+function tableFromGviz(json){
+  const cols=json.table?.cols||[];
+  const headers=cols.map((c,i)=>clean(c.label)||c.id||`Column ${i+1}`);
+  const rows=(json.table?.rows||[]).map(r=>
+    headers.map((_,i)=>{
+      const cell=r.c?.[i];
+      return cell?.f ?? cell?.v ?? "";
+    })
+  );
+  return normalizeRows([headers,...rows]);
+}
+
+function normalizeRows(rows){
+  if(!rows.length) return {headers:[],data:[]};
+
+  let headers=rows[0].map((v,i)=>clean(v)||`Column ${i+1}`);
+  let data=rows.slice(1);
+
+  // Do not let merged/decorative blank columns break the dashboard.
+  const used=headers.map((_,i)=>data.some(r=>clean(r?.[i])!==""));
+  headers=headers.filter((_,i)=>used[i]);
+
+  data=data.map(r=>{
+    const out=[];
+    for(let i=0;i<used.length;i++) if(used[i]) out.push(r?.[i]??"");
+    return out;
+  });
+
+  data=data.filter(r=>r.some(v=>clean(v)!==""));
+  return {headers,data};
+}
+
+
+
+const LAST_UPDATED_GID="1632665078";
+async function loadLastUpdated(){
+  try{
+    // B11 = Bank Loan, B12 = OIELA. Fetch only the required cells so
+    // blank rows elsewhere in the sheet cannot shift the result.
+    const meta={spreadsheetId:activeTab.spreadsheetId,gid:LAST_UPDATED_GID,range:"B11:B12",headers:0};
+    const json=await loadGoogleVisualization(meta);
+    const rows=(json.table?.rows||[]).map(r=>r.c?.[0]?.f ?? r.c?.[0]?.v ?? "");
+    const value=clean(rows[activeTab.id==="bank-loan"?0:1]);
+    $("lastUpdated").textContent=value?`Last updated: ${value}`:"Last updated: —";
+  }catch(e){
+    console.warn("Last updated fetch failed",e);
+    $("lastUpdated").textContent="Last updated: —";
+  }
+}
+
+async function loadSheet(){
+  $("tableWrap").innerHTML =
+    `<div class="loading">Connecting to ${escapeHtml(activeTab.name)} — GID ${escapeHtml(activeTab.gid)}…</div>`;
+  
+  
+
+  try{
+    const json=await loadGoogleVisualization(activeTab);
+    const parsed=tableFromGviz(json);
+
+    if(!parsed.headers.length)
+      throw new Error("No columns were returned for this GID.");
+    if(!parsed.data.length)
+      throw new Error("The worksheet connected, but returned no data rows.");
+
+    headers=parsed.headers;
+    rawRows=parsed.data;
+
+    if(rawRows.length && rawRows[0].every((v,i)=>
+      clean(v).toLowerCase()===clean(headers[i]).toLowerCase()
+    )) rawRows.shift();
+
+    $("pageTitle").textContent="Financial Inclusion";
+    $("tableTitle").textContent=activeTab.id==="bank-loan"?"Bank Loan Status":"Online Individual Enterprise Loan Application";
+    await loadLastUpdated();
+    
+    
+
+    populateFilters();
+    applyFilters();
+
+  }catch(err){
+    console.error(err);
+    
+    
+    $("tableWrap").innerHTML=
+      `<div class="empty">
+        <strong>Connection failed</strong><br><br>
+        Worksheet: <strong>${escapeHtml(activeTab.name)}</strong><br>
+        GID: <strong>${escapeHtml(activeTab.gid)}</strong><br><br>
+        ${escapeHtml(err.message)}<br><br>
+        <small>
+          The dashboard is using Spreadsheet ID
+          ${escapeHtml(activeTab.spreadsheetId)}
+          and the exact GID above.
+          The published web version must be accessible.
+        </small>
+      </div>`;
+    renderKpis([]);
+  }
+}
+
+function findColumn(regex){
+  return headers.findIndex(h=>regex.test(h));
+}
+
+function findColumnByPatterns(patterns){
+  for(const pattern of patterns){
+    const i=headers.findIndex(h=>pattern.test(h));
+    if(i>=0) return i;
+  }
+  return -1;
+}
+
+function isBankLoanTab(){
+  return /bank loan/i.test(activeTab.name);
+}
+
+function isTotalAchievementHeader(h){
+  return /^total\s*achievement\s*$/i.test(clean(h));
+}
+
+function isAmountHeader(h){
+  return /amount|value|loan\s*amount|sanctioned\s*amount|disbursed\s*amount/i.test(h);
+}
+
+function indianCurrency(v){
+  const n=number(v);
+  if(n===null) return clean(v);
+  return '₹' + n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+
+function isLeftAlignedColumn(header){
+  return /^(district|block)$/i.test(clean(header)) || /district|block/i.test(clean(header));
+}
+
+function displayCellValue(v, header){
+  const s=clean(v);
+  if(!s) return "";
+  if(/^total\s*achievement\s*\(\s*disbursement\s*\)$/i.test(clean(header))){
+    const n=number(s);
+    return n===null ? s : n.toLocaleString('en-IN');
+  }
+  if(isAmountHeader(header)){
+    const n=number(s);
+    if(n!==null) return indianCurrency(n);
+  }
+  return s;
+}
+
+function getVisibleHeaders(){
+  // Bank Loan: remove only the exact "Total Achievement" column from the table.
+  return headers.map((h,i)=>({h,i})).filter(x=>!(isBankLoanTab() && isTotalAchievementHeader(x.h)));
+}
+
+function getVisibleRows(rows){
+  const visible=getVisibleHeaders();
+  return rows.map(r=>visible.map(x=>r[x.i]));
+}
+
+function numberToIndianWords(value){
+  let n=Math.round(Number(value)||0);
+  if(n===0) return "Zero Rupees";
+
+  const ones=["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+  const tens=["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+
+  function twoDigits(x){
+    if(x<20) return ones[x];
+    return tens[Math.floor(x/10)] + (x%10 ? " " + ones[x%10] : "");
+  }
+  function underThousand(x){
+    let s="";
+    if(x>=100){ s += ones[Math.floor(x/100)] + " Hundred"; x%=100; if(x) s+=" "; }
+    if(x) s+=twoDigits(x);
+    return s;
+  }
+
+  const parts=[];
+  const crore=Math.floor(n/10000000); n%=10000000;
+  const lakh=Math.floor(n/100000); n%=100000;
+  const thousand=Math.floor(n/1000); n%=1000;
+  const hundred=n;
+
+  if(crore) parts.push(underThousand(crore)+" Crore");
+  if(lakh) parts.push(underThousand(lakh)+" Lakh");
+  if(thousand) parts.push(underThousand(thousand)+" Thousand");
+  if(hundred) parts.push(underThousand(hundred));
+
+  return parts.join(" ")+" Rupees";
+}
+
+function findAchievementPercentColumn(){
+  // User specified column G. Keep the column-letter rule first,
+  // then fall back to a header match if the sheet structure changes.
+  if(headers.length>=7 && /achievement/i.test(headers[6])) return 6;
+  return findColumnByPatterns([
+    /achievement\s*%/i,
+    /achievement.*percent/i,
+    /^achievement$/i
+  ]);
+}
+
+function getBankLoanMetrics(rows){
+  const targetIdx=findColumnByPatterns([
+    /^target$/i,/loan.*target/i,/target.*loan/i
+  ]);
+  const submissionIdx=findColumnByPatterns([
+    /total\s*(no\.?|number)?\s*of\s*bank\s*loan\s*submission/i,
+    /bank\s*loan\s*submission/i,
+    /loan\s*submission/i,
+    /submission.*bank/i
+  ]);
+  const amountIdx=findColumnByPatterns([
+    /total\s*amount/i,/loan\s*amount/i,/amount/i
+  ]);
+  const pendingIdx=findColumnByPatterns([
+    /total\s*(no\.?|number)?\s*of\s*bank\s*loan\s*pending/i,
+    /bank\s*loan\s*pending/i,
+    /loan\s*pending/i,
+    /pending.*bank/i,/pending/i
+  ]);
+  const disbursementAchievementIdx=findColumnByPatterns([
+    /^total\s*achievement\s*\(\s*disbursement\s*\)$/i
+  ]);
+  const achievementPctIdx=findAchievementPercentColumn();
+
+  const sumCol=(idx)=>{
+    if(idx<0) return 0;
+    return rows.reduce((sum,r)=>sum+(number(r[idx])??0),0);
+  };
+
+  // KPI "TOTAL ACHIEVEMENT %" is the average of Achievement% in column G,
+  // matching the sheet's row-level percentage field.
+  const achievementVals=achievementPctIdx<0 ? [] :
+    rows.map(r=>number(r[achievementPctIdx])).filter(v=>v!==null);
+  const achievementPct=achievementVals.length
+    ? achievementVals.reduce((a,b)=>a+b,0)/achievementVals.length
+    : null;
+
+  return {
+    target:sumCol(targetIdx),
+    submissions:sumCol(submissionIdx),
+    achievementPct,
+    amount:sumCol(amountIdx),
+    pending:sumCol(pendingIdx),
+    disbursementAchievement:sumCol(disbursementAchievementIdx)
+  };
+}
+
+function renderBankLoanKpis(rows){
+  const m=getBankLoanMetrics(rows);
+  const amountText=indianCurrency(m.amount);
+  const amountWords=numberToIndianWords(m.amount);
+
+  const cards=[
+    {label:"TARGET",value:m.target.toLocaleString('en-IN'),sub:"Total target"},
+    {label:"TOTAL NO. OF BANK LOAN SUBMISSION AT THE BANK",value:m.submissions.toLocaleString('en-IN'),sub:"Loan submissions"},
+    {label:"TOTAL ACHIEVEMENT %",value:m.achievementPct===null?"—":m.achievementPct.toFixed(2)+"%",sub:"Calculated from Achievement%",pct:m.achievementPct},
+    {label:"TOTAL AMOUNT",value:amountText,sub:"Total amount",words:amountWords},
+    {label:"TOTAL NO. OF BANK LOAN PENDING AT BANK",value:m.pending.toLocaleString('en-IN'),sub:"Pending at bank"}
+  ];
+
+  $("kpis").innerHTML=cards.map((c)=>
+    `<div class="kpi">
+      <div class="label">${escapeHtml(c.label)}</div>
+      <div class="value ${c.pct!==undefined && c.pct!==null ? pctClass(c.pct):''}">${escapeHtml(c.value)}</div>
+      ${c.words ? `<div class="amount-words">${escapeHtml(c.words)}</div>` : ""}
+      <div class="sub">${escapeHtml(c.sub)}</div>
+    </div>`
+  ).join("");
+}
+
+function renderGenericKpis(rows){
+  const total=rows.length;
+  const numeric=[];
+  headers.forEach((h,i)=>{
+    const vals=rows.map(r=>number(r[i])).filter(v=>v!==null);
+    if(vals.length && vals.length/Math.max(rows.length,1)>=.55){
+      numeric.push({i,h,vals});
+    }
+  });
+
+  const cards=[];
+  cards.push({label:"TOTAL RECORDS",value:total,sub:activeTab.name});
+  numeric.slice(0,4).forEach(x=>{
+    const sum=x.vals.reduce((a,b)=>a+b,0);
+    const avg=sum/x.vals.length;
+    const percent=isPercentHeader(x.h) || x.vals.every(v=>v>=0&&v<=100);
+    cards.push({
+      label:x.h.toUpperCase(),
+      value:percent ? avg.toFixed(2)+"%" : (isAmountHeader(x.h)?indianCurrency(sum):sum.toLocaleString('en-IN')),
+      sub:percent ? "Average" : "Total"
+    });
+  });
+
+  $("kpis").innerHTML=cards.slice(0,5).map(c=>
+    `<div class="kpi"><div class="label">${escapeHtml(c.label)}</div><div class="value">${escapeHtml(c.value)}</div><div class="sub">${escapeHtml(c.sub)}</div></div>`
+  ).join("");
+}
+
+function renderKpis(rows){
+  if(isBankLoanTab()) renderBankLoanKpis(rows);
+  else renderGenericKpis(rows);
+}
+
+function populateFilters(){
+  const dIdx = findColumn(/district/i);
+  const bIdx = findColumn(/block/i);
+  const districts = dIdx<0 ? [] : [...new Set(rawRows.map(r=>clean(r[dIdx])).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  $("districtFilter").innerHTML = '<option value="">All Districts</option>'+districts.map(x=>`<option>${escapeHtml(x)}</option>`).join("");
+  updateBlocks();
+}
+
+function updateBlocks(){
+  const dIdx=findColumn(/district/i), bIdx=findColumn(/block/i);
+  if(bIdx<0){ $("blockFilter").innerHTML='<option value="">All Blocks</option>'; return; }
+  const d=$("districtFilter").value;
+  const blocks=[...new Set(rawRows.filter(r=>!d||clean(r[dIdx])===d).map(r=>clean(r[bIdx])).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  $("blockFilter").innerHTML='<option value="">All Blocks</option>'+blocks.map(x=>`<option>${escapeHtml(x)}</option>`).join("");
+}
+
+function applyFilters(){
+  const q=$("searchBox").value.toLowerCase().trim();
+  const dIdx=findColumn(/district/i), bIdx=findColumn(/block/i);
+  const d=$("districtFilter").value, b=$("blockFilter").value;
+
+  filteredRows=rawRows.filter(r=>{
+    const text=r.map(clean).join(" ").toLowerCase();
+    return (!q||text.includes(q)) &&
+      (!d||dIdx<0||clean(r[dIdx])===d) &&
+      (!b||bIdx<0||clean(r[bIdx])===b);
+  });
+
+  if(sortState.index!==null) sortRows();
+  renderKpis(filteredRows);
+  renderTable(filteredRows);
+}
+
+function sortRows(){
+  const i=sortState.index, dir=sortState.dir;
+  filteredRows.sort((a,b)=>{
+    const na=number(a[i]), nb=number(b[i]);
+    if(na!==null && nb!==null) return (na-nb)*dir;
+    return clean(a[i]).localeCompare(clean(b[i]),undefined,{numeric:true,sensitivity:"base"})*dir;
+  });
+}
+
+function renderTable(rows){
+  $("rowCount").textContent = `${rows.length.toLocaleString()} record${rows.length===1?"":"s"}`;
+  if(!headers.length){$("tableWrap").innerHTML='<div class="empty">No columns found.</div>';return;}
+  if(!rows.length){$("tableWrap").innerHTML='<div class="empty">No records match the selected filters.</div>';return;}
+
+  const visible=getVisibleHeaders();
+  let html="<table><thead><tr>";
+  html+='<th class="center serial-col" title="Static serial number">S/N</th>';
+
+  visible.forEach((x,displayIndex)=>{
+    const i=x.i, h=x.h;
+    const n=isNumericColumn(i);
+    const arrow=sortState.index===i?(sortState.dir===1?" ↑":" ↓"):"";
+    html+=`<th class="${isLeftAlignedColumn(h)?'left':'center'}" onclick="sortBy(${i})">${escapeHtml(h)}${arrow}</th>`;
+  });
+  html+="</tr></thead><tbody>";
+
+  rows.forEach((r,rowIndex)=>{
+    html+="<tr>";
+    // Static serial number: always reflects the visible row position, so S/N 1 stays first.
+    html+=`<td class="center serial-col">${rowIndex+1}</td>`;
+
+    visible.forEach(x=>{
+      const i=x.i, h=x.h;
+      const val=clean(r[i]), n=number(val);
+      const percent=isPercentHeader(h) || /%$/.test(val);
+
+      if(percent && n!==null && n>=0 && n<=100){
+        const cls=pctClass(n);
+        html+=`<td class="num progress-cell"><span class="${cls}">${n.toFixed(2)}%</span><div class="bar"><div class="fill" style="width:${Math.max(0,Math.min(100,n))}%;background:${pctColor(n)}"></div></div></td>`;
+      }else{
+        html+=`<td class="${isLeftAlignedColumn(h)?'left':'center'}">${escapeHtml(displayCellValue(val,h))}</td>`;
+      }
+    });
+    html+="</tr>";
+  });
+  html+="</tbody></table>";
+  $("tableWrap").innerHTML=html;
+}
+
+function isNumericColumn(i){
+  const vals=filteredRows.map(r=>number(r[i])).filter(v=>v!==null);
+  return vals.length>0 && vals.length/Math.max(filteredRows.length,1)>.55;
+}
+
+window.sortBy=function(i){
+  if(sortState.index===i) sortState.dir*=-1;
+  else {sortState.index=i;sortState.dir=1;}
+  sortRows(); renderTable(filteredRows);
+};
+
+$("searchBox").addEventListener("input",applyFilters);
+$("districtFilter").addEventListener("change",()=>{updateBlocks();applyFilters()});
+$("blockFilter").addEventListener("change",applyFilters);
+$("resetBtn").addEventListener("click",()=>{
+  $("searchBox").value="";$("districtFilter").value="";updateBlocks();$("blockFilter").value="";
+  sortState={index:null,dir:1};applyFilters();
+});
+
+$("imageBtn").addEventListener("click",async()=>{
+  const target=document.querySelector(".main");
+  if(!target || !window.html2canvas) return;
+
+  const button=$("imageBtn");
+  const old=button.innerHTML;
+  button.disabled=true;
+  button.setAttribute("aria-busy","true");
+
+  try{
+    const canvas=await html2canvas(target,{
+      scale:2,
+      useCORS:true,
+      backgroundColor:getComputedStyle(document.body).getPropertyValue("--bg").trim() || "#f5f7fb",
+      logging:false
+    });
+    const link=document.createElement("a");
+    link.download=`${activeTab.name.replace(/[^a-z0-9]+/gi,"_")}_Dashboard.png`;
+    link.href=canvas.toDataURL("image/png");
+    link.click();
+  }catch(err){
+    console.error(err);
+    alert("Unable to save the dashboard as an image.");
+  }finally{
+    button.disabled=false;
+    button.innerHTML=old;
+  }
+});
+
+$("themeBtn").addEventListener("click",()=>{
+  document.body.classList.toggle("dark");
+  const dark=document.body.classList.contains("dark");
+  localStorage.setItem("vprpTheme",dark?"dark":"light");
+  $("themeBtn").textContent=dark?"☀":"☾";
+});
+if(localStorage.getItem("vprpTheme")==="dark"){
+  document.body.classList.add("dark");$("themeBtn").textContent="☀";
+}
+
+$("fullscreenBtn").addEventListener("click",()=>{
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+});
+
+$("excelBtn").addEventListener("click",()=>{
+  if(!filteredRows.length)return;
+  const visible=getVisibleHeaders();
+  const data=[
+    ["S. No.",...visible.map(x=>x.h)],
+    ...filteredRows.map((r,rowIndex)=>[rowIndex+1,...visible.map(x=>displayCellValue(r[x.i],x.h))])
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(data);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,activeTab.name.substring(0,31));
+  XLSX.writeFile(wb,`${activeTab.name.replace(/[^a-z0-9]+/gi,"_")}.xlsx`);
+});
+
+
+function getOielaMetrics(rows){
+  const targetIdx=findColumnByPatterns([/^target$/i,/total\s*target/i,/target/i]);
+  const achievementIdx=findColumnByPatterns([/^achievement$/i,/achieved/i,/application.*(completed|submitted|approved)/i,/total.*achievement/i]);
+  const pctIdx=findColumnByPatterns([/overall.*%/i,/state.*%/i,/achievement\s*%/i,/percentage/i,/percent/i]);
+  const sum=i=>i<0?0:rows.reduce((a,r)=>a+(number(r[i])??0),0);
+  const totalTarget=sum(targetIdx);
+  const totalAchievement=sum(achievementIdx);
+  let overallPct=null;
+  const totalRow=rows.find(r=>r.some(v=>/^(overall|state|total|mizoram)$/i.test(clean(v))));
+  if(totalRow && pctIdx>=0) overallPct=number(totalRow[pctIdx]);
+  if(overallPct===null && totalTarget>0 && achievementIdx>=0) overallPct=totalAchievement/totalTarget*100;
+  if(overallPct===null && pctIdx>=0){const vals=rows.map(r=>number(r[pctIdx])).filter(v=>v!==null);if(vals.length) overallPct=vals.reduce((a,b)=>a+b,0)/vals.length;}
+  return {targetIdx,achievementIdx,pctIdx,totalTarget,totalAchievement,overallPct};
+}
+function renderGenericKpis(rows){
+  if(activeTab.id!=="oiela") return;
+  const m=getOielaMetrics(rows);
+  const used=new Set([m.targetIdx,m.achievementIdx,m.pctIdx].filter(i=>i>=0));
+  const cards=[
+    {label:"TOTAL TARGET",value:m.totalTarget.toLocaleString("en-IN"),sub:"State target"},
+    {label:"OVERALL STATE %",value:m.overallPct===null?"—":m.overallPct.toFixed(2)+"%",sub:"Overall State percentage",pct:m.overallPct}
+  ];
+  headers.forEach((h,i)=>{
+    if(cards.length>=5||used.has(i)||/district|block|s\.?\s*no/i.test(h))return;
+    const vals=rows.map(r=>number(r[i])).filter(v=>v!==null);
+    if(vals.length/Math.max(rows.length,1)<.55)return;
+    const sum=vals.reduce((a,b)=>a+b,0);
+    cards.push({
+      label:h.toUpperCase(),
+      value:isAmountHeader(h)?indianCurrency(sum):sum.toLocaleString("en-IN"),
+      sub:"Total",
+      words:isAmountHeader(h)?numberToIndianWords(sum):null
+    });
+    used.add(i);
+  });
+  $("kpis").innerHTML=cards.map(c=>`<div class="kpi"><div class="label">${escapeHtml(c.label)}</div><div class="value ${c.pct!==null&&c.pct!==undefined?pctClass(c.pct):""}">${escapeHtml(c.value)}</div>${c.words?`<div class="amount-words">${escapeHtml(c.words)}</div>`:""}<div class="sub">${escapeHtml(c.sub)}</div></div>`).join("");
+}
+function renderMetricChart(rows){
+  const chart=$("metricChart"); if(!chart)return;
+  const dIdx=findColumn(/district/i), bIdx=findColumn(/block/i);
+  let pIdx=findColumnByPatterns([/achievement\s*%/i,/percentage/i,/percent/i,/progress/i]);
+  if(pIdx<0 && isBankLoanTab()) pIdx=findAchievementPercentColumn();
+  if(pIdx<0){chart.innerHTML='<div class="empty">No percentage metric is available for this tab.</div>';return;}
+  const items=rows.map(r=>({label:clean(r[bIdx>=0?bIdx:dIdx])||"State",v:number(r[pIdx])}))
+    .filter(x=>x.v!==null)
+    .sort((a,b)=>b.v-a.v);
+  const max=Math.max(100,...items.map(x=>x.v));
+  chart.innerHTML=items.map((x,i)=>`<div class="metric-col" title="${escapeHtml(x.label)}: ${x.v.toFixed(1)}%">
+    <div class="metric-col-value ${pctClass(x.v)}">${x.v.toFixed(1)}%</div>
+    <div class="metric-col-track"><div class="metric-col-fill" style="height:${Math.max(3,Math.min(100,(x.v/max)*100))}%;background:${pctColor(x.v)}"></div></div>
+    <div class="metric-col-label">${i+1}. ${escapeHtml(x.label)}</div>
+  </div>`).join("")||'<div class="empty">No chart data available.</div>';
+}
+const _applyFilters=applyFilters;
+applyFilters=function(){_applyFilters();renderMetricChart(filteredRows);};
+$("metricToggle").addEventListener("click",()=>{const b=$("metricBody"),btn=$("metricToggle");const open=b.hidden;b.hidden=!open;btn.setAttribute("aria-expanded",String(open));if(open)renderMetricChart(filteredRows);});
+
+// Export helpers: image excludes controls/search/chart; exports include a clean report header.
+function exportTitle(){
+  return activeTab.id==="bank-loan" ? "Bank Loan Status" : "Online Individual Loan Application Status";
+}
+function exportUpdatedText(){ return $("lastUpdated")?.textContent || "Last updated: —"; }
+
+$("imageBtn").onclick=async function(){
+  if(!window.html2canvas){alert("Image export library is still loading. Please try again.");return;}
+  const source=document.querySelector(".main");
+  if(!source)return;
+  const button=$("imageBtn"), old=button.innerHTML;
+  button.disabled=true; button.setAttribute("aria-busy","true");
+  const dark=document.body.classList.contains("dark");
+  const host=document.createElement("div");
+  host.style.cssText="position:absolute;left:-100000px;top:0;width:1500px;background:"+(dark?"#071426":"#f5f7fb")+";padding:28px;box-sizing:border-box;z-index:-1;overflow:visible";
+  const report=document.createElement("div");
+  report.className="export-report";
+  report.style.cssText="width:100%;background:"+(dark?"#0d1b31":"#ffffff")+";border-radius:16px;padding:24px;box-sizing:border-box;color:"+(dark?"#eef4ff":"#182230")+";font-family:inherit;overflow:visible";
+  const head=document.createElement("div");
+  head.innerHTML=`<div style="font-size:26px;font-weight:900;margin-bottom:6px">${escapeHtml(exportTitle())}</div><div style="font-size:13px;opacity:.78;margin-bottom:20px">${escapeHtml(exportUpdatedText())}</div>`;
+  report.appendChild(head);
+  const clone=source.cloneNode(true);
+  clone.querySelector(".toolbar")?.remove();
+  clone.querySelector("#metricPanel")?.remove();
+  clone.querySelector(".kpis")?.remove();
+  clone.style.cssText="width:100%;max-width:none;margin:0;padding:0;overflow:visible";
+  clone.querySelectorAll(".table-card").forEach(x=>{x.style.width="100%";x.style.overflow="visible";x.style.maxHeight="none";});
+  clone.querySelectorAll(".table-scroll").forEach(x=>{
+    x.style.maxHeight="none";
+    x.style.height="auto";
+    x.style.overflow="visible";
+    x.style.width="100%";
+    x.style.display="block";
+  });
+  clone.querySelectorAll("table").forEach(x=>{
+    x.style.width="100%";
+    x.style.minWidth="0";
+    x.style.maxWidth="none";
+    x.style.height="auto";
+    x.style.tableLayout="fixed";
+  });
+  clone.querySelectorAll("thead th").forEach(x=>{x.style.position="static";});
+  report.appendChild(clone);
+  host.appendChild(report); document.body.appendChild(host);
+  try{
+    // Capture the actual rendered report bounds, not the viewport/scroll position.
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    const rect=report.getBoundingClientRect();
+    const canvas=await html2canvas(report,{
+      scale:2,
+      useCORS:true,
+      allowTaint:false,
+      backgroundColor:dark?"#071426":"#f5f7fb",
+      logging:false,
+      width:Math.ceil(rect.width),
+      height:Math.ceil(report.scrollHeight),
+      windowWidth:1600,
+      windowHeight:Math.max(window.innerHeight,Math.ceil(report.scrollHeight)+100),
+      scrollX:0,
+      scrollY:0
+    });
+    const a=document.createElement("a");
+    a.download=activeTab.name.replace(/[^a-z0-9]+/gi,"_")+"_Status.png";
+    a.href=canvas.toDataURL("image/png");
+    a.click();
+  }catch(e){console.error(e);alert("Unable to save the full dashboard image. Please try again.");}
+  finally{host.remove();button.disabled=false;button.removeAttribute("aria-busy");button.innerHTML=old;}
+};
+
+// Styled Excel export: title + last updated + white report header, borders, alignment and percentage colours.
+$("excelBtn").onclick=async function(){
+  if(!filteredRows.length)return;
+  if(!window.ExcelJS){alert("Excel export library is still loading. Please try again.");return;}
+  const visible=getVisibleHeaders(), wb=new ExcelJS.Workbook(), ws=wb.addWorksheet(activeTab.name.substring(0,31));
+  const colCount=visible.length+1;
+  const titleRow=ws.addRow([exportTitle()]); titleRow.height=28;
+  ws.mergeCells(1,1,1,colCount); titleRow.getCell(1).font={bold:true,size:16,color:{argb:"FFFFFFFF"}};titleRow.getCell(1).fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF0A326E"}};titleRow.getCell(1).alignment={horizontal:"left",vertical:"middle"};
+  const updatedRow=ws.addRow([exportUpdatedText()]); ws.mergeCells(2,1,2,colCount);updatedRow.height=22;updatedRow.getCell(1).font={italic:true,size:10,color:{argb:"FF4B5563"}};updatedRow.getCell(1).alignment={horizontal:"left",vertical:"middle"};
+  const headerRow=ws.addRow(["S. No.",...visible.map(x=>x.h)]);headerRow.height=38;
+  headerRow.eachCell(c=>{c.font={bold:true,color:{argb:"FFFFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FF0A326E"}};c.alignment={horizontal:"center",vertical:"middle",wrapText:true};c.border={top:{style:"thin",color:{argb:"FFD1D5DB"}},left:{style:"thin",color:{argb:"FFD1D5DB"}},bottom:{style:"thin",color:{argb:"FFD1D5DB"}},right:{style:"thin",color:{argb:"FFD1D5DB"}}};});
+  filteredRows.forEach((r,n)=>ws.addRow([n+1,...visible.map(x=>displayCellValue(r[x.i],x.h))]));
+  ws.eachRow((row,ri)=>{if(ri<=3)return;row.height=30;row.eachCell((c,ci)=>{const h=ci===1?"S. No.":visible[ci-2]?.h||"";const val=c.value;const num=number(val);const pct=isPercentHeader(h)&&num!==null&&num>=0&&num<=100;c.alignment={horizontal:(/district|block/i.test(h)?"left":"center"),vertical:"middle",wrapText:true};c.border={top:{style:"thin",color:{argb:"FFD1D5DB"}},left:{style:"thin",color:{argb:"FFD1D5DB"}},bottom:{style:"thin",color:{argb:"FFD1D5DB"}},right:{style:"thin",color:{argb:"FFD1D5DB"}}};if(pct)c.font={color:{argb:pctColor(num).replace("#","FF")},bold:true};});});
+  ws.columns.forEach((col,i)=>{let w=18;if(i===0)w=8;else{const h=visible[i-1]?.h||"";if(/district/i.test(h))w=24;else if(/block/i.test(h))w=28;else if(/^target$/i.test(h))w=16;else if(/amount/i.test(h))w=20;else w=18;}col.width=w;});
+  ws.views=[{state:"frozen",ySplit:3}];ws.autoFilter={from:{row:3,column:1},to:{row:3,column:colCount}};
+  const buf=await wb.xlsx.writeBuffer(),blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=activeTab.name.replace(/[^a-z0-9]+/gi,"_")+"_Status.xlsx";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+
+renderTabs();
+loadSheet();
+refreshTimer=setInterval(loadSheet, 5*60*1000);
+</script>
+</body>
+</html>
