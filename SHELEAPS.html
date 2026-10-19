@@ -342,6 +342,8 @@ async function loadLive(){
 }
 function getRows(){return (state.live&&LIVE_DATA[state.active]) || EMBEDDED_DATA[state.active] || []}
 function getColumns(rows){const cols=[];rows.forEach(r=>Object.keys(r).forEach(k=>{if(!cols.includes(k))cols.push(k)}));return cols;}
+// The Group and Individual Enterprise sheets display only source columns A:I.
+function getDisplayColumns(rows){const cols=getColumns(rows);return ["Individual Enterprise","Enterprise Group"].includes(state.active)?cols.slice(0,9):cols;}
 function findCol(cols,names){return cols.find(c=>names.some(n=>c.toLowerCase().trim()===n||c.toLowerCase().includes(n)))||null;}
 function metricTargetCol(cols){
   if(["IFC","PG","CHC"].includes(state.active))return findCol(cols,["target","total"]);
@@ -357,7 +359,7 @@ function renderTable(rows,cols){
   if(state.sortKey)filtered.sort((a,b)=>{const rank=targetBottom(a,b);if(rank)return rank;let x,y;if(state.sortKey==="__achievement"){x=achievement(a,cols);y=achievement(b,cols);}else{x=a[state.sortKey];y=b[state.sortKey];}if(x===null||x===undefined||x==="")return 1*state.sortDir;if(y===null||y===undefined||y==="")return -1*state.sortDir;if(numeric(x)&&numeric(y))return (Number(x)-Number(y))*state.sortDir;return String(x??"").localeCompare(String(y??""))*state.sortDir;});
   else filtered=[...filtered.map((r,i)=>({r,i})).sort((a,b)=>{const rank=targetBottom(a.r,b.r);return rank||a.i-b.i;}).map(x=>x.r)];
   if(!filtered.length){$("tableWrap").innerHTML='<div class="empty">No matching records.</div>';return;}
-  const displayCols=cols;const headerLabel=(c)=>{if(["IFC","PG","CHC"].includes(state.active)){if(/^total$/i.test(String(c).trim())||/^target$/i.test(String(c).trim()))return "Target";if(/^total\.\d+$/i.test(String(c).trim()))return "Total";}return c;};
+  const displayCols=getDisplayColumns(rows);const headerLabel=(c)=>{if(["IFC","PG","CHC"].includes(state.active)){if(/^total$/i.test(String(c).trim())||/^target$/i.test(String(c).trim()))return "Target";if(/^total\.\d+$/i.test(String(c).trim()))return "Total";}return c;};
   const headers=[...displayCols,"Achievement %"];const sortKeyFor=(c)=>c==="Achievement %"?"__achievement":c;const isStaticSerial=(c)=>/^(s\.?\s*no|serial\s*no|serial\s*number)$/i.test(String(c).trim());
   let out="<table><thead><tr>"+headers.map(c=>{const key=sortKeyFor(c);const sortable=!isStaticSerial(c);return `<th ${sortable?`data-sort="${key}"`:"class=\"static-col\""}>${headerLabel(c)}${sortable?`<span class="sort">${state.sortKey===key?(state.sortDir===1?"▲":"▼"):"↕"}</span>`:""}</th>`;}).join("")+"</tr></thead><tbody>";
   filtered.forEach((r,rowIndex)=>{out+="<tr>";displayCols.forEach(c=>{const isSerial=isStaticSerial(c);let v=isSerial?rowIndex+1:r[c];out+=`<td class="${numeric(v)?"num":""}">${v??"—"}</td>`});const p=achievement(r,cols);out+=`<td class="num">${p===null?"—":`<span class="percent-cell ${pctClass(p)}">${pct(p)}</span>`}</td></tr>`;});out+="</tbody></table>";$("tableWrap").innerHTML=out;
@@ -369,6 +371,7 @@ function buildExportStage(){
   const {rows:visibleRows,cols}=getVisibleRows();
   const rows=[...visibleRows].sort((a,b)=>{const pa=achievement(a,cols),pb=achievement(b,cols);if(pa==null&&pb==null)return 0;if(pa==null)return 1;if(pb==null)return -1;return pb-pa;});
   const title=TITLE_MAP[state.active]||state.active;
+  const displayCols=getDisplayColumns(getRows());
   const logo=document.querySelector('.brand-logo');
   const stage=$("exportStage");stage.innerHTML="";
   const head=document.createElement('div');head.className='export-head';
@@ -379,16 +382,17 @@ function buildExportStage(){
   head.append(im,b);stage.appendChild(head);
   const table=document.createElement('table');const thead=document.createElement('thead');const hr=document.createElement('tr');
   const headerLabel=c=>{if(["IFC","PG","CHC"].includes(state.active)){if(/^total$/i.test(String(c).trim())||/^target$/i.test(String(c).trim()))return "Target";if(/^total\.\d+$/i.test(String(c).trim()))return "Total";}return c;};
-  [...cols,'Achievement %'].forEach(c=>{const th=document.createElement('th');th.textContent=headerLabel(c);hr.appendChild(th)});thead.appendChild(hr);table.appendChild(thead);
-  const tb=document.createElement('tbody');rows.forEach((r,i)=>{const tr=document.createElement('tr');cols.forEach(c=>{const td=document.createElement('td');const serial=/^(s\.?\s*no|serial\s*no|serial\s*number)$/i.test(String(c).trim());td.textContent=serial?i+1:(r[c]??'—');tr.appendChild(td)});const p=achievement(r,cols);const td=document.createElement('td');td.innerHTML=p===null?'—':`<span class="percent-cell ${pctClass(p)}">${pct(p)}</span>`;tr.appendChild(td);tb.appendChild(tr)});table.appendChild(tb);stage.appendChild(table);stage.style.width=Math.max(1200, table.scrollWidth+84)+"px";return stage;
+  [...displayCols,'Achievement %'].forEach(c=>{const th=document.createElement('th');th.textContent=headerLabel(c);hr.appendChild(th)});thead.appendChild(hr);table.appendChild(thead);
+  const tb=document.createElement('tbody');rows.forEach((r,i)=>{const tr=document.createElement('tr');displayCols.forEach(c=>{const td=document.createElement('td');const serial=/^(s\.?\s*no|serial\s*no|serial\s*number)$/i.test(String(c).trim());td.textContent=serial?i+1:(r[c]??'—');tr.appendChild(td)});const p=achievement(r,cols);const td=document.createElement('td');td.innerHTML=p===null?'—':`<span class="percent-cell ${pctClass(p)}">${pct(p)}</span>`;tr.appendChild(td);tb.appendChild(tr)});table.appendChild(tb);stage.appendChild(table);stage.style.width=Math.max(1200, table.scrollWidth+84)+"px";return stage;
 }
 function exportExcel(){
   const {rows,cols}=getVisibleRows();
   const title=TITLE_MAP[state.active]||state.active;
+  const displayCols=getDisplayColumns(getRows());
   const wb=XLSX.utils.book_new();
-  const headers=cols.map(c=>{if(["IFC","PG","CHC"].includes(state.active)&&/^total$/i.test(String(c).trim()))return 'Target';if(["IFC","PG","CHC"].includes(state.active)&&/^total\.\d+$/i.test(String(c).trim()))return 'Total';return c;});
+  const headers=displayCols.map(c=>{if(["IFC","PG","CHC"].includes(state.active)&&/^total$/i.test(String(c).trim()))return 'Target';if(["IFC","PG","CHC"].includes(state.active)&&/^total\.\d+$/i.test(String(c).trim()))return 'Total';return c;});
   headers.push('Achievement %');
-  const body=rows.map((r,i)=>[...cols.map(c=>/^(s\.?\s*no|serial\s*no|serial\s*number)$/i.test(String(c).trim())?i+1:(r[c]??'')),achievement(r,cols)===null?'':achievement(r,cols)/100]);
+  const body=rows.map((r,i)=>[...displayCols.map(c=>/^(s\.?\s*no|serial\s*no|serial\s*number)$/i.test(String(c).trim())?i+1:(r[c]??'')),achievement(r,cols)===null?'':achievement(r,cols)/100]);
   const livelihood=["IFC","PG","CHC"].includes(state.active)?"Farm Livelihoods":"Non-Farm Livelihoods"; const ws=XLSX.utils.aoa_to_sheet([['SHE-LEAPS'],[title],[livelihood],[`Last Updated: ${activeLastUpdated()}`],[],headers,...body]);
   const lastCol=headers.length-1;
   ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:lastCol}},{s:{r:1,c:0},e:{r:1,c:lastCol}},{s:{r:2,c:0},e:{r:2,c:lastCol}},{s:{r:3,c:0},e:{r:3,c:lastCol}}];
