@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VPRP Dashboard</title>
+<title>VPRP Dashboard | Mizoram</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
@@ -27,7 +27,7 @@ button,input,select{font:inherit}.toolbar{display:flex;gap:10px;flex-wrap:wrap;m
  <div class="hero-actions"><div class="last-update" id="lastUpdated">Last updated: Loading…</div><button class="alt icon" id="theme" title="Toggle theme">☾</button></div>
 </header>
 
-<div class="tabs" id="tabs"><button class="tab active" data-level="vo">VO LEVEL</button><button class="tab" data-level="shg">SHG LEVEL</button><button class="tab" data-level="gp">GP LEVEL</button></div>
+<div class="tabs" id="tabs"><button class="tab active" data-level="vo">VO LEVEL</button><button class="tab" data-level="shg">SHG LEVEL</button><button class="tab" data-level="gp">GP LEVEL</button><button class="tab" data-level="concept">CONCEPT SEEDING</button></div>
 
 <div class="toolbar">
  <input class="control search" id="search" placeholder="Search Block, GP, VO, SHG or any visible value…">
@@ -53,7 +53,7 @@ button,input,select{font:inherit}.toolbar{display:flex;gap:10px;flex-wrap:wrap;m
 <script>
 const CONFIG={
  sheetId:'1wewgb8N52xjQS29YCXiyyCJf7cmODtXQ',
- levels:{vo:{name:'VO',gid:'1386486274'},shg:{name:'SHG',gid:'1046144980'},gp:{name:'GP',gid:'278789337'}},
+ levels:{vo:{name:'VO',gid:'1386486274'},shg:{name:'SHG',gid:'1046144980'},gp:{name:'GP',gid:'278789337'},concept:{name:'Concept Seeding',gid:'237440536'}},
  lastUpdatedGid:'237220054'
 };
 const ALIASES={
@@ -131,7 +131,7 @@ function columnIsPercentage(i){
  return sample.every(v=>v>=0&&v<=100) && /rate|score|progress|completion|achievement|performance/i.test(label);
 }
 function displayColumns(){
- const h=state.headers, limit=state.level==='vo'?12:9, cols=[];
+ const h=state.headers, limit=state.level==='concept'?h.length:(state.level==='vo'?12:9), cols=[];
  for(let i=0;i<Math.min(limit,h.length);i++){
   const label=String(h[i]??'');
   const isSerial=i===state.parsed.idx.serial || /^(s\.?\s*no|sl\.?\s*no|serial\s*no|sr\.?\s*no)$/i.test(label.trim());
@@ -177,16 +177,16 @@ function loadDistricts(){const sel=$('district');sel.innerHTML='<option value=""
 function loadBlocks(){const sel=$('block');sel.innerHTML='<option value="">All Blocks</option>';[...new Set(state.rows.map(r=>r.block).filter(x=>x))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})).forEach(b=>sel.add(new Option(b,b)));}
 function setDependentBlocks(){const d=$('district').value;const sel=$('block');const values=[...new Set(state.rows.filter(r=>!d||r.district===d).map(r=>r.block).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));sel.innerHTML='<option value="">All Blocks</option>';values.forEach(b=>sel.add(new Option(b,b)));if(!values.includes(sel.value))sel.value='';}
 async function loadLevel(level){
- state.level=level;const cfg=CONFIG.levels[level],limit=level==='vo'?12:9;
- $('tableTitle').textContent=`VPRP ${cfg.name} Level — Block Ranking`;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.level===level));
+ state.level=level;const cfg=CONFIG.levels[level],limit=level==='concept'?26:(level==='vo'?12:9);
+ $('tableTitle').textContent=level==='concept'?'VPRP Concept Seeding':`VPRP ${cfg.name} Level — Block Ranking`;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.level===level));
  $('body').innerHTML='<tr><td colspan="20" class="empty">Loading Google Sheet…</td></tr>';$('rowInfo').textContent='Loading…';
  try{
-  const endCol=limit===12?'L':'I';
+  const endCol=level==='concept'?'Z':(limit===12?'L':'I');
   const j=await gviz(`https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}/gviz/tq?gid=${cfg.gid}&range=A2:${endCol}&headers=1`);
   const m=matrixFromGviz(j);state.parsed=parseRows(m);state.headers=state.parsed.headers;state.rows=buildRows(state.parsed);
   state.sortKey=state.parsed.idx.overall>=0?'overall':`raw:${Math.max(0,state.parsed.idx.block)}`;state.asc=state.sortKey==='overall'?false:true;
   loadDistricts();loadBlocks();render();
- }catch(e){console.error(e);$('body').innerHTML=`<tr><td colspan="20" class="empty">Unable to load ${cfg.name} Level data. Check that the Google Sheet is published/shared for public viewing. (${e.message})</td></tr>`}
+ }catch(e){console.error(e);$('body').innerHTML=`<tr><td colspan="26" class="empty">Unable to load ${cfg.name} data. Check that the Google Sheet is published/shared for public viewing. (${e.message})</td></tr>`}
 }
 async function loadLastUpdated(){
  try{const j=await gviz(`https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}/gviz/tq?gid=${CONFIG.lastUpdatedGid}&range=B2:B2&headers=0`);const m=matrixFromGviz(j);const value=String(m?.[1]?.[0]??m?.[0]?.[0]??'').trim();state.lastUpdated=value||'Not available';$('lastUpdated').textContent=`Last updated: ${state.lastUpdated}`}
