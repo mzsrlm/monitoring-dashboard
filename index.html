@@ -3362,7 +3362,17 @@ loadExtra();
     if (!table || !table.tBodies.length) return;
 
     const tbody = table.tBodies[0];
-    const rows = Array.from(tbody.rows);
+    const allRows = Array.from(tbody.rows);
+    if (allRows.length < 2) return;
+
+    // Summary/Total rows are fixed footer-like rows: never include them in sorting.
+    // Keep empty/loading messages fixed as well, and append all fixed rows after data.
+    const isFixedRow = row => row.classList.contains("total-row") ||
+      row.classList.contains("total") ||
+      row.querySelector("td[colspan]") ||
+      /^(?:grand\s+)?total\s*$/i.test((row.textContent || "").trim());
+    const rows = allRows.filter(row => !isFixedRow(row));
+    const fixedRows = allRows.filter(isFixedRow);
     if (rows.length < 2) return;
 
     const column = Array.from(th.parentElement.children).indexOf(th);
@@ -3392,13 +3402,13 @@ loadExtra();
       return direction === "asc" ? result : -result;
     });
 
-    rows.forEach(function (row) {
+    rows.concat(fixedRows).forEach(function (row) {
       tbody.appendChild(row);
     });
 
-    // Re-number S.No. dynamically after sorting.
-    Array.from(tbody.rows).forEach(function (row, index) {
-      if (row.cells.length && row.cells[0]) {
+    // Re-number data rows only; leave the Total row's blank S.No. cell untouched.
+    rows.forEach(function (row, index) {
+      if (row.cells.length && row.cells[0] && !row.cells[0].hasAttribute("colspan")) {
         row.cells[0].textContent = String(index + 1);
       }
     });
@@ -4026,7 +4036,12 @@ function txInspect(ds,type){
     if(/cut.?off/.test(x)&&!/percent|%/.test(x)&&cutoffCol<0)cutoffCol=i;
     if(/cut.?off/.test(x)&&/percent|%/.test(x)&&cutoffPctCol<0)cutoffPctCol=i;
     if(/^(?:total\s*)?entered(?:\s*(?:clfs?|vos?|shgs?))?$/i.test(String(h).trim())&&enteredCol<0)enteredCol=i;
-    if(/^total\s*(?:clfs?|vos?|shgs?|entities?)?$/i.test(String(h).trim())||/^total\b/i.test(String(h).trim())){if(totalCol<0)totalCol=i}
+    // Select the denominator/target column for aggregate percentages. Do not
+    // mistake columns such as "Total Entered", "Total Approved" or
+    // "Total Cut-Off Entered" for the overall entity count.
+    const isTotalDenominator=/^total\b/i.test(String(h).trim()) &&
+      !/(entered|captured|approved|rejected|pending|transaction|amount|verified|cut.?off)/i.test(String(h).trim());
+    if(isTotalDenominator&&totalCol<0)totalCol=i;
     if(/%|percent|percentage|achievement|upload|uploaded/.test(x))pctCols.push(i);
   });
 
@@ -4118,6 +4133,7 @@ function txFiltered(){
 }
 function txSortLabel(i){return ''}
 function txIsFigureValue(v){if(v===null||v===undefined)return false;let s=String(v).trim();if(!s)return false;s=s.replace(/,/g,'').replace(/₹|rs\.?/ig,'').replace(/\s/g,'').replace(/^\((.*)\)$/,'-$1');return /^[-+]?\d+(?:\.\d+)?$/.test(s)}
+function txIsFigureHeader(label){return /\b(no\.?\s*of|total|target|members?|approved|rejected|pending|entered|captured|transactions?|amount|count|number|with\s+bank|with\s+aadhaar|with\s+mobile|verified)\b/i.test(String(label??''))}
 function txRender(){
   const ds=txDatasets[txCurrent],rows=txFiltered();
   document.getElementById('txSummary').innerHTML=txSummaryHTML(ds,rows);
@@ -4163,9 +4179,12 @@ const cls=[isConn?'tx-conn-head':'',isPct?'tx-pct-head':'',isCutoff?'tx-cutoff-h
   });
   if(rows.length){
     h+='<tr class="total-row"><td></td>';
+    // Put TOTAL in the Block column when available; otherwise use the first
+    // non-numeric descriptive column so the aggregate row is never unlabeled.
+    const totalLabelIdx=blockIdx>=0?blockIdx:ds.headers.findIndex((label,i)=>i!==districtIdx&&i!==ds.connCol&&!ds.pctCols.includes(i)&&!txIsFigureHeader(label));
     ds.headers.forEach((label,i)=>{
       const name=String(label??'').trim();
-      if(i===blockIdx){h+='<td class="tx-block-name"><strong>TOTAL</strong></td>';return;}
+      if(i===totalLabelIdx){h+='<td class="tx-block-name"><strong>TOTAL</strong></td>';return;}
       if(i===districtIdx||i===ds.connCol||/\bnet\b/i.test(name)){h+='<td></td>';return;}
       if(ds.pctCols.includes(i)||/%|percent|percentage|achievement|upload|uploaded/i.test(name)){
         h+=`<td class="txPct-cell"><strong>${txTotalPct(ds,rows,i).toFixed(2)}%</strong></td>`;return;
@@ -4220,9 +4239,7 @@ function txExportExcelFallback(ds,rows){
   headers.forEach(h=>html+='<th>'+esc(h)+'</th>');html+='</tr>';
   const band=p=>p>=90?'g90':p>=80?'g80':p>=60?'g60':p>=50?'g50':p>=30?'g30':'g15';
   rows.forEach((r,i)=>{html+='<tr class="'+(i%2?'alt':'')+'"><td>'+(i+1)+'</td>'+r.map((v,c)=>{if(ds.pctCols.includes(c)){const p=txCellPct(ds,r,c);return '<td class="pct '+band(p)+'">'+p.toFixed(2)+'%</td>'}if(c===ds.connCol){const cv=String(v??'').trim().toLowerCase(),good=/good|yes|online|connected|available|1/.test(cv)&&!/(bad|poor|no|offline|0)/.test(cv);return '<td class="'+(good?'connG':'connB')+'">'+(good?'Good':'Bad')+'</td>'}return '<td class="'+(/district|block/i.test(ds.headers[c])?'left':'')+'">'+esc(v)+'</td>'}).join('')+'</tr>'});
-  html+='<tr class="total"><td>TOTAL</td>'+totalVals.map((v,c)=>ds.pctCols.includes(c)?'<td>'+((Number(v)||0)*100).toFixed(2)+'%</td>':'<td>'+esc(v)+'</td>').join('')+'</tr></table>
-
-</body></html>';
+  html+='<tr class="total"><td>TOTAL</td>'+totalVals.map((v,c)=>ds.pctCols.includes(c)?'<td>'+((Number(v)||0)*100).toFixed(2)+'%</td>':'<td>'+esc(v)+'</td>').join('')+'</tr></table>\n</body></html>';
   const blob=new Blob(['\ufeff',html],{type:'application/vnd.ms-excel;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='MzSRLM_'+txNAMES[txCurrent].replace(/\s+/g,'_')+'_Transaction_Status_'+stampLocal()+'.xls';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1200);
 }
 
@@ -6644,6 +6661,10 @@ bind();setTimeout(schedule,200);setTimeout(schedule,700);setTimeout(schedule,150
 
 
 <style id="total-row-no-progress-bars-final">
+/* Consistent aggregate row: clear label, strong top border, no progress bars. */
+tr.total-row td,tr.total td{font-weight:800!important;background:#eaf2fb!important;border-top:2px solid #174a7e!important;color:#17345d!important;vertical-align:middle!important;}
+tr.total-row td:first-child,tr.total td:first-child{border-left:0!important;}
+tr.total-row:hover td,tr.total:hover td{background:#eaf2fb!important;}
 /* Ensure every TOTAL row displays percentages as text only, with no progress bars. */
 tr.total-row .bar,
 tr.total-row .bar > span,
