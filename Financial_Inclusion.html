@@ -78,6 +78,20 @@ html,body{max-width:100%;overflow-x:hidden}.main{width:100%;max-width:1600px}.st
 @media(max-width:820px){.header-row{flex-wrap:wrap}.brand{min-width:0}.tabs{padding:7px 12px}.main{padding:12px}.toolbar{display:grid;grid-template-columns:1fr 1fr}.search{grid-column:1/-1;min-width:0}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi{padding:12px}.table-scroll{max-height:62vh}.table-scroll table{min-width:900px;table-layout:auto}.metric-row{grid-template-columns:120px 1fr 55px}}
 @media(max-width:520px){.header{padding:10px 12px}.brand h1{font-size:18px}.brand p{font-size:11px}.actions{margin-left:auto}.toolbar{grid-template-columns:1fr}.search{grid-column:auto}.toolbar>*{width:100%}.control-btn.icon-only{width:100%}.kpis{grid-template-columns:1fr}.kpi .value{font-size:23px}.metric-row{grid-template-columns:1fr 52px}.metric-track{grid-column:1/-1;grid-row:2}.table-scroll{max-height:58vh}}
 
+/* Bank Loan KPI layout: six cards in one full-width row on desktop */
+.kpis.bank-loan-kpis{grid-template-columns:repeat(6,minmax(0,1fr));width:100%;gap:10px}
+.kpis.bank-loan-kpis .kpi{padding:12px 10px;min-width:0}
+.kpis.bank-loan-kpis .kpi .label{font-size:10px;line-height:1.35;letter-spacing:.2px;overflow-wrap:anywhere;min-height:42px}
+.kpis.bank-loan-kpis .kpi .value{font-size:clamp(16px,1.45vw,24px);line-height:1.25;overflow-wrap:anywhere}
+.kpis.bank-loan-kpis .kpi .sub{font-size:10px;line-height:1.3}
+@media(max-width:1100px){.kpis.bank-loan-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){.kpis.bank-loan-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis.bank-loan-kpis .kpi .label{min-height:0}}
+@media(max-width:520px){.kpis.bank-loan-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpis.bank-loan-kpis .kpi{padding:10px}.kpis.bank-loan-kpis .kpi .value{font-size:19px}}
+
+.dashboard-total-row td{ text-align:center !important; font-weight:800; background:var(--hover); }
+.dashboard-total-row:hover td{ background:var(--hover) !important; }
+
+
 
 .metric-chart{display:flex;align-items:flex-end;gap:12px;min-height:280px;overflow-x:auto;overflow-y:hidden;padding:18px 8px 8px}.metric-col{flex:0 0 74px;height:245px;display:grid;grid-template-rows:28px 175px 42px;align-items:end;text-align:center}.metric-col-value{font-size:11px;font-weight:900}.metric-col-track{height:175px;display:flex;align-items:flex-end;justify-content:center}.metric-col-fill{width:34px;min-height:4px;border-radius:7px 7px 2px 2px;box-shadow:0 5px 12px rgba(15,35,70,.12);animation:growCol .65s ease both}.metric-col-label{font-size:10px;line-height:1.2;white-space:normal;word-break:break-word;color:var(--muted);overflow:hidden}@keyframes growCol{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @media(max-width:820px){.metric-chart{min-height:240px;gap:8px}.metric-col{flex-basis:64px;height:215px;grid-template-rows:26px 150px 39px}.metric-col-track{height:150px}.metric-col-fill{width:28px}}
@@ -512,6 +526,10 @@ function getBankLoanMetrics(rows){
   const disbursementAchievementIdx=findColumnByPatterns([
     /^total\s*achievement\s*\(\s*disbursement\s*\)$/i
   ]);
+  const sanctionAchievementIdx=findColumnByPatterns([
+    /^total\s*achievement\s*\(\s*sanction\s*no\.?\s*\)$/i,
+    /total\s*achievement.*sanction\s*no/i
+  ]);
   const achievementPctIdx=findAchievementPercentColumn();
 
   const sumCol=(idx)=>{
@@ -533,7 +551,8 @@ function getBankLoanMetrics(rows){
     achievementPct,
     amount:sumCol(amountIdx),
     pending:sumCol(pendingIdx),
-    disbursementAchievement:sumCol(disbursementAchievementIdx)
+    disbursementAchievement:sumCol(disbursementAchievementIdx),
+    sanctionAchievement:sumCol(sanctionAchievementIdx)
   };
 }
 
@@ -545,11 +564,13 @@ function renderBankLoanKpis(rows){
   const cards=[
     {label:"TARGET",value:m.target.toLocaleString('en-IN'),sub:"Total target"},
     {label:"TOTAL NO. OF BANK LOAN SUBMISSION AT THE BANK",value:m.submissions.toLocaleString('en-IN'),sub:"Loan submissions"},
-    {label:"TOTAL ACHIEVEMENT %",value:m.achievementPct===null?"—":m.achievementPct.toFixed(2)+"%",sub:"Calculated from Achievement%",pct:m.achievementPct},
-    {label:"TOTAL AMOUNT",value:amountText,sub:"Total amount",words:amountWords},
+    {label:"TOTAL ACHIEVEMENT (SANCTION NO)",value:m.sanctionAchievement.toLocaleString("en-IN"),sub:"Total sanctioned achievement"},
+    {label:"TOTAL DISBURSED AMOUNT",value:amountText,sub:"Total disbursed amount",words:amountWords},
+    {label:"ACHIEVEMENT %",value:m.achievementPct===null?"—":m.achievementPct.toFixed(2)+"%",sub:"Calculated from Achievement%",pct:m.achievementPct},
     {label:"TOTAL NO. OF BANK LOAN PENDING AT BANK",value:m.pending.toLocaleString('en-IN'),sub:"Pending at bank"}
   ];
 
+  $("kpis").classList.add("bank-loan-kpis");
   $("kpis").innerHTML=cards.map((c)=>
     `<div class="kpi">
       <div class="label">${escapeHtml(c.label)}</div>
@@ -671,6 +692,31 @@ function renderTable(rows){
     });
     html+="</tr>";
   });
+
+  // Dedicated summary row: appended separately so it always stays at the bottom
+  // and is never included in sorting or serial numbering.
+  html+='<tr class="dashboard-total-row" style="font-weight:800;background:var(--hover);border-top:2px solid var(--navy)">';
+  html+='<td class="center serial-col"></td>';
+  const blockLabelIndex=visible.findIndex(x=>/block/i.test(x.h));
+  const firstLabelIndex=blockLabelIndex>=0 ? blockLabelIndex : visible.findIndex(x=>/district|name|particular/i.test(x.h));
+  visible.forEach((x,displayIndex)=>{
+    const h=x.h, idx=x.i;
+    const nums=rows.map(r=>number(r[idx])).filter(v=>v!==null);
+    const isPct=isPercentHeader(h) || /%/.test(h);
+    let value='';
+    if(displayIndex===firstLabelIndex || (firstLabelIndex<0 && displayIndex===0)){
+      value='Total';
+    }else if(nums.length && nums.length/Math.max(rows.length,1)>=.55){
+      if(isPct){
+        value=(nums.reduce((a,b)=>a+b,0)/nums.length).toFixed(2)+'%';
+      }else{
+        const total=rows.reduce((sum,r)=>sum+(number(r[idx])??0),0);
+        value=isAmountHeader(h)?indianCurrency(total):total.toLocaleString('en-IN');
+      }
+    }
+    html+=`<td class="center">${escapeHtml(value)}</td>`;
+  });
+  html+='</tr>';
   html+="</tbody></table>";
   $("tableWrap").innerHTML=html;
 }
@@ -767,6 +813,7 @@ function getOielaMetrics(rows){
   return {targetIdx,achievementIdx,pctIdx,totalTarget,totalAchievement,overallPct};
 }
 function renderGenericKpis(rows){
+  $("kpis").classList.remove("bank-loan-kpis");
   if(activeTab.id!=="oiela") return;
   const m=getOielaMetrics(rows);
   const used=new Set([m.targetIdx,m.achievementIdx,m.pctIdx].filter(i=>i>=0));
