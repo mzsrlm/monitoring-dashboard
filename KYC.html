@@ -2992,6 +2992,12 @@ tr:hover td,.extra-table tr:hover td{
   color:#ffffff!important;
 }
 </style>
+
+<style id="kyc-automatic-total-row">
+#kycComboPanel .kyc-total-row td{background:#eaf1f8!important;color:#173b60!important;font-weight:800!important;border-top:2px solid #174a7e!important;border-bottom:0!important;border-right:1px solid #c5d3e2!important;position:sticky;bottom:0;z-index:3;text-align:center!important;vertical-align:middle!important;}
+#kycComboPanel .kyc-total-row td:last-child{border-right:0!important;}
+:root[data-theme="dark"] #kycComboPanel .kyc-total-row td{background:#173b56!important;color:#fff!important;border-top-color:#76b7ef!important;border-right-color:rgba(255,255,255,.2)!important;}
+</style>
 </head><body><div class="dashboard"><div class="combo-panel active" id="kycComboPanel" style="display:block!important;">
 <div aria-label="Member KYC Details" class="kyc-section-header">
 <div class="kyc-section-header-main">
@@ -3595,7 +3601,12 @@ function bar(v){
 function render(){
   const arr=sortData(filteredRows()),body=document.getElementById("tableBody");
   if(!arr.length){body.innerHTML='<tr><td colspan="13" class="loading">No matching blocks found.</td></tr>';}
-  else body.innerHTML=arr.map((r,i)=>`<tr class="${r.connectivity.toLowerCase()==="good"?"good-row":"bad-row"}">
+  else {
+    const totals=arr.reduce((t,r)=>{t.members+=Number(r.members)||0;t.bank+=Number(r.bank)||0;t.aadhaar+=Number(r.aadhaar)||0;t.ekyc+=Number(r.ekyc)||0;t.mobile+=Number(r.mobile)||0;t.mobileVerified+=Number(r.mobileVerified)||0;return t;},{members:0,bank:0,aadhaar:0,ekyc:0,mobile:0,mobileVerified:0});
+    const totalBankPct=totals.members?totals.bank*100/totals.members:0;
+    const totalEkycPct=totals.members?totals.ekyc*100/totals.members:0;
+    const totalMobilePct=totals.mobile?totals.mobileVerified*100/totals.mobile:0;
+    body.innerHTML=arr.map((r,i)=>`<tr class="${r.connectivity.toLowerCase()==="good"?"good-row":"bad-row"}">
     <td>${i+1}</td>
     <td><span class="connectivity ${r.connectivity.toLowerCase()==="good"?"good":"bad"}">${String(r.connectivity||"").trim().toLowerCase()==="good"?"Good":"Bad"}</span></td>
     <td>${r.district}</td>
@@ -3609,7 +3620,12 @@ function render(){
     <td>${r.mobile.toLocaleString("en-IN")}</td>
     <td>${r.mobileVerified.toLocaleString("en-IN")}</td>
     <td class="bar-cell">${bar(r.mobilePct)}</td>
-  </tr>`).join("");
+  </tr>`).join("") + `<tr class="kyc-total-row">
+    <td colspan="4">TOTAL (${arr.length} blocks)</td><td>${totals.members.toLocaleString("en-IN")}</td><td>${totals.bank.toLocaleString("en-IN")}</td>
+    <td>${totalBankPct.toFixed(2)}%</td><td>${totals.aadhaar.toLocaleString("en-IN")}</td><td>${totals.ekyc.toLocaleString("en-IN")}</td>
+    <td>${totalEkycPct.toFixed(2)}%</td><td>${totals.mobile.toLocaleString("en-IN")}</td><td>${totals.mobileVerified.toLocaleString("en-IN")}</td><td>${totalMobilePct.toFixed(2)}%</td>
+  </tr>`;
+  }
   document.getElementById("blockCount").textContent=arr.length;updateCards(arr);updateArrows();
 
 }
@@ -3757,6 +3773,7 @@ loadSheet();
 
   function render(){
     document.querySelectorAll('td').forEach(function(td){
+      if(td.closest('.kyc-total-row')) return; /* Totals show percentages as plain centered values, without progress bars. */
       if(td.dataset.pctBarProcessed==='1') return;
       var pct=getPct(td.textContent);
       if(pct===null) return;
